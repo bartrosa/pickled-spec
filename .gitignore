@@ -11,3 +11,5 @@ build/
 htmlcov/
 .env
 .DS_Store
+
+.cursor/
