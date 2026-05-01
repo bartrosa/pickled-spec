@@ -1,0 +1,12 @@
+# Install: uv run pre-commit install --hook-type commit-msg
+# https://pre-commit.com/
+
+repos:
+  - repo: local
+    hooks:
+      - id: gitlint
+        name: gitlint (uv)
+        entry: uv run gitlint --msg-filename
+        language: system
+        pass_filenames: true
+        stages: [commit-msg]
