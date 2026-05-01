@@ -24,7 +24,7 @@ compensating gates; medium-oracle members (Terraform plan, OPA decisions)
 need fewer.
 
 The pattern itself, including the strong/weak oracle distinction and the
-gate taxonomy, will be documented in `docs/pattern.md` (PR-02).
+gate taxonomy, is documented in [`docs/pattern.md`](docs/pattern.md).
 
 ## Packages
 
@@ -74,8 +74,15 @@ pip install pickled-bdd
 
 ## Documentation
 
-Full documentation lands across PR-02 and PR-11. Until then, see
-`CONTRIBUTING.md` for development setup.
+- [`docs/pattern.md`](docs/pattern.md) — the LLM-to-DSL bridge pattern,
+  oracle strengths, and gate rationale.
+- [`docs/monorepo.md`](docs/monorepo.md) — workspace structure and the
+  rule that `pickled-core` stays small.
+- [`docs/gates.md`](docs/gates.md) — the compensating-gate taxonomy.
+- [`docs/mcp.md`](docs/mcp.md) — MCP server architecture and tool
+  registration pattern.
+
+Per-package READMEs live in `packages/<name>/README.md`.
 
 ## Sibling project
 
