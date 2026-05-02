@@ -20,5 +20,8 @@ classifiers = [
 ]
 dependencies = []
 
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/pickled_core"]
