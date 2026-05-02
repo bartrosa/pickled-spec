@@ -1,0 +1,23 @@
+metadata:
+  source_id: "TEST-CORPUS"
+  source_title: "Tiny Test Corpus"
+  jurisdiction: "global"
+  authority: "pickled-law tests"
+  source_version: "1.0"
+  effective_from: "2025-01-01"
+  source_url: "https://example.com/test"
+
+rules:
+  - id: "1.1"
+    title: "First rule"
+    text: "The first rule has some text."
+    obligation: "required"
+
+  - id: "1.2"
+    title: "Second rule"
+    text: "The second rule depends on the first."
+    obligation: "addressable"
+    parent: "1.1"
+    relations:
+      - kind: "requires_implementation_of"
+        targets: ["1.1"]

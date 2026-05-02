@@ -7,6 +7,11 @@ dev-dependencies = [
     "pre-commit>=4.0",
 ]
 
+[tool.uv.sources]
+pickled-core = { workspace = true }
+pickled-bdd = { workspace = true }
+pickled-law = { workspace = true }
+
 [tool.uv.workspace]
 members = ["packages/*"]
 exclude = [
@@ -29,6 +34,10 @@ python_version = "3.11"
 
 [[tool.mypy.overrides]]
 module = "gherkin.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "yaml.*"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

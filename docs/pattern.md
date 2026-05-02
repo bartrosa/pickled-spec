@@ -117,6 +117,26 @@ gates are tuned per domain.
 Cross-package reuse lives in `pickled-core` (protocols, verdict types, MCP
 registration). Semantic guarantees remain **per DSL** and **per oracle**.
 
+## Regulated-domain DSLs
+
+`pickled-law` introduces a wrinkle on the base pattern: the “structured DSL” is
+authored by an external authority (legislator, regulator, standards body), not by
+the project. This changes a few things:
+
+1. **The DSL has its own version that the project does not control.** Drift
+   detection becomes a first-class concern, not a future refinement.
+2. **The verdict carries jurisdictional metadata.** A “pass” in one jurisdiction
+   may be a “fail” in another with the same scenarios.
+3. **The audit consumer is external.** RTM artifacts must be readable by auditors
+   who do not know our toolchain. Markdown is the minimum; Excel and signed PDFs
+   follow.
+4. **Coverage matters before correctness.** “Did you address this regulation at
+   all?” is a stronger first question than “is your address logically sound?”.
+   This is why `pickled-law` ships a coverage gate before a compliance gate.
+
+`pickled-policy` will share the verdict and trace machinery but does not carry
+jurisdictional or external-version semantics — its DSL is internal.
+
 ## See also
 
 - [`monorepo.md`](monorepo.md) — workspace layout and core sizing rules.

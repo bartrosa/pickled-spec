@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pickled-law"
+version = "0.1.0"
+description = "Regulatory corpus loader and compliance gates for the pickled-* family."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Bart Rosa" }]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
+dependencies = [
+    "click>=8.1",
+    "pickled-bdd",
+    "pickled-core",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+pickled-law = "pickled_law.cli:main"
+
+[tool.uv.sources]
+pickled-bdd = { workspace = true }
+pickled-core = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pickled_law"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"corpora" = "pickled_law/corpora"
