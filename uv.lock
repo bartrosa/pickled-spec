@@ -10,6 +10,7 @@ resolution-markers = [
 members = [
     "pickled-bdd",
     "pickled-core",
+    "pickled-law",
 ]
 
 [manifest.dependency-groups]
@@ -647,6 +648,21 @@ anthropic = [
 [package.metadata]
 requires-dist = [{ name = "anthropic", marker = "extra == 'anthropic'", specifier = ">=0.40" }]
 provides-extras = ["anthropic"]
+
+[[package]]
+name = "pickled-law"
+version = "0.1.0"
+source = { editable = "packages/pickled-law" }
+dependencies = [
+    { name = "pickled-core" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pickled-core", editable = "packages/pickled-core" },
+    { name = "pyyaml", specifier = ">=6.0" },
+]
 
 [[package]]
 name = "platformdirs"
