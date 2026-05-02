@@ -90,6 +90,9 @@ v0.1.1). For exact commands, environment variables, and example paths, see
 - [`docs/gates.md`](docs/gates.md) — the compensating-gate taxonomy.
 - [`docs/mcp.md`](docs/mcp.md) — MCP server architecture and tool
   registration pattern.
+- [`docs/roadmap.md`](docs/roadmap.md) — phases, milestones, non-goals.
+- [`docs/contributing.md`](docs/contributing.md) — contributor guide.
+- [`docs/decisions/`](docs/decisions/) — architecture decision records.
 
 Per-package READMEs live in `packages/<name>/README.md`.
 

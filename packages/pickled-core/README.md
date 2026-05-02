@@ -30,3 +30,36 @@ matrix, and doc index, see the repository root [README](../../README.md).
 ## Status
 
 Pre-alpha; APIs may change between dev releases.
+
+## Usage
+
+`pickled-core` is rarely installed directly. End users install a sibling
+package (e.g. `pickled-bdd`) which transitively pulls `pickled-core`.
+
+For package authors building a new family member:
+
+```python
+from pickled_core import (
+    Gate,  # gate protocol
+    GateResult,
+    LLMClient,  # LLM abstraction
+    PickledMCPServer,  # MCP scaffolding
+    PromptTemplate,
+    Verdict,
+)
+
+
+class MyGate:
+    name = "my-gate"
+
+    def __init__(self, llm: LLMClient) -> None:
+        self._llm = llm
+
+    def run(self, target: object, *, context: dict[str, object] | None = None) -> GateResult:
+        # ...
+        return GateResult(gate_name=self.name, verdict=Verdict.PASS)
+```
+
+Implement **`Gate`** (a **`name`** and **`run(...)`** → **`GateResult`**). Use
+**`PromptTemplate`** and **`LLMClient`** for LLM calls; register tools on
+**`PickledMCPServer`** for MCP.
