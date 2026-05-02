@@ -30,3 +30,6 @@ pickled-core = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pickled_law"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"corpora" = "pickled_law/corpora"
