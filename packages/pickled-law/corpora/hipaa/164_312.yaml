@@ -1,0 +1,132 @@
+# 45 CFR §164.312 — Security Standards for the Protection of Electronic
+# Protected Health Information / Technical Safeguards.
+# Source of regulatory text: Electronic Code of Federal Regulations (eCFR),
+# https://www.ecfr.gov (U.S. government work; 17 U.S.C. §105 — no copyright).
+# Text reproduced verbatim below; do not paraphrase.
+
+metadata:
+  source_id: "HIPAA-164.312"
+  source_title: "HIPAA Security Rule — Technical Safeguards (45 CFR §164.312)"
+  jurisdiction: "US"
+  authority: "U.S. Department of Health and Human Services, Office for Civil Rights"
+  source_version: "2013-omnibus"
+  effective_from: "2013-09-23"
+  source_url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C/section-164.312"
+
+rules:
+  # === (a)(1) Access Control standard ===
+  - id: "(a)(1)"
+    title: "Access Control — Standard"
+    text: |
+      Implement technical policies and procedures for electronic
+      information systems that maintain electronic protected health
+      information to allow access only to those persons or software
+      programs that have been granted access rights as specified in
+      § 164.308(a)(4).
+    obligation: "required"
+    relations:
+      - kind: "requires_implementation_of"
+        targets: ["(a)(2)(i)", "(a)(2)(ii)"]
+      - kind: "references"
+        targets: ["(a)(2)(iii)", "(a)(2)(iv)"]
+
+  - id: "(a)(2)(i)"
+    title: "Unique User Identification"
+    text: |
+      Assign a unique name and/or number for identifying and tracking
+      user identity.
+    obligation: "required"
+    parent: "(a)(1)"
+
+  - id: "(a)(2)(ii)"
+    title: "Emergency Access Procedure"
+    text: |
+      Establish (and implement as needed) procedures for obtaining
+      necessary electronic protected health information during an
+      emergency.
+    obligation: "required"
+    parent: "(a)(1)"
+
+  - id: "(a)(2)(iii)"
+    title: "Automatic Logoff"
+    text: |
+      Implement electronic procedures that terminate an electronic
+      session after a predetermined time of inactivity.
+    obligation: "addressable"
+    parent: "(a)(1)"
+
+  - id: "(a)(2)(iv)"
+    title: "Encryption and Decryption"
+    text: |
+      Implement a mechanism to encrypt and decrypt electronic protected
+      health information.
+    obligation: "addressable"
+    parent: "(a)(1)"
+
+  # === (b) Audit controls ===
+  - id: "(b)"
+    title: "Audit Controls"
+    text: |
+      Implement hardware, software, and/or procedural mechanisms that
+      record and examine activity in information systems that contain
+      or use electronic protected health information.
+    obligation: "required"
+
+  # === (c)(1) Integrity ===
+  - id: "(c)(1)"
+    title: "Integrity — Standard"
+    text: |
+      Implement policies and procedures to protect electronic protected
+      health information from improper alteration or destruction.
+    obligation: "required"
+    relations:
+      - kind: "references"
+        targets: ["(c)(2)"]
+
+  - id: "(c)(2)"
+    title: "Mechanism to Authenticate Electronic Protected Health Information"
+    text: |
+      Implement electronic mechanisms to corroborate that electronic
+      protected health information has not been altered or destroyed
+      in an unauthorized manner.
+    obligation: "addressable"
+    parent: "(c)(1)"
+
+  # === (d) Person or entity authentication ===
+  - id: "(d)"
+    title: "Person or Entity Authentication"
+    text: |
+      Implement procedures to verify that a person or entity seeking
+      access to electronic protected health information is the one
+      claimed.
+    obligation: "required"
+
+  # === (e)(1) Transmission security ===
+  - id: "(e)(1)"
+    title: "Transmission Security — Standard"
+    text: |
+      Implement technical security measures to guard against
+      unauthorized access to electronic protected health information
+      that is being transmitted over an electronic communications
+      network.
+    obligation: "required"
+    relations:
+      - kind: "references"
+        targets: ["(e)(2)(i)", "(e)(2)(ii)"]
+
+  - id: "(e)(2)(i)"
+    title: "Integrity Controls (Transmission)"
+    text: |
+      Implement security measures to ensure that electronically
+      transmitted electronic protected health information is not
+      improperly modified without detection until disposed of.
+    obligation: "addressable"
+    parent: "(e)(1)"
+
+  - id: "(e)(2)(ii)"
+    title: "Encryption (Transmission)"
+    text: |
+      Implement a mechanism to encrypt electronic protected health
+      information whenever deemed appropriate.
+    obligation: "addressable"
+    parent: "(e)(1)"
