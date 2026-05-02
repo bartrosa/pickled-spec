@@ -85,3 +85,47 @@ Full pattern, gate taxonomy, and package matrix: [**repository root README**](ht
 
 Conceptual fit (weak oracle, compensating gates): **`docs/pattern.md`** and
 **`docs/gates.md`** in **pickled-spec**.
+
+## Usage
+
+### CLI
+
+From the `packages/pickled-bdd` directory (paths match the package layout), or
+invoke via `uv run pickled-bdd` with paths relative to the repo root.
+
+Draft a feature from a story:
+
+```bash
+pickled-bdd draft examples/password_reset.story.md \
+    -o examples/password_reset.feature
+```
+
+Check a feature for ambiguity:
+
+```bash
+pickled-bdd check examples/password_reset.feature
+```
+
+### Library
+
+Install **`pickled-core[anthropic]`** if you use **`AnthropicClient`**. Set
+**`ANTHROPIC_API_KEY`** in the environment.
+
+```python
+from pathlib import Path
+
+from pickled_bdd import AmbiguityGate, FeatureDrafter, PytestBddAdapter
+from pickled_core.llm.anthropic import AnthropicClient
+
+llm = AnthropicClient()
+
+# Draft
+drafter = FeatureDrafter(llm)
+result = drafter.draft_from_story(Path("examples/password_reset.story.md").read_text(encoding="utf-8"))
+print(result.text)
+
+# Check
+feature = PytestBddAdapter().parse_feature_file(Path("examples/password_reset.feature"))
+gate_result = AmbiguityGate(llm).run(feature)
+print(gate_result.verdict, gate_result.notes)
+```
