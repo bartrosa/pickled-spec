@@ -21,6 +21,11 @@ See [`docs/roadmap.md`](../../docs/roadmap.md). High-level: no solver
 backend, no conflict detection across corpora, no drift tracking, no
 additional regulations beyond the HIPAA reference example.
 
+## Roadmap and rationale
+
+- [Roadmap section](../../docs/roadmap.md#pickled-law--regulatory-traceability) for what's coming.
+- [ADR-0002](../../docs/adr/0002-pickled-law-package.md) for why `pickled-law` is a separate package from `pickled-policy`.
+
 ## License
 
 Apache-2.0. The reference corpora ship under the same license; the
