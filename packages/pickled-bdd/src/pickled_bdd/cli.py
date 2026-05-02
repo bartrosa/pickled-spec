@@ -89,8 +89,26 @@ def check(feature_file: str, gate: str) -> None:
 
 @main.command()
 def serve() -> None:
-    """Start the MCP server. Implemented in PR-09 and v0.1.1."""
-    raise click.ClickException("`serve` lands in PR-09 and v0.1.1")
+    """Start the pickled-bdd MCP server.
+
+    Builds a server, registers pickled-bdd tools, and calls serve().
+    Note: transport wiring lands in v0.1.1; this command currently
+    exits with NotImplementedError but the registration path runs and
+    can be exercised in tests.
+    """
+    from pickled_core import PickledMCPServer
+
+    from pickled_bdd import mcp_tools
+
+    llm = _build_llm_client()
+    server = PickledMCPServer()
+    mcp_tools.register(server, llm=llm)
+    click.echo(
+        f"Registered {len(server.registry)} tools. "
+        "Transport wiring lands in v0.1.1.",
+        err=True,
+    )
+    server.serve()
 
 
 def _build_llm_client() -> LLMClient:
