@@ -7,6 +7,13 @@ from pickled_core.mcp import (
     ToolAlreadyRegisteredError,
     ToolRegistry,
 )
+from pickled_core.trace import (
+    ArtifactKind,
+    Citation,
+    Confidence,
+    Relation,
+    Trace,
+)
 from pickled_core.types import (
     AmbiguityFinding,
     DraftResult,
@@ -20,6 +27,9 @@ __version__ = "0.1.0.dev0"
 
 __all__ = [
     "AmbiguityFinding",
+    "ArtifactKind",
+    "Citation",
+    "Confidence",
     "DraftResult",
     "Feature",
     "Gate",
@@ -27,9 +37,11 @@ __all__ = [
     "LLMClient",
     "PickledMCPServer",
     "PromptTemplate",
+    "Relation",
     "Scenario",
     "ToolAlreadyRegisteredError",
     "ToolRegistry",
+    "Trace",
     "Verdict",
     "__version__",
 ]

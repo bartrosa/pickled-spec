@@ -52,9 +52,7 @@ class ToolRegistry:
     ) -> RegisteredTool:
         """Register a tool. Raises if the name is already taken."""
         if name in self._tools:
-            raise ToolAlreadyRegisteredError(
-                f"Tool {name!r} is already registered"
-            )
+            raise ToolAlreadyRegisteredError(f"Tool {name!r} is already registered")
         tool = RegisteredTool(
             name=name,
             description=description,

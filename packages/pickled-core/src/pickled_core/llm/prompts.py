@@ -43,9 +43,7 @@ class PromptTemplate:
     def render(self, **variables: str) -> str:
         missing = self._required_vars - variables.keys()
         if missing:
-            raise PromptTemplateError(
-                f"Missing template variables: {sorted(missing)}"
-            )
+            raise PromptTemplateError(f"Missing template variables: {sorted(missing)}")
         return _VAR_PATTERN.sub(
             lambda m: variables[m.group(1)],
             self._source,

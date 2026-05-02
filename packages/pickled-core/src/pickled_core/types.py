@@ -9,6 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import StrEnum
 
+from pickled_core.trace import Trace
+
 
 class Verdict(StrEnum):
     """Outcome of a gate."""
@@ -68,3 +70,9 @@ class GateResult:
     verdict: Verdict
     findings: tuple[object, ...] = field(default_factory=tuple)
     notes: str = ""
+    traces: tuple[Trace, ...] = ()
+    """Provenance for the outcome. Empty when no traceability is needed.
+
+    Traceability is carried on ``GateResult`` (not on :class:`Verdict`,
+    which remains the pass / warn / fail label).
+    """
