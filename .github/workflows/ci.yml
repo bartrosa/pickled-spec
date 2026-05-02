@@ -41,5 +41,8 @@ jobs:
       - name: Ruff
         run: uv run ruff check .
 
+      - name: Type check
+        run: uv run mypy packages/pickled-core/src
+
       - name: Pytest
         run: uv run pytest -q
