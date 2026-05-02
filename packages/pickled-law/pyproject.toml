@@ -19,13 +19,17 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
+    "click>=8.1",
+    "pickled-bdd",
     "pickled-core",
     "pyyaml>=6.0",
 ]
 
-# [project.scripts] — added in PR-15
+[project.scripts]
+pickled-law = "pickled_law.cli:main"
 
 [tool.uv.sources]
+pickled-bdd = { workspace = true }
 pickled-core = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
