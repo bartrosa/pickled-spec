@@ -654,12 +654,16 @@ name = "pickled-law"
 version = "0.1.0"
 source = { editable = "packages/pickled-law" }
 dependencies = [
+    { name = "click" },
+    { name = "pickled-bdd" },
     { name = "pickled-core" },
     { name = "pyyaml" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "click", specifier = ">=8.1" },
+    { name = "pickled-bdd", editable = "packages/pickled-bdd" },
     { name = "pickled-core", editable = "packages/pickled-core" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]
