@@ -2,6 +2,11 @@
 
 from pickled_core.gate import Gate
 from pickled_core.llm import LLMClient, PromptTemplate
+from pickled_core.mcp import (
+    PickledMCPServer,
+    ToolAlreadyRegisteredError,
+    ToolRegistry,
+)
 from pickled_core.types import (
     AmbiguityFinding,
     DraftResult,
@@ -20,8 +25,11 @@ __all__ = [
     "Gate",
     "GateResult",
     "LLMClient",
+    "PickledMCPServer",
     "PromptTemplate",
     "Scenario",
+    "ToolAlreadyRegisteredError",
+    "ToolRegistry",
     "Verdict",
     "__version__",
 ]
