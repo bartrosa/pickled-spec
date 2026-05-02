@@ -620,6 +620,7 @@ name = "pickled-bdd"
 version = "0.1.0.dev0"
 source = { editable = "packages/pickled-bdd" }
 dependencies = [
+    { name = "click" },
     { name = "gherkin-official" },
     { name = "pickled-core" },
     { name = "pytest-bdd" },
@@ -627,6 +628,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "click", specifier = ">=8.1" },
     { name = "gherkin-official", specifier = ">=29.0" },
     { name = "pickled-core", editable = "packages/pickled-core" },
     { name = "pytest-bdd", specifier = ">=7.0" },
