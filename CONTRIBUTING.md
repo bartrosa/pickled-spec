@@ -13,6 +13,19 @@ uv sync
 uv run pytest
 ```
 
+## Verification (match CI)
+
+From the repo root, the same checks as CI are:
+
+```bash
+uv run ruff check .
+uv run mypy packages/pickled-core/src packages/pickled-bdd/src
+uv run pytest -q
+```
+
+Use `uv run pre-commit run --hook-type commit-msg --commit-msg-filename <file>` for
+Conventional Commits on a message file if you use the optional commit-msg hook.
+
 ## Working on a single package
 
 ```bash

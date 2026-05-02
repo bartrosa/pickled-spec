@@ -72,6 +72,15 @@ uv run pytest
 pip install pickled-bdd
 ```
 
+## pickled-bdd from a dev clone
+
+With the workspace synced (`uv sync`), the **`pickled-bdd`** CLI is available as
+`uv run pickled-bdd` (or after `pip install` / `-e` for that package). It can
+**draft** Gherkin from a user story, **check** a feature with the ambiguity gate,
+and **serve** the in-process MCP registry (stdio transport is not wired until
+v0.1.1). For exact commands, environment variables, and example paths, see
+[`packages/pickled-bdd/README.md`](packages/pickled-bdd/README.md).
+
 ## Documentation
 
 - [`docs/pattern.md`](docs/pattern.md) — the LLM-to-DSL bridge pattern,
