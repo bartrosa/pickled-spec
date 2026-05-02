@@ -38,20 +38,20 @@ same tool table.
 
 ## Initial tool surface (`pickled-bdd`)
 
-Illustrative contracts (exact names and JSON shapes may tighten during
-implementation):
+Implemented in **`pickled_bdd.mcp_tools`** (v0.1): register with
+**`register(server, llm=...)`**. Tool handlers take **keyword-only** arguments
+matching their JSON Schema.
 
-- `draft_feature_from_story(story_text, style?, existing_features_dir?) ->
-  { feature_text, rationale, warnings }`
+- **`draft_feature_from_story`** — argument **`story_text`** (string). Returns
+  **`{ feature_text, rationale, warnings }`** from **`FeatureDrafter`**.
 
-  Produces Gherkin-style feature content from a natural-language story, with
-  optional style hints and awareness of existing features on disk.
+- **`validate_feature_ambiguity`** — argument **`feature_text`** (full Gherkin
+  string). Parses via a temporary file (until a string parser exists), runs
+  **`AmbiguityGate`**, returns **`{ verdict, notes, findings }`** (findings are
+  structured like the **`pickled-bdd check`** JSON).
 
-- `validate_feature_ambiguity(feature_text, story_text?) ->
-  { verdict, findings }`
-
-  Runs the **Ambiguity** gate over the draft feature (and optional story for
-  cross-check).
+Future revisions may add optional parameters (e.g. style hints); v0.1 keeps the
+surface minimal.
 
 These tools deliberately stop short of executing arbitrary code or rewriting the
 repository without explicit user action outside MCP.
