@@ -79,3 +79,29 @@ def test_cli_both_corpus_flags_errors() -> None:
     )
     assert r.exit_code != 0
     assert "exactly one" in (r.stdout + r.stderr).lower()
+
+
+def test_cli_counts_citations_under_rule_block(tmp_path: Path) -> None:
+    """Rule-block scenarios must contribute their citation tags.
+
+    Regression test: a previous version of the pytest-bdd adapter
+    silently dropped scenarios nested under ``Rule:`` blocks, which
+    caused the coverage gate to falsely report missing citations and
+    fail compliance even when the feature did cover the rule.
+    """
+    feature_text = (
+        "Feature: T\n"
+        "  Rule: Coverage of 1.1\n"
+        "    @tiny_corpus:1.1\n"
+        "    Scenario: S\n"
+        "      Given x\n"
+    )
+    feat = tmp_path / "rule_in_feature.feature"
+    feat.write_text(feature_text, encoding="utf-8")
+
+    runner = CliRunner(mix_stderr=False)
+    r = runner.invoke(
+        main,
+        ["check", "--corpus-path", str(TINY_CORPUS), "--feature", str(feat)],
+    )
+    assert r.exit_code == 0, r.stdout + r.stderr
