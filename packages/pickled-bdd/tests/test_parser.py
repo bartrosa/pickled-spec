@@ -62,3 +62,87 @@ Feature: Tagged
         assert feature.scenarios[0].tags == ("critical",)
     finally:
         path.unlink(missing_ok=True)
+
+
+def test_rule_block_scenarios_are_emitted(tmp_path: Path) -> None:
+    """Scenarios nested under ``Rule:`` must not be silently dropped.
+
+    Critical for downstream gates that consume scenario tags (e.g. the
+    pickled-law coverage gate, where dropped scenarios would mean
+    dropped regulatory citations and a falsely-failing compliance run).
+    """
+    adapter = PytestBddAdapter()
+    text = '''Feature: F
+  Background:
+    Given the system is running
+
+  Rule: A
+    Background:
+      Given an audit log exists
+
+    @hipaa:(a)(2)(i)
+    Scenario: S1
+      Given I am a user
+      When I act
+      Then it works
+'''
+    path = tmp_path / "rule.feature"
+    path.write_text(text, encoding="utf-8")
+
+    feature = adapter.parse_feature_file(path)
+
+    assert len(feature.scenarios) == 1
+    sc = feature.scenarios[0]
+    assert sc.name == "S1"
+    assert sc.tags == ("hipaa:(a)(2)(i)",)
+    assert sc.steps == (
+        "Given the system is running",
+        "Given an audit log exists",
+        "Given I am a user",
+        "When I act",
+        "Then it works",
+    )
+
+
+def test_rule_tags_are_inherited_by_child_scenarios(tmp_path: Path) -> None:
+    adapter = PytestBddAdapter()
+    text = '''Feature: F
+
+  @rule_tag
+  Rule: R
+
+    @scen_tag
+    Scenario: S
+      Given x
+'''
+    path = tmp_path / "rule_tags.feature"
+    path.write_text(text, encoding="utf-8")
+
+    feature = adapter.parse_feature_file(path)
+
+    assert len(feature.scenarios) == 1
+    assert feature.scenarios[0].tags == ("rule_tag", "scen_tag")
+
+
+def test_rule_block_supports_scenario_outline(tmp_path: Path) -> None:
+    adapter = PytestBddAdapter()
+    text = '''Feature: F
+
+  Rule: R
+
+    Scenario Outline: S
+      Given action <a>
+
+      Examples:
+        | a |
+        | x |
+        | y |
+'''
+    path = tmp_path / "rule_outline.feature"
+    path.write_text(text, encoding="utf-8")
+
+    feature = adapter.parse_feature_file(path)
+
+    assert len(feature.scenarios) == 2
+    assert feature.scenarios[0].steps == ("Given action x",)
+    assert feature.scenarios[1].steps == ("Given action y",)
