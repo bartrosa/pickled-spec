@@ -11,6 +11,7 @@ metadata:
   authority: "U.S. Department of Health and Human Services, Office for Civil Rights"
   source_version: "2013-omnibus"
   effective_from: "2013-09-23"
+  short_name: "hipaa"
   source_url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C/section-164.312"
 
 rules:

@@ -83,6 +83,45 @@ def test_malformed_yaml_raises(tmp_path: Path) -> None:
         load_corpus(p)
 
 
+def test_corpus_short_name_loaded_when_declared(tmp_path: Path) -> None:
+    p = tmp_path / "with_short.yaml"
+    p.write_text(
+        """
+metadata:
+  source_id: "X"
+  source_title: "T"
+  jurisdiction: "g"
+  authority: "a"
+  source_version: "1"
+  effective_from: "2025-01-01"
+  short_name: "HiPaA"
+rules: []
+""".strip(),
+        encoding="utf-8",
+    )
+    c = load_corpus(p)
+    assert c.short_name == "hipaa"
+
+
+def test_corpus_short_name_optional(tmp_path: Path) -> None:
+    p = tmp_path / "no_short.yaml"
+    p.write_text(
+        """
+metadata:
+  source_id: "X"
+  source_title: "T"
+  jurisdiction: "g"
+  authority: "a"
+  source_version: "1"
+  effective_from: "2025-01-01"
+rules: []
+""".strip(),
+        encoding="utf-8",
+    )
+    c = load_corpus(p)
+    assert c.short_name is None
+
+
 def test_invalid_date_raises(tmp_path: Path) -> None:
     p = tmp_path / "bad.yaml"
     p.write_text(

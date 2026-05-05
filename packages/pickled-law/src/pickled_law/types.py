@@ -44,6 +44,14 @@ class Corpus:
     effective_from: date
     rules: tuple[CorpusRule, ...]
     source_url: str | None = None
+    short_name: str | None = None
+    """Tag-convention prefix used in scenario citation tags.
+
+    Tags use the form ``@<short_name>:<rule_id>``. Declaring this on the
+    corpus itself decouples the convention from filesystem layout — the
+    CLI no longer has to guess from the YAML filename when a corpus is
+    loaded via ``--corpus-path``. Always normalised to lowercase.
+    """
 
     def find(self, rule_id: str) -> CorpusRule | None:
         for rule in self.rules:

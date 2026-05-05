@@ -62,6 +62,11 @@ def load_corpus(path: Path) -> Corpus:
     if source_url_raw is not None and not isinstance(source_url_raw, str):
         raise CorpusValidationError(f"`source_url` must be a string or null in {path}")
 
+    short_name_raw = metadata.get("short_name")
+    if short_name_raw is not None and not isinstance(short_name_raw, str):
+        raise CorpusValidationError(f"`short_name` must be a string or null in {path}")
+    short_name = short_name_raw.lower() if short_name_raw is not None else None
+
     return Corpus(
         source_id=_str_field(metadata, "source_id", path),
         source_title=_str_field(metadata, "source_title", path),
@@ -70,6 +75,7 @@ def load_corpus(path: Path) -> Corpus:
         source_version=_str_field(metadata, "source_version", path),
         effective_from=_parse_date(_require(metadata, "effective_from", path), path),
         source_url=source_url_raw,
+        short_name=short_name,
         rules=rules,
     )
 
