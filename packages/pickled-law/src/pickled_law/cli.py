@@ -49,6 +49,18 @@ def main() -> None:
     help="Write the RTM to this path. Default: stdout.",
 )
 @click.option(
+    "--corpus-short-name",
+    "corpus_short_name",
+    type=str,
+    default=None,
+    help=(
+        "Override the corpus tag prefix used to match scenario citation "
+        "tags (``@<short_name>:<rule_id>``). Defaults to the corpus' "
+        "declared ``metadata.short_name`` when present, otherwise the "
+        "leading segment of --corpus, otherwise the YAML filename stem."
+    ),
+)
+@click.option(
     "--quiet",
     is_flag=True,
     help="Suppress RTM on stdout; print only the verdict line. "
@@ -59,6 +71,7 @@ def check(
     corpus_path: Path | None,
     feature_path: Path,
     output: Path | None,
+    corpus_short_name: str | None,
     quiet: bool,
 ) -> None:
     """Check feature coverage against a regulatory corpus."""
@@ -72,13 +85,21 @@ def check(
             resolved_path = resolve_corpus_name(corpus_name)
         except KeyError as exc:
             raise click.UsageError(str(exc)) from exc
-        short_name = corpus_name.split("-", 1)[0].lower()
+        fallback_short_name = corpus_name.split("-", 1)[0].lower()
     else:
         assert corpus_path is not None
         resolved_path = corpus_path
-        short_name = resolved_path.stem.lower()
+        fallback_short_name = resolved_path.stem.lower()
 
     corpus = load_corpus(resolved_path)
+
+    if corpus_short_name is not None:
+        short_name = corpus_short_name.lower()
+    elif corpus.short_name is not None:
+        short_name = corpus.short_name
+    else:
+        short_name = fallback_short_name
+
     adapter = PytestBddAdapter()
     feature = adapter.parse_feature_file(feature_path)
 
