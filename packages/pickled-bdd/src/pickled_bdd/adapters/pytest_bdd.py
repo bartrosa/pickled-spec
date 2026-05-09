@@ -3,6 +3,14 @@
 At parse time we **prepend Background steps to every Scenario**, matching what
 pytest-bdd does at runtime, so downstream gates see the full executable step
 sequence.
+
+Feature-level tags are inherited by every scenario in the feature, matching
+pytest-bdd's runtime behaviour (feature tags become pytest marks on every
+scenario test). This is critical for downstream gates such as the
+``pickled-law`` coverage gate, which derives regulatory citations from
+scenario tags: a feature tagged ``@hipaa:(b)`` must report ``(b)`` cited
+for every scenario in the file, otherwise the gate emits a spurious
+false-FAIL compliance verdict.
 """
 
 from __future__ import annotations
@@ -42,6 +50,7 @@ class PytestBddAdapter:
         raw_desc = feature_node.get("description") or ""
         description = "\n".join(line.strip() for line in raw_desc.splitlines()).strip()
 
+        feature_tags = self._extract_tags(feature_node)
         background_steps: tuple[str, ...] = ()
         scenarios: list[Scenario] = []
 
@@ -52,6 +61,17 @@ class PytestBddAdapter:
                 scenarios.extend(
                     self._expand_scenario(child["scenario"], background_steps)
                 )
+
+        if feature_tags:
+            scenarios = [
+                Scenario(
+                    name=s.name,
+                    steps=s.steps,
+                    tags=feature_tags + tuple(t for t in s.tags if t not in feature_tags),
+                    line=s.line,
+                )
+                for s in scenarios
+            ]
 
         return Feature(
             name=name,
