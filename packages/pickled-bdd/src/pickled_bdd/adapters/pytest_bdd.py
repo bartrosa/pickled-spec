@@ -35,9 +35,11 @@ class PytestBddAdapter:
     def parse_feature_file(self, path: str | Path) -> Feature:
         """Parse a `.feature` file into a runner-agnostic Feature.
 
-        Handles Scenario, Scenario Outline, Examples, and Background.
-        Background steps are prepended to every scenario in the feature
-        (the same expansion pytest-bdd performs at runtime).
+        Handles Scenario, Scenario Outline, Examples, Background, and
+        Rule blocks. Background steps are prepended to every scenario
+        in the feature (the same expansion pytest-bdd performs at
+        runtime); rule-level Background steps are appended after the
+        feature-level Background for scenarios inside that rule.
         """
         p = Path(path)
         text = p.read_text(encoding="utf-8")
@@ -61,6 +63,10 @@ class PytestBddAdapter:
                 scenarios.extend(
                     self._expand_scenario(child["scenario"], background_steps)
                 )
+            elif "rule" in child:
+                scenarios.extend(
+                    self._expand_rule(child["rule"], background_steps)
+                )
 
         if feature_tags:
             scenarios = [
@@ -79,6 +85,41 @@ class PytestBddAdapter:
             scenarios=tuple(scenarios),
             path=path,
         )
+
+    def _expand_rule(
+        self,
+        rule_node: dict[str, Any],
+        feature_background: tuple[str, ...],
+    ) -> list[Scenario]:
+        """Flatten a ``Rule:`` block into a list of scenarios.
+
+        Rule-level Background is appended after the feature-level
+        Background. Rule-level tags are inherited by each scenario inside
+        the rule, matching pytest-bdd's runtime behaviour.
+        """
+        rule_background: tuple[str, ...] = ()
+        rule_tags = self._extract_tags(rule_node)
+        out: list[Scenario] = []
+
+        for child in rule_node.get("children", []):
+            if "background" in child:
+                rule_background = self._extract_steps(child["background"])
+            elif "scenario" in child:
+                combined_background = feature_background + rule_background
+                expanded = self._expand_scenario(child["scenario"], combined_background)
+                if rule_tags:
+                    out.extend(
+                        Scenario(
+                            name=s.name,
+                            steps=s.steps,
+                            tags=tuple(rule_tags) + tuple(s.tags),
+                            line=s.line,
+                        )
+                        for s in expanded
+                    )
+                else:
+                    out.extend(expanded)
+        return out
 
     def _extract_steps(self, node: dict[str, Any]) -> tuple[str, ...]:
         steps: list[str] = []
