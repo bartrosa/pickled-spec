@@ -4,12 +4,13 @@ At parse time we **prepend Background steps to every Scenario**, matching what
 pytest-bdd does at runtime, so downstream gates see the full executable step
 sequence.
 
-Gherkin ``Rule:`` blocks are flattened: scenarios under a rule are emitted
-alongside top-level scenarios, with the rule's Background prepended after
-the feature-level Background and the rule's tags inherited by each child
-scenario. This mirrors pytest-bdd's runtime behaviour and is critical for
-downstream gates (e.g. the pickled-law coverage gate, which uses scenario
-tags as regulatory citations).
+Feature-level tags are inherited by every scenario in the feature, matching
+pytest-bdd's runtime behaviour (feature tags become pytest marks on every
+scenario test). This is critical for downstream gates such as the
+``pickled-law`` coverage gate, which derives regulatory citations from
+scenario tags: a feature tagged ``@hipaa:(b)`` must report ``(b)`` cited
+for every scenario in the file, otherwise the gate emits a spurious
+false-FAIL compliance verdict.
 """
 
 from __future__ import annotations
@@ -51,6 +52,7 @@ class PytestBddAdapter:
         raw_desc = feature_node.get("description") or ""
         description = "\n".join(line.strip() for line in raw_desc.splitlines()).strip()
 
+        feature_tags = self._extract_tags(feature_node)
         background_steps: tuple[str, ...] = ()
         scenarios: list[Scenario] = []
 
@@ -65,6 +67,17 @@ class PytestBddAdapter:
                 scenarios.extend(
                     self._expand_rule(child["rule"], background_steps)
                 )
+
+        if feature_tags:
+            scenarios = [
+                Scenario(
+                    name=s.name,
+                    steps=s.steps,
+                    tags=feature_tags + tuple(t for t in s.tags if t not in feature_tags),
+                    line=s.line,
+                )
+                for s in scenarios
+            ]
 
         return Feature(
             name=name,

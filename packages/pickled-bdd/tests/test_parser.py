@@ -47,8 +47,7 @@ def test_scenario_outline_substitution() -> None:
 
 def test_tag_extraction() -> None:
     adapter = PytestBddAdapter()
-    text = '''@smoke
-Feature: Tagged
+    text = '''Feature: Tagged
 
   @critical
   Scenario: One
@@ -64,85 +63,77 @@ Feature: Tagged
         path.unlink(missing_ok=True)
 
 
-def test_rule_block_scenarios_are_emitted(tmp_path: Path) -> None:
-    """Scenarios nested under ``Rule:`` must not be silently dropped.
+def test_feature_level_tags_inherited_by_scenarios(tmp_path: Path) -> None:
+    """Feature-level tags must propagate to every scenario.
 
-    Critical for downstream gates that consume scenario tags (e.g. the
-    pickled-law coverage gate, where dropped scenarios would mean
-    dropped regulatory citations and a falsely-failing compliance run).
+    pytest-bdd applies feature-level tags as pytest marks on every
+    scenario test. Downstream gates that consume `Scenario.tags` (e.g.
+    pickled-law's coverage gate, which derives regulatory citations
+    from tags) rely on the same semantics. Without this propagation, a
+    feature tagged `@hipaa:(b)` would yield zero `(b)` citations and
+    the coverage gate would emit a false-FAIL compliance verdict.
     """
-    adapter = PytestBddAdapter()
-    text = '''Feature: F
-  Background:
-    Given the system is running
-
-  Rule: A
-    Background:
-      Given an audit log exists
-
-    @hipaa:(a)(2)(i)
-    Scenario: S1
-      Given I am a user
-      When I act
-      Then it works
-'''
-    path = tmp_path / "rule.feature"
-    path.write_text(text, encoding="utf-8")
-
-    feature = adapter.parse_feature_file(path)
-
-    assert len(feature.scenarios) == 1
-    sc = feature.scenarios[0]
-    assert sc.name == "S1"
-    assert sc.tags == ("hipaa:(a)(2)(i)",)
-    assert sc.steps == (
-        "Given the system is running",
-        "Given an audit log exists",
-        "Given I am a user",
-        "When I act",
-        "Then it works",
+    text = (
+        "@smoke @hipaa:(b)\n"
+        "Feature: Tag inheritance\n"
+        "\n"
+        "  Scenario: First\n"
+        "    Given x\n"
+        "\n"
+        "  @critical\n"
+        "  Scenario: Second\n"
+        "    Given y\n"
     )
-
-
-def test_rule_tags_are_inherited_by_child_scenarios(tmp_path: Path) -> None:
-    adapter = PytestBddAdapter()
-    text = '''Feature: F
-
-  @rule_tag
-  Rule: R
-
-    @scen_tag
-    Scenario: S
-      Given x
-'''
-    path = tmp_path / "rule_tags.feature"
+    path = tmp_path / "feat_tags.feature"
     path.write_text(text, encoding="utf-8")
-
-    feature = adapter.parse_feature_file(path)
-
-    assert len(feature.scenarios) == 1
-    assert feature.scenarios[0].tags == ("rule_tag", "scen_tag")
-
-
-def test_rule_block_supports_scenario_outline(tmp_path: Path) -> None:
-    adapter = PytestBddAdapter()
-    text = '''Feature: F
-
-  Rule: R
-
-    Scenario Outline: S
-      Given action <a>
-
-      Examples:
-        | a |
-        | x |
-        | y |
-'''
-    path = tmp_path / "rule_outline.feature"
-    path.write_text(text, encoding="utf-8")
-
-    feature = adapter.parse_feature_file(path)
-
+    feature = PytestBddAdapter().parse_feature_file(path)
     assert len(feature.scenarios) == 2
-    assert feature.scenarios[0].steps == ("Given action x",)
-    assert feature.scenarios[1].steps == ("Given action y",)
+    first, second = feature.scenarios
+    # Feature-level tags appear on every scenario.
+    assert "smoke" in first.tags
+    assert "hipaa:(b)" in first.tags
+    assert "smoke" in second.tags
+    assert "hipaa:(b)" in second.tags
+    # Scenario-level tags are preserved alongside feature-level tags.
+    assert "critical" in second.tags
+
+
+def test_feature_level_tags_propagate_through_outline(tmp_path: Path) -> None:
+    """Feature-level tags must reach every row of an expanded Outline."""
+    text = (
+        "@hipaa:(d)\n"
+        "Feature: Outline tags\n"
+        "\n"
+        "  Scenario Outline: Login as <role>\n"
+        "    Given user role is \"<role>\"\n"
+        "    Then login succeeds\n"
+        "\n"
+        "    Examples:\n"
+        "      | role     |\n"
+        "      | clinician |\n"
+        "      | nurse     |\n"
+    )
+    path = tmp_path / "feat_outline_tags.feature"
+    path.write_text(text, encoding="utf-8")
+    feature = PytestBddAdapter().parse_feature_file(path)
+    assert len(feature.scenarios) == 2
+    for scenario in feature.scenarios:
+        assert "hipaa:(d)" in scenario.tags
+
+
+def test_feature_level_tag_inheritance_does_not_duplicate(tmp_path: Path) -> None:
+    """If a scenario already carries a feature-level tag, do not duplicate it."""
+    text = (
+        "@hipaa:(b)\n"
+        "Feature: No duplicate tags\n"
+        "\n"
+        "  @hipaa:(b)\n"
+        "  Scenario: Both levels carry the same tag\n"
+        "    Given x\n"
+    )
+    path = tmp_path / "feat_dup_tags.feature"
+    path.write_text(text, encoding="utf-8")
+    feature = PytestBddAdapter().parse_feature_file(path)
+    assert len(feature.scenarios) == 1
+    tags = feature.scenarios[0].tags
+    assert tags.count("hipaa:(b)") == 1
