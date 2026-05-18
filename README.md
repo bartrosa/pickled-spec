@@ -1,7 +1,7 @@
 # pickled-spec
 
 > **LLM-to-DSL bridge with deterministic verification** — applied across
-> software engineering, from BDD scenarios to compliance policies.
+> software engineering — from BDD scenarios to team-authored rule sets.
 
 `pickled-spec` is a monorepo hosting a family of Python packages, each one
 a specialized instance of the same architectural pattern: take
@@ -33,7 +33,7 @@ gate taxonomy, is documented in [`docs/pattern.md`](docs/pattern.md).
 | `pickled-core`    | Shared types, Gate protocol, MCP    | n/a       | scaffolded    |
 | `pickled-bdd`     | Gherkin / pytest-bdd                | weak      | v0.1 dev      |
 | `pickled-schema`  | OpenAPI / JSON Schema / Protobuf    | medium    | planned v0.2  |
-| `pickled-policy`  | Rego / OPA, Cedar                   | medium    | planned v0.2  |
+| `pickled-rules`   | YAML rule sets / coverage           | n/a       | v0.1 dev      |
 | `pickled-iac`     | Terraform / OpenTofu                | medium    | planned v0.3  |
 | `pickled-data`    | SQL / dbt / migrations              | medium    | planned v0.4  |
 
