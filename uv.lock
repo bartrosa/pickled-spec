@@ -10,7 +10,7 @@ resolution-markers = [
 members = [
     "pickled-bdd",
     "pickled-core",
-    "pickled-law",
+    "pickled-rules",
 ]
 
 [manifest.dependency-groups]
@@ -650,9 +650,9 @@ requires-dist = [{ name = "anthropic", marker = "extra == 'anthropic'", specifie
 provides-extras = ["anthropic"]
 
 [[package]]
-name = "pickled-law"
+name = "pickled-rules"
 version = "0.1.0"
-source = { editable = "packages/pickled-law" }
+source = { editable = "packages/pickled-rules" }
 dependencies = [
     { name = "click" },
     { name = "pickled-bdd" },

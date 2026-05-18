@@ -4,20 +4,20 @@ from __future__ import annotations
 
 from datetime import date
 
-from pickled_core import Citation, GateResult, Trace, Verdict
+from pickled_core import GateResult, SourceReference, Trace, Verdict
 
 
 def _trace() -> Trace:
-    cit = Citation(
-        source_id="SOP-1",
+    ref = SourceReference(
+        source_id="INTERNAL-CHK-1",
         source_version="v1",
-        locator="§1",
-        canonical_text="Do the thing.",
-        effective_from=date(2024, 1, 1),
-        jurisdiction="internal",
+        locator="review-3",
+        description="Every change includes a test update.",
+        active_from=date(2024, 1, 1),
+        applies_to="all-services",
     )
     return Trace(
-        citation=cit,
+        source_reference=ref,
         artifact_kind="feature",
         artifact_ref="features/x.feature",
         relation="implements",

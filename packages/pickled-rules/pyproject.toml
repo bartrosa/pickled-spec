@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pickled-law"
+name = "pickled-rules"
 version = "0.1.0"
-description = "Regulatory corpus loader and compliance gates for the pickled-* family."
+description = "Rule coverage analysis for project artifacts (Gherkin features and scenarios). Generic dev tooling — bring your own rule sets."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -26,14 +26,14 @@ dependencies = [
 ]
 
 [project.scripts]
-pickled-law = "pickled_law.cli:main"
+pickled-rules = "pickled_rules.cli:main"
 
 [tool.uv.sources]
 pickled-bdd = { workspace = true }
 pickled-core = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pickled_law"]
+packages = ["src/pickled_rules"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"corpora" = "pickled_law/corpora"
+"rulesets" = "pickled_rules/rulesets"

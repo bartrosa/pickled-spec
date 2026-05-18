@@ -7,10 +7,10 @@ sequence.
 Feature-level tags are inherited by every scenario in the feature, matching
 pytest-bdd's runtime behaviour (feature tags become pytest marks on every
 scenario test). This is critical for downstream gates such as the
-``pickled-law`` coverage gate, which derives regulatory citations from
-scenario tags: a feature tagged ``@hipaa:(b)`` must report ``(b)`` cited
-for every scenario in the file, otherwise the gate emits a spurious
-false-FAIL compliance verdict.
+``pickled-rules`` coverage gate, which derives rule references from scenario
+tags: a feature tagged ``@team-api-conv:naming.1`` must report ``naming.1``
+referenced for every scenario in the file, otherwise the gate may emit a
+false FAIL verdict.
 """
 
 from __future__ import annotations
