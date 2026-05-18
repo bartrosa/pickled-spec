@@ -10,13 +10,12 @@ dev-dependencies = [
 [tool.uv.sources]
 pickled-core = { workspace = true }
 pickled-bdd = { workspace = true }
-pickled-law = { workspace = true }
+pickled-rules = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/*"]
 exclude = [
     "packages/pickled-schema",
-    "packages/pickled-policy",
     "packages/pickled-iac",
     "packages/pickled-data",
 ]
