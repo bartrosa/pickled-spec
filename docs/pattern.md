@@ -40,7 +40,7 @@ often becomes **inconsistency** or **counterexample**, not a passing run.
 
 Examples:
 
-- **Lean / Coq:** Dependently typed proof obligations; false specs tend not to
+- **Lean / Coq:** Dependently typed proof goals; false specs tend not to
   type-check or close goals.
 - **TLA+ model checker:** Temporal properties checked over finite or bounded
   abstract models; invariant violations surface as traces.
@@ -59,7 +59,7 @@ Examples:
 - **OpenAPI / JSON Schema validators:** Syntactic and partial semantic checks;
   they do not prove the API matches product intent.
 - **OPA / Cedar decision engines:** Deterministic evaluation of rules against
-  data; mis-encoded regulation can still be internally consistent.
+  data; mis-encoded policy rules can still be internally consistent.
 - **Terraform / OpenTofu plan:** Dependency graph and provider semantics;
   “planned destroy” can be wrong for the business yet valid as a plan.
 - **SQL DDL parser / static checks:** Schema shape and constraints; not whether
@@ -99,7 +99,7 @@ artifacts.
 | `pickled-core`   | Shared types, gates, MCP wiring   | n/a (library)   |
 | `pickled-bdd`    | Gherkin / pytest-bdd              | weak            |
 | `pickled-schema` | OpenAPI / JSON Schema / Protobuf  | medium          |
-| `pickled-policy` | Rego / OPA, Cedar                 | medium          |
+| `pickled-rules`  | YAML rule sets / Gherkin tags     | n/a (coverage)  |
 | `pickled-iac`    | Terraform / OpenTofu              | medium          |
 | `pickled-data`   | SQL / dbt / migrations            | medium          |
 
@@ -117,25 +117,17 @@ gates are tuned per domain.
 Cross-package reuse lives in `pickled-core` (protocols, verdict types, MCP
 registration). Semantic guarantees remain **per DSL** and **per oracle**.
 
-## Regulated-domain DSLs
+## Rule-set coverage (`pickled-rules`)
 
-`pickled-law` introduces a wrinkle on the base pattern: the “structured DSL” is
-authored by an external authority (legislator, regulator, standards body), not by
-the project. This changes a few things:
+`pickled-rules` applies the same four-part loop to **team-authored rule sets**
+stored as YAML. The “DSL” is the rule set file; the artifact under check is
+Gherkin (features and scenarios). Tags such as `@team-api-conv:naming.1` link
+scenarios to rule IDs.
 
-1. **The DSL has its own version that the project does not control.** Drift
-   detection becomes a first-class concern, not a future refinement.
-2. **The verdict carries jurisdictional metadata.** A “pass” in one jurisdiction
-   may be a “fail” in another with the same scenarios.
-3. **The audit consumer is external.** RTM artifacts must be readable by auditors
-   who do not know our toolchain. Markdown is the minimum; Excel and signed PDFs
-   follow.
-4. **Coverage matters before correctness.** “Did you address this regulation at
-   all?” is a stronger first question than “is your address logically sound?”.
-   This is why `pickled-law` ships a coverage gate before a compliance gate.
-
-`pickled-policy` will share the verdict and trace machinery but does not carry
-jurisdictional or external-version semantics — its DSL is internal.
+Coverage is checked before deeper solver-backed gates: the first question is
+whether each **strict** rule is referenced at all. `SourceReference` metadata
+(`source_version`, `active_from`) supports future drift gates when rule sets
+change.
 
 ## See also
 

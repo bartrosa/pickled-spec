@@ -26,27 +26,26 @@ combine with deterministic lint rules where the DSL has finite choice points.
 **Failure mode if absent:** The team ships a coherent artifact that still solves
 the wrong problem; tests pass under the wrong semantics.
 
-**Used by:** `pickled-bdd`, `pickled-schema`, `pickled-policy` (any weak-to-medium
-oracle flow where intent is underspecified in natural language).
+**Used by:** `pickled-bdd`, `pickled-schema` (any weak-to-medium oracle flow
+where intent is underspecified in natural language).
 
 ---
 
 ## Coverage
 
 **Question:** Does the artifact exhaust the stated requirements (behaviors,
-constraints, regulatory clauses)?
+constraints, checklist items)?
 
-**Input:** Requirement corpus (stories, clauses, checklist) and the artifact.
+**Input:** Rule set or requirement list (stories, checklist YAML) and the artifact.
 
 **Output:** Coverage map and gaps (missing branches, orphan requirements).
 
-**Mechanism:** **LLM-assisted mapping** from requirements to artifact fragments,
-followed by **deterministic completeness checks** (every requirement ID referenced,
-every scenario traced, etc.).
+**Mechanism:** **Deterministic reference extraction** (e.g. Gherkin tags) plus
+completeness checks (every strict rule referenced, unknown tags reported).
 
 **Failure mode if absent:** Silent omission; passing runs despite missing rules.
 
-**Used by:** `pickled-bdd`, `pickled-schema`.
+**Used by:** `pickled-bdd`, `pickled-rules`, `pickled-schema`.
 
 ---
 
@@ -87,40 +86,39 @@ through green CI.
 
 ---
 
-## Lawyer-in-the-loop (policy-specific)
+## Maintainer review (rule-set changes)
 
-**Question:** Has a qualified human explicitly approved encoding this regulation
-into machine-checkable policy?
+**Question:** Has a qualified maintainer explicitly approved a material change to
+a shared rule set?
 
-**Input:** Policy artifact and regulatory citation metadata.
+**Input:** Rule set diff and coverage report delta.
 
 **Output:** Approval record (identity, timestamp, scope).
 
 **Mechanism:** **Required human reviewer** on the PR or controlled workflow;
 not replaceable by LLM verdict alone.
 
-**Failure mode if absent:** Automated compliance theater; liability and audit
-failure.
+**Failure mode if absent:** Silent rule changes without team awareness.
 
-**Used by:** `pickled-policy` only.
+**Used by:** teams operating shared YAML rule sets (workflow outside the library).
 
 ---
 
-## Regression (policy-specific)
+## Rule-set regression
 
-**Question:** When upstream regulation changes, which policy artifacts are
-affected and require revision?
+**Question:** When a rule set’s `source_version` changes, which project artifacts
+need re-checking?
 
-**Input:** Parsed regulation changelog or diff; dependency graph of policies.
+**Input:** Parsed rule set changelog or diff; dependency graph of references.
 
-**Output:** Impacted policy set and suggested review order.
+**Output:** Impacted features and suggested review order.
 
-**Mechanism:** **Deterministic dependency tracking** between citations, clauses,
-and encoded rules.
+**Mechanism:** **Deterministic dependency tracking** between rule IDs, relations,
+and Gherkin tags.
 
-**Failure mode if absent:** Silent stale policies after legal updates.
+**Failure mode if absent:** Stale references after rule set updates.
 
-**Used by:** `pickled-policy` only.
+**Used by:** `pickled-rules` (planned drift gate builds on this).
 
 ---
 
@@ -129,11 +127,11 @@ and encoded rules.
 | Gate               | Documented | First implementation target |
 |--------------------|------------|-----------------------------|
 | Ambiguity          | yes        | PR-08 (v0.1)                |
-| Coverage           | yes        | later                       |
+| Coverage           | yes        | `pickled-rules` v0.1        |
 | Drift              | yes        | later                       |
 | Robustness         | yes        | later                       |
-| Lawyer-in-the-loop | yes        | later                       |
-| Regression         | yes        | later                       |
+| Maintainer review  | yes        | workflow (out of band)      |
+| Rule-set regression| yes        | later                       |
 
 ## See also
 

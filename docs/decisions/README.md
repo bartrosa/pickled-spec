@@ -29,4 +29,4 @@ test-only changes.
 ## Index
 
 - (none yet — first real ADR will be 0001-second-package.md, recording
-  the v0.2 choice between pickled-schema and pickled-policy.)
+  the v0.2 choice between pickled-schema and pickled-rules expansion.)
