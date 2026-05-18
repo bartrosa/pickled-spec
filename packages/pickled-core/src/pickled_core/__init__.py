@@ -9,9 +9,9 @@ from pickled_core.mcp import (
 )
 from pickled_core.trace import (
     ArtifactKind,
-    Citation,
     Confidence,
     Relation,
+    SourceReference,
     Trace,
 )
 from pickled_core.types import (
@@ -28,7 +28,6 @@ __version__ = "0.1.0.dev0"
 __all__ = [
     "AmbiguityFinding",
     "ArtifactKind",
-    "Citation",
     "Confidence",
     "DraftResult",
     "Feature",
@@ -39,6 +38,7 @@ __all__ = [
     "PromptTemplate",
     "Relation",
     "Scenario",
+    "SourceReference",
     "ToolAlreadyRegisteredError",
     "ToolRegistry",
     "Trace",
