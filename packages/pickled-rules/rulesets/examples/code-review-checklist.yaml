@@ -1,0 +1,42 @@
+metadata:
+  source_id: "REVIEW-CHK"
+  source_title: "Code Review Checklist"
+  applies_to: "all-repos"
+  maintainer: "Engineering Guild"
+  source_version: "2.0"
+  active_from: "2025-06-01"
+  source_url: null
+
+rules:
+  - id: "testing.1"
+    title: "Every PR adds or updates tests"
+    description: |
+      Pull requests that change behaviour include automated tests that cover
+      the new paths.
+    enforcement: "strict"
+
+  - id: "docs.1"
+    title: "Public functions carry docstrings"
+    description: |
+      New or changed public APIs include docstrings describing parameters,
+      return values, and raised errors.
+    enforcement: "advisory"
+
+  - id: "security.1"
+    title: "No secrets in source control"
+    description: |
+      Commits must not add credentials, tokens, or private keys; use secret
+      stores instead.
+    enforcement: "strict"
+
+  - id: "size.1"
+    title: "Keep PRs reviewable"
+    description: |
+      Prefer smaller pull requests; split large changes when practical.
+    enforcement: "informational"
+
+  - id: "lint.1"
+    title: "CI must be green before merge"
+    description: |
+      All required checks pass on the merge commit before the PR lands.
+    enforcement: "strict"
