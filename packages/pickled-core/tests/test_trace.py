@@ -5,95 +5,77 @@ from dataclasses import FrozenInstanceError
 from datetime import date
 
 import pytest
-from pickled_core import Citation, Trace
-
-# Mypy would flag invalid Literal values at compile time, e.g.:
-# Trace(
-#     citation=_sample_citation(),
-#     artifact_kind="feature",
-#     artifact_ref="x",
-#     relation="not-a-relation",  # type: ignore[arg-type]
-#     confidence="asserted",
-# )
-# Runtime does not validate Literal; mypy does.
+from pickled_core import SourceReference, Trace
 
 
-def _sample_citation() -> Citation:
-    return Citation(
-        source_id="HIPAA-164.312(a)(2)(iii)",
-        source_version="2013-omnibus",
-        locator="(a)(2)(iii)",
-        canonical_text=(
-            "Implement electronic procedures that terminate "
-            "an electronic session after a predetermined "
-            "time of inactivity."
-        ),
-        effective_from=date(2013, 9, 23),
-        jurisdiction="US",
+def _sample_reference() -> SourceReference:
+    return SourceReference(
+        source_id="TEAM-CONV-1",
+        source_version="2024.1",
+        locator="naming.1",
+        description="Endpoints under /v1 must be versioned.",
+        active_from=date(2024, 1, 1),
+        applies_to="backend",
     )
 
 
-def test_citation_is_frozen() -> None:
-    c = _sample_citation()
+def test_source_reference_is_frozen() -> None:
+    ref = _sample_reference()
     with pytest.raises(FrozenInstanceError):
-        c.source_id = "x"  # type: ignore[misc]
+        ref.source_id = "x"  # type: ignore[misc]
 
 
-def test_citation_is_hashable() -> None:
-    a = _sample_citation()
-    b = Citation(
-        source_id="HIPAA-164.312(a)(2)(iii)",
-        source_version="2013-omnibus",
-        locator="(a)(2)(iii)",
-        canonical_text=(
-            "Implement electronic procedures that terminate "
-            "an electronic session after a predetermined "
-            "time of inactivity."
-        ),
-        effective_from=date(2013, 9, 23),
-        jurisdiction="US",
+def test_source_reference_is_hashable() -> None:
+    a = _sample_reference()
+    b = SourceReference(
+        source_id="TEAM-CONV-1",
+        source_version="2024.1",
+        locator="naming.1",
+        description="Endpoints under /v1 must be versioned.",
+        active_from=date(2024, 1, 1),
+        applies_to="backend",
     )
     assert hash(a) == hash(b)
     assert {a, b} == {a}
 
 
-def test_citation_equality() -> None:
-    base = _sample_citation()
-    assert base == Citation(
+def test_source_reference_equality() -> None:
+    base = _sample_reference()
+    assert base == SourceReference(
         source_id=base.source_id,
         source_version=base.source_version,
         locator=base.locator,
-        canonical_text=base.canonical_text,
-        effective_from=base.effective_from,
-        jurisdiction=base.jurisdiction,
+        description=base.description,
+        active_from=base.active_from,
+        applies_to=base.applies_to,
     )
     assert base != dataclasses.replace(base, source_id="other")
     assert base != dataclasses.replace(base, source_version="x")
     assert base != dataclasses.replace(base, locator="x")
-    assert base != dataclasses.replace(base, canonical_text="x")
-    assert base != dataclasses.replace(base, effective_from=date(2000, 1, 1))
-    assert base != dataclasses.replace(base, jurisdiction="EU")
-    assert base != dataclasses.replace(base, effective_until=date(2020, 1, 1))
+    assert base != dataclasses.replace(base, description="x")
+    assert base != dataclasses.replace(base, active_from=date(2000, 1, 1))
+    assert base != dataclasses.replace(base, applies_to="frontend")
+    assert base != dataclasses.replace(base, active_until=date(2020, 1, 1))
     assert base != dataclasses.replace(base, source_url="https://example.com")
 
 
-def test_citation_optional_fields() -> None:
-    c = _sample_citation()
-    assert c.effective_until is None
-    assert c.source_url is None
-    d = dataclasses.replace(
-        c,
-        effective_until=date(2025, 1, 1),
-        source_url="https://www.hhs.gov/hipaa",
+def test_source_reference_optional_fields() -> None:
+    ref = _sample_reference()
+    assert ref.active_until is None
+    assert ref.source_url is None
+    updated = dataclasses.replace(
+        ref,
+        active_until=date(2025, 1, 1),
+        source_url="https://example.com/team-conv",
     )
-    assert d.effective_until == date(2025, 1, 1)
-    assert d.source_url == "https://www.hhs.gov/hipaa"
+    assert updated.active_until == date(2025, 1, 1)
+    assert updated.source_url == "https://example.com/team-conv"
 
 
 def test_trace_round_trip_asdict() -> None:
-    citation = _sample_citation()
+    ref = _sample_reference()
     trace = Trace(
-        citation=citation,
+        source_reference=ref,
         artifact_kind="scenario",
         artifact_ref="features/auth.feature::login",
         relation="implements",
@@ -104,15 +86,15 @@ def test_trace_round_trip_asdict() -> None:
     assert d["artifact_ref"] == "features/auth.feature::login"
     assert d["relation"] == "implements"
     assert d["confidence"] == "verified"
-    assert d["citation"] == {
-        "source_id": citation.source_id,
-        "source_version": citation.source_version,
-        "locator": citation.locator,
-        "canonical_text": citation.canonical_text,
-        "effective_from": citation.effective_from,
-        "jurisdiction": citation.jurisdiction,
-        "effective_until": citation.effective_until,
-        "source_url": citation.source_url,
+    assert d["source_reference"] == {
+        "source_id": ref.source_id,
+        "source_version": ref.source_version,
+        "locator": ref.locator,
+        "description": ref.description,
+        "active_from": ref.active_from,
+        "applies_to": ref.applies_to,
+        "active_until": ref.active_until,
+        "source_url": ref.source_url,
     }
 
 
