@@ -1,26 +1,45 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+from typing import Any
+
 from pickled_bdd.drafter import FeatureDrafter
 from pickled_core import DraftResult
+from pickled_core.cost.models import TokenUsage
+from pickled_core.llm.base import Completion, LLMClient, Message
 
 
-class FakeLLMClient:
+class FakeLLMClient(LLMClient):
     """Captures prompts for assertions."""
+
+    provider_key = "fake"
 
     def __init__(self, response: str = "Feature: X\n  Scenario: Y\n    Given z\n") -> None:
         self.response = response
-        self.last_prompt = ""
-        self.last_system: str | None = None
+        self.last_messages: list[Message] = []
 
     def complete(
         self,
-        prompt: str,
         *,
-        system: str | None = None,
-    ) -> str:
-        self.last_prompt = prompt
-        self.last_system = system
-        return self.response
+        messages: list[Message],
+        model: str,
+        max_tokens: int,
+        temperature: float | None,
+        stop: list[str] | None,
+        extras: Mapping[str, Any] | None,
+    ) -> Completion:
+        _ = model, max_tokens, temperature, stop, extras
+        self.last_messages = list(messages)
+        return Completion(
+            text=self.response,
+            usage=TokenUsage(),
+            model_id_resolved=model,
+            raw_response=None,
+        )
+
+    def count_tokens(self, messages: list[Message], model: str) -> int:
+        _ = messages, model
+        return 1
 
 
 def test_drafter_returns_draft_result_with_fake_response() -> None:
@@ -40,11 +59,13 @@ def test_story_text_embedded_in_rendered_prompt() -> None:
     story = "As a customer I want checkout"
     fake = FakeLLMClient()
     FeatureDrafter(fake).draft_from_story(story)
-    assert story in fake.last_prompt
-    assert "User story:" in fake.last_prompt
+    user_content = next(m.content for m in fake.last_messages if m.role == "user")
+    assert story in user_content
+    assert "User story:" in user_content
 
 
 def test_system_message_is_gherkin_only() -> None:
     fake = FakeLLMClient()
     FeatureDrafter(fake).draft_from_story("Story body")
-    assert fake.last_system == "You output only Gherkin. No prose, no fences."
+    system = next((m.content for m in fake.last_messages if m.role == "system"), None)
+    assert system == "You output only Gherkin. No prose, no fences."

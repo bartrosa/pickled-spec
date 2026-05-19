@@ -61,7 +61,10 @@ class AmbiguityGate:
         for scenario in target.scenarios:
             scenario_text = self._format_scenario(scenario.name, scenario.steps)
             prompt = self._template.render(scenario=scenario_text)
-            response = self._llm.complete(
+            from pickled_core.llm.turns import complete_prompt
+
+            response = complete_prompt(
+                self._llm,
                 prompt,
                 system=(
                     "Reply with a single JSON object only. "

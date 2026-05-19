@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import cast
 
 import click
-from pickled_core.llm.client import LLMClient
+from pickled_core.llm import LLMClient
 
 from pickled_bdd.drafter import FeatureDrafter
 
@@ -125,9 +125,14 @@ def _build_llm_client() -> LLMClient:
         builder = getattr(module, attr)
         return cast(LLMClient, builder())
 
-    from pickled_core.llm.anthropic import AnthropicClient
+    from pickled_core.llm.config import ConfigError, load_config
+    from pickled_core.llm.factory import build_client
 
-    return AnthropicClient()
+    provider = os.environ.get("PICKLED_LLM_PROVIDER", "anthropic")
+    try:
+        return build_client(provider, config=load_config())
+    except ConfigError as exc:
+        raise click.ClickException(str(exc)) from exc
 
 
 if __name__ == "__main__":
