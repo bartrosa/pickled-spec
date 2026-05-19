@@ -14,10 +14,6 @@ from pickled_core.llm.config import (
     PickledConfig,
     load_config,
 )
-from pickled_core.llm.providers.anthropic import AnthropicClient
-from pickled_core.llm.providers.gemini import GeminiClient
-from pickled_core.llm.providers.openai import OpenAIClient
-from pickled_core.llm.providers.openai_compat import OpenAICompatClient
 
 
 def _require_env(var_name: str) -> str:
@@ -45,6 +41,8 @@ def build_client(
     extras_headers: Mapping[str, str] = entry.extra_headers
 
     if entry.type is LLMProviderType.ANTHROPIC:
+        from pickled_core.llm.providers.anthropic import AnthropicClient
+
         if not entry.api_key_env:
             raise ConfigError("anthropic provider requires api_key_env")
         key = _require_env(entry.api_key_env)
@@ -55,6 +53,8 @@ def build_client(
             default_headers=extras_headers,
         )
     if entry.type is LLMProviderType.OPENAI:
+        from pickled_core.llm.providers.openai import OpenAIClient
+
         if not entry.api_key_env:
             raise ConfigError("openai provider requires api_key_env")
         key = _require_env(entry.api_key_env)
@@ -65,11 +65,15 @@ def build_client(
             default_headers=extras_headers,
         )
     if entry.type is LLMProviderType.GEMINI:
+        from pickled_core.llm.providers.gemini import GeminiClient
+
         if not entry.api_key_env:
             raise ConfigError("gemini provider requires api_key_env")
         key = _require_env(entry.api_key_env)
         return GeminiClient(api_key=key, catalogue=cat, cache=cache)
     if entry.type is LLMProviderType.OPENAI_COMPAT:
+        from pickled_core.llm.providers.openai_compat import OpenAICompatClient
+
         assert entry.base_url is not None
         key = _require_env(entry.api_key_env) if entry.api_key_env else "not-needed"
         return OpenAICompatClient(

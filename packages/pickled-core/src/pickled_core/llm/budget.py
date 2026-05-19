@@ -56,8 +56,7 @@ class BudgetGuard:
                 raise BudgetExceededError(
                     provider=provider,
                     message=(
-                        f"budget max_cost_usd would be exceeded "
-                        f"({self._spent} >= {b.max_cost_usd})"
+                        f"budget max_cost_usd would be exceeded ({self._spent} >= {b.max_cost_usd})"
                     ),
                 )
             if b.max_total_tokens is not None and self._tokens >= b.max_total_tokens:

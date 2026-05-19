@@ -13,6 +13,10 @@ def stub(**kwargs: object) -> dict[str, bool]:
     return {"ok": True}
 
 
+def stub_plain() -> dict[str, bool]:
+    return {"ok": True}
+
+
 def test_registry_starts_empty() -> None:
     reg = ToolRegistry()
     assert len(reg) == 0
@@ -50,18 +54,12 @@ def test_list_sorted_by_name() -> None:
     assert names == ["alpha", "zebra"]
 
 
-def test_pickled_mcp_server_serve_raises() -> None:
-    server = PickledMCPServer()
-    with pytest.raises(NotImplementedError, match="MCP transport lands in v0\\.1\\.1"):
-        server.serve()
-
-
 def test_register_tool_updates_server_registry() -> None:
-    server = PickledMCPServer()
+    server = PickledMCPServer("registry-test")
     assert len(server.registry) == 0
     server.register_tool(
         "draft",
-        stub,
+        stub_plain,
         description="Draft",
         input_schema={"type": "object"},
     )

@@ -30,6 +30,10 @@ anthropic = ["anthropic>=0.40"]
 openai = ["openai>=1.50"]
 gemini = ["google-genai>=1.0"]
 all-providers = ["anthropic>=0.40", "openai>=1.50", "google-genai>=1.0"]
+mcp = ["mcp>=1.27.1", "fastmcp>=3.3.1,<4.0"]
+
+[project.scripts]
+pickled-spec = "pickled_core.mcp.umbrella:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pickled_core"]
