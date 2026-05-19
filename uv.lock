@@ -1401,6 +1401,7 @@ name = "pickled-core"
 version = "0.1.0.dev0"
 source = { editable = "packages/pickled-core" }
 dependencies = [
+    { name = "click" },
     { name = "pydantic" },
     { name = "python-ulid" },
     { name = "pyyaml" },
@@ -1431,6 +1432,7 @@ openai = [
 requires-dist = [
     { name = "anthropic", marker = "extra == 'all-providers'", specifier = ">=0.40" },
     { name = "anthropic", marker = "extra == 'anthropic'", specifier = ">=0.40" },
+    { name = "click", specifier = ">=8.1" },
     { name = "fastmcp", marker = "extra == 'mcp'", specifier = ">=3.3.1,<4.0" },
     { name = "google-genai", marker = "extra == 'all-providers'", specifier = ">=1.0" },
     { name = "google-genai", marker = "extra == 'gemini'", specifier = ">=1.0" },
