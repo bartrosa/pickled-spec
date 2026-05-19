@@ -1,0 +1,15 @@
+tables:
+  - name: users
+    columns:
+      - name: id
+        type: INTEGER
+        nullable: true
+      - name: email
+        type: TEXT
+        nullable: false
+      - name: name
+        type: TEXT
+        nullable: true
+      - name: deleted_at
+        type: TEXT
+        nullable: true
