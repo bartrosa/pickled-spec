@@ -1,0 +1,8 @@
+{
+  "resource_changes": [
+    {
+      "address": "aws_db_instance.users",
+      "change": {"actions": ["create"]}
+    }
+  ]
+}
