@@ -1,8 +1,8 @@
 # pickled-core
 
 Shared substrate for the **pickled-\*** family: immutable domain types, the
-compensating **`Gate`** protocol, and (in later releases) LLM client boundaries
-and MCP server scaffolding used by sibling packages.
+compensating **`Gate`** protocol, LLM client boundaries, MCP umbrella server,
+and the **`pickled-spec`** umbrella CLI (`check-all`, `mcp`).
 
 ## What belongs here
 
@@ -27,14 +27,23 @@ alone unless you are building a new family member.
 This package lives in the **pickled-spec** monorepo. For the full pattern, package
 matrix, and doc index, see the repository root [README](../../README.md).
 
+## Umbrella CLI
+
+When installed from this package (monorepo dev or `pickled-core` with scripts):
+
+```bash
+uv run pickled-spec check-all --workdir examples/user-management-crud/ --warn-ok
+uv run pickled-spec mcp --transport stdio   # requires [mcp] extra
+```
+
 ## Status
 
 Pre-alpha; APIs may change between dev releases.
 
 ## Usage
 
-`pickled-core` is rarely installed directly. End users install a sibling
-package (e.g. `pickled-bdd`) which transitively pulls `pickled-core`.
+`pickled-core` is rarely installed alone. End users install a leaf package
+(e.g. `pickled-bdd`) which transitively pulls `pickled-core`.
 
 For package authors building a new family member:
 

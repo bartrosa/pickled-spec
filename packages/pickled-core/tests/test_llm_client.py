@@ -4,6 +4,8 @@ from collections.abc import Mapping
 from typing import Any
 
 import pytest
+
+pytest.importorskip("anthropic")
 from pickled_core.cost.models import TokenUsage
 from pickled_core.llm import LLMClient
 from pickled_core.llm.base import Completion, Message
