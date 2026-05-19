@@ -47,16 +47,12 @@ def render_coverage_markdown(
     for rule in ruleset.rules:
         referenced = "✅" if rule.id in referenced_ids else "❌"
         safe_title = rule.title.replace("|", r"\|")
-        lines.append(
-            f"| `{rule.id}` | {safe_title} | {rule.enforcement} | {referenced} |"
-        )
+        lines.append(f"| `{rule.id}` | {safe_title} | {rule.enforcement} | {referenced} |")
     lines.append("")
 
     strict_gaps = [r for r in report.unreferenced_rules if r.enforcement == "strict"]
     advisory_gaps = [r for r in report.unreferenced_rules if r.enforcement == "advisory"]
-    informational_gaps = [
-        r for r in report.unreferenced_rules if r.enforcement == "informational"
-    ]
+    informational_gaps = [r for r in report.unreferenced_rules if r.enforcement == "informational"]
 
     if strict_gaps:
         lines.append("## Unreferenced strict rules")

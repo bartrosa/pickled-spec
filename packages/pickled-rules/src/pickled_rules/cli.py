@@ -96,13 +96,9 @@ def check(
     report = coverage_gate(feature, ruleset_obj, ruleset_short_name=short_name)
 
     if output_format.lower() == "json":
-        body = render_coverage_json(
-            report, ruleset_obj, feature_path=str(feature_path)
-        )
+        body = render_coverage_json(report, ruleset_obj, feature_path=str(feature_path))
     else:
-        body = render_coverage_markdown(
-            report, ruleset_obj, feature_path=str(feature_path)
-        )
+        body = render_coverage_markdown(report, ruleset_obj, feature_path=str(feature_path))
 
     if quiet:
         v = report.gate_result.verdict
@@ -120,6 +116,40 @@ def check(
 
     if report.gate_result.verdict != Verdict.PASS:
         sys.exit(1)
+
+
+@main.group()
+def mcp() -> None:
+    """MCP server commands."""
+
+
+@mcp.command("serve")
+@click.option(
+    "--transport",
+    type=click.Choice(["stdio", "http"]),
+    default="stdio",
+    show_default=True,
+)
+@click.option("--host", default=None)
+@click.option("--port", type=int, default=None)
+@click.option("--allow-public", is_flag=True, default=False)
+def mcp_serve(
+    transport: str,
+    host: str | None,
+    port: int | None,
+    allow_public: bool,
+) -> None:
+    """Run the pickled-rules MCP server."""
+    from pickled_rules.mcp_cli import cli as mcp_cli_main
+
+    args = ["--transport", transport]
+    if host:
+        args.extend(["--host", host])
+    if port is not None:
+        args.extend(["--port", str(port)])
+    if allow_public:
+        args.append("--allow-public")
+    mcp_cli_main.main(args=args, standalone_mode=True)
 
 
 if __name__ == "__main__":
