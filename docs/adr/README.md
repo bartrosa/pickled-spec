@@ -21,3 +21,4 @@ records with full MADR structure.
 | 0001 | Monorepo layout and uv workspaces | *Pending backfill* |
 | 0002 | [Separate `pickled-law` package, not extension of `pickled-policy`](0002-pickled-law-package.md) | Superseded by 0003 |
 | 0003 | [Merge rule-coverage packages into `pickled-rules`](0003-merge-into-pickled-rules.md) | Accepted |
+| 0004 | [No PII in telemetry manifests](0004-no-pii-in-telemetry.md) | Accepted |
