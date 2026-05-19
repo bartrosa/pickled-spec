@@ -12,13 +12,12 @@ pickled-core = { workspace = true }
 pickled-bdd = { workspace = true }
 pickled-rules = { workspace = true }
 pickled-schema = { workspace = true }
+pickled-iac = { workspace = true }
+pickled-data = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/*"]
-exclude = [
-    "packages/pickled-iac",
-    "packages/pickled-data",
-]
+exclude = []
 
 [tool.ruff]
 line-length = 100
@@ -49,6 +48,7 @@ module = [
     "jsonschema.*",
     "grpc_tools.*",
     "google.protobuf.*",
+    "sqlglot.*",
 ]
 ignore_missing_imports = true
 
