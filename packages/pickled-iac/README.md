@@ -1,24 +1,25 @@
 # pickled-iac
 
-> **Status: planned, not yet implemented.**
+**pickled-iac** drafts and verifies Terraform / OpenTofu modules with optional
+Trivy config scanning.
 
-This directory is a placeholder for the **iac** member of the pickled-\*
-family. See [the monorepo roadmap](../../docs/roadmap.md) for the expected
-timeline.
+## Status
 
-## What it will be
+Pre-alpha v0.1 — requires `terraform` or `tofu` on PATH for validate/plan/draft.
+Trivy is optional (security gate skips with PASS + warning when absent).
 
-An **LLM-to-Terraform / OpenTofu** bridge: draft infrastructure from intent
-(e.g. “set up a load-balanced web app with a Postgres database”); gates use
-`terraform plan` as the deterministic backend and check for drift against
-deployed state.
+## CLI
 
-## Why it's not built yet
+```bash
+uv run pickled-iac draft "User story" --provider aws -o module/
+uv run pickled-iac validate path/to/tf-dir
+uv run pickled-iac plan path/to/tf-dir -o plan.json
+uv run pickled-iac diff --base base.json --head head.json
+uv run pickled-iac scan path/to/tf-dir
+```
 
-**v0.3+.** Cloud provider authentication and state management add complexity
-that is better tackled after the pattern is proven.
+Security scanning uses **Trivy** only (no legacy Terraform scanner dependencies).
 
-## Until then
+## MCP
 
-This package is **not installable**. Track progress by watching the repository
-or filing an issue under the **`pkg:iac`** label.
+Mounts as `iac_*` on the umbrella `pickled-spec mcp` server.

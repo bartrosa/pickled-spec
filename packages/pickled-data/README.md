@@ -1,23 +1,25 @@
 # pickled-data
 
-> **Status: planned, not yet implemented.**
+**pickled-data** parses SQL migrations (sqlglot), applies them to an in-memory
+SQLite sandbox, and runs drift / data-contract gates.
 
-This directory is a placeholder for the **data** member of the pickled-\*
-family. See [the monorepo roadmap](../../docs/roadmap.md) for the expected
-timeline.
+## Status
 
-## What it will be
+Pre-alpha v0.1 — dbt models raise `NotImplementedError` (planned v0.2).
 
-An **LLM-to-SQL / dbt** bridge: draft schema migrations and dbt models from data
-requirements; gates check that migrations apply cleanly, do not break existing
-queries, and conform to naming conventions.
+## CLI
 
-## Why it's not built yet
+```bash
+uv run pickled-data parse migrations/001.sql
+uv run pickled-data apply migrations/001.sql
+uv run pickled-data check-drift --migration 001.sql --expected schema.yaml
+```
 
-**v0.4+.** Database-specific tooling has many local variants (Postgres, MySQL,
-Snowflake, BigQuery) that need careful scoping.
+## Cross-contract
 
-## Until then
+Install `pickled-data[cross-contract]` for `DataContractGate` integration with
+`pickled_schema.api.SchemaRegistry`.
 
-This package is **not installable**. Track progress by watching the repository
-or filing an issue under the **`pkg:data`** label.
+## MCP
+
+Mounts as `data_*` on the umbrella `pickled-spec mcp` server.

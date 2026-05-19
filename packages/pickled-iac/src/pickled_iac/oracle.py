@@ -1,0 +1,115 @@
+"""Subprocess wrappers for Terraform / OpenTofu validate and plan."""
+
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
+from typing import Any, Literal
+
+from pickled_iac.types import IaCToolMissingError, PlanResult, ValidateResult
+
+_IAC_BIN: Literal["terraform", "opentofu"] | None
+if shutil.which("terraform"):
+    _IAC_BIN = "terraform"
+elif shutil.which("tofu"):
+    _IAC_BIN = "opentofu"
+else:
+    _IAC_BIN = None
+
+
+def iac_binary() -> Literal["terraform", "opentofu"]:
+    """Return the detected IaC CLI binary name."""
+    if _IAC_BIN is None:
+        raise IaCToolMissingError(
+            "neither 'terraform' nor 'tofu' found on PATH; "
+            "install Terraform >=1.7.5 or OpenTofu >=1.8"
+        )
+    return _IAC_BIN
+
+
+def _run(cmd: list[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        cmd,
+        cwd=str(cwd),
+        capture_output=True,
+        text=True,
+        check=False,
+        env={**os.environ, "TF_IN_AUTOMATION": "1"},
+    )
+
+
+def _init_if_needed(tf_dir: Path, binary: Literal["terraform", "opentofu"]) -> None:
+    if (tf_dir / ".terraform").exists():
+        return
+    init = _run([binary, "init", "-input=false", "-backend=false"], cwd=tf_dir)
+    if init.returncode != 0:
+        err = (init.stderr or init.stdout or "terraform init failed").strip()
+        msg = f"{binary} init failed: {err}"
+        raise RuntimeError(msg)
+
+
+def validate(tf_dir: Path) -> ValidateResult:
+    """Run ``terraform validate -json`` (or OpenTofu equivalent)."""
+    binary = iac_binary()
+    _init_if_needed(tf_dir, binary)
+    proc = _run([binary, "validate", "-json"], cwd=tf_dir)
+    fmt: Literal["terraform", "opentofu"] = "opentofu" if binary == "opentofu" else "terraform"
+    if proc.returncode != 0 and not proc.stdout.strip():
+        err = (proc.stderr or "validate failed").strip()
+        return ValidateResult(valid=False, diagnostics=[err], format=fmt)
+    try:
+        payload = json.loads(proc.stdout or "{}")
+    except json.JSONDecodeError:
+        err = (proc.stderr or proc.stdout or "invalid validate JSON").strip()
+        return ValidateResult(valid=False, diagnostics=[err], format=fmt)
+    valid = bool(payload.get("valid"))
+    diags: list[str] = []
+    for d in payload.get("diagnostics", []):
+        if isinstance(d, dict):
+            summary = d.get("summary") or d.get("detail") or str(d)
+            diags.append(str(summary))
+    return ValidateResult(valid=valid, diagnostics=diags, format=fmt)
+
+
+def plan(tf_dir: Path, out_file: Path) -> PlanResult:
+    """Run plan and return parsed JSON from ``terraform show -json``."""
+    binary = iac_binary()
+    _init_if_needed(tf_dir, binary)
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    plan_proc = _run(
+        [binary, "plan", f"-out={out_file.name}", "-input=false", "-no-color"],
+        cwd=tf_dir,
+    )
+    if plan_proc.returncode != 0:
+        err = (plan_proc.stderr or plan_proc.stdout or "plan failed").strip()
+        msg = f"{binary} plan failed: {err}"
+        raise RuntimeError(msg)
+    show_proc = _run([binary, "show", "-json", out_file.name], cwd=tf_dir)
+    if show_proc.returncode != 0:
+        err = (show_proc.stderr or show_proc.stdout or "show failed").strip()
+        msg = f"{binary} show failed: {err}"
+        raise RuntimeError(msg)
+    plan_json = json.loads(show_proc.stdout or "{}")
+    fmt: Literal["terraform", "opentofu"] = "opentofu" if binary == "opentofu" else "terraform"
+    return PlanResult(plan_json=plan_json, plan_file=out_file, format=fmt)
+
+
+def validate_files(tf_files: dict[str, str]) -> ValidateResult:
+    """Write *tf_files* to a temp dir and validate."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        for name, body in tf_files.items():
+            (root / name).write_text(body, encoding="utf-8")
+        return validate(root)
+
+
+def plan_json_from_dict(plan_data: dict[str, Any]) -> dict[str, Any]:
+    """Return plan JSON as-is (helper for tests and MCP)."""
+    return plan_data
+
+
+__all__ = ["iac_binary", "plan", "plan_json_from_dict", "validate", "validate_files"]
