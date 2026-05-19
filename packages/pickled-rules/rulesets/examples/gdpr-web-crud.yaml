@@ -1,0 +1,211 @@
+metadata:
+  source_id: gdpr-web-crud
+  source_title: Personal-data rules for typical CRUD web applications
+  source_version: 0.1.0
+  active_from: 2018-05-25
+  applies_to: eu-eea
+  maintainer: pickled-spec contributors
+  source_url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+
+rules:
+  - id: lawfulness-of-processing
+    title: Each data operation has a documented lawful basis
+    description: >
+      GDPR Art. 6 requires every operation on personal data to rest on one of
+      six lawful bases (consent, contract, legal obligation, vital interests,
+      public task, legitimate interests). Database operations creating or
+      modifying personal data must reference a documented basis.
+    enforcement: strict
+
+  - id: data-minimization
+    title: Collect only fields required for the stated purpose
+    description: >
+      GDPR Art. 5(1)(c) limits collection to what is adequate, relevant, and
+      limited to what is necessary. Registration and profile APIs must not
+      persist optional attributes unless the purpose is recorded.
+    enforcement: strict
+
+  - id: purpose-limitation
+    title: Use personal data only for specified purposes
+    description: >
+      GDPR Art. 5(1)(b) requires personal data to be collected for specified,
+      explicit, and legitimate purposes and not further processed in a manner
+      incompatible with those purposes. Feature tags and audit entries must
+      name the purpose for each flow.
+    enforcement: strict
+
+  - id: storage-limitation
+    title: Retain personal data only as long as necessary
+    description: >
+      GDPR Art. 5(1)(e) requires storage periods aligned with purpose.
+      Soft-delete and hard-delete schedules must be enforced with
+      hard_delete_after and worker-driven purge.
+    enforcement: strict
+
+  - id: right-of-access
+    title: Provide subject access to stored personal data
+    description: >
+      GDPR Art. 15 grants data subjects the right to obtain confirmation of
+      processing and a copy of personal data. GET endpoints must return the
+      subject's own record when authenticated.
+    enforcement: strict
+
+  - id: right-to-rectification
+    title: Allow correction of inaccurate personal data
+    description: >
+      GDPR Art. 16 requires inaccurate personal data to be rectified without
+      undue delay. PATCH endpoints must update permitted fields and log the
+      change.
+    enforcement: strict
+
+  - id: right-to-erasure
+    title: Support erasure on request
+    description: >
+      GDPR Art. 17 requires erasure when conditions apply (for example
+      withdrawal of consent or unlawful processing). DELETE flows must trigger
+      soft-delete and scheduled hard-delete.
+    enforcement: strict
+
+  - id: right-to-portability
+    title: Export personal data in a machine-readable format
+    description: >
+      GDPR Art. 20 allows data subjects to receive personal data in a
+      structured, commonly used, machine-readable format. Export endpoints must
+      return JSON or equivalent portable payloads.
+    enforcement: strict
+
+  - id: breach-notification
+    title: Record and route personal data breach events
+    description: >
+      GDPR Art. 33-34 requires documented breach detection and notification
+      workflows. Internal POST /breaches/notify must capture scope, timing, and
+      escalation metadata without exposing subject details publicly.
+    enforcement: strict
+
+  - id: dpo-contact
+    title: Publish contact path for privacy enquiries
+    description: >
+      GDPR Art. 37-39 encourages designation of a privacy contact where
+      required. GET /privacy/policy must list how data subjects reach the
+      controller's privacy team.
+    enforcement: advisory
+
+  - id: cookie-consent
+    title: Capture consent before non-essential tracking
+    description: >
+      ePrivacy rules together with GDPR Art. 7 require consent before
+      non-essential cookies or similar identifiers. Registration must not
+      enable marketing tracking without an explicit consent flag.
+    enforcement: strict
+
+  - id: international-transfers
+    title: Document transfers outside the EEA
+    description: >
+      GDPR Art. 44-49 restricts transfers to third countries unless appropriate
+      safeguards exist. Infrastructure and data flows that leave the EEA must
+      name the mechanism (for example SCCs) in configuration metadata.
+    enforcement: strict
+
+  - id: consent-management
+    title: Store consent records with scope and timestamp
+    description: >
+      GDPR Art. 7 requires demonstrable consent for processing based on
+      consent. POST /privacy/consents must persist consent type, time, and
+      withdrawal state.
+    enforcement: strict
+
+  - id: records-of-processing
+    title: Maintain processing activity records where required
+    description: >
+      GDPR Art. 30 (threshold under EU Omnibus review, EDPB-EDPS Joint Opinion
+      01/2025) expects records of processing activities for larger
+      controllers. Document major flows in internal metadata linked to API
+      operations.
+    enforcement: advisory
+
+  - id: dpia
+    title: Assess high-risk processing before launch
+    description: >
+      GDPR Art. 35 requires data protection impact assessments for processing
+      likely to result in high risk. New features handling sensitive categories
+      must reference an completed assessment identifier.
+    enforcement: advisory
+
+  - id: privacy-by-design
+    title: Embed privacy defaults in API design
+    description: >
+      GDPR Art. 25 requires appropriate technical and organisational measures
+      designed to implement data protection principles. Default API responses
+      must minimise exposed fields and require authentication.
+    enforcement: strict
+
+  - id: childrens-data
+    title: Apply safeguards for users under 16
+    description: >
+      GDPR Art. 8 sets conditions for consent where the data subject is a
+      child. Registration must reject or gate accounts that declare age below
+      the member-state threshold without parental authority.
+    enforcement: strict
+
+  - id: automated-decision-making
+    title: Disclose logic for solely automated decisions with legal effect
+    description: >
+      GDPR Art. 22 limits solely automated decisions that produce legal or
+      similarly significant effects. Scenarios using risk scoring must document
+      human review and meaningful information about the logic.
+    enforcement: strict
+
+  - id: joint-controllers
+    title: Clarify responsibilities when multiple controllers exist
+    description: >
+      GDPR Art. 26 requires transparent allocation of responsibilities between
+      joint controllers. Shared user tables fed by partner systems must name
+      each controller role in internal documentation.
+    enforcement: advisory
+
+  - id: processors
+    title: Bind subprocessors with written terms
+    description: >
+      GDPR Art. 28 requires processors to act only on documented instructions
+      and apply appropriate safeguards. Terraform modules referencing managed
+      services must list processor roles in variable descriptions.
+    enforcement: strict
+
+  - id: pseudonymization
+    title: Prefer pseudonymous identifiers in logs where feasible
+    description: >
+      GDPR Art. 4(5) and Art. 32 encourage pseudonymization as a risk-reducing
+      measure. Audit payloads should avoid duplicating direct identifiers when
+      a pseudonymous actor token suffices.
+    enforcement: advisory
+
+  - id: encryption-in-transit
+    title: Encrypt personal data in transit
+    description: >
+      GDPR Art. 32 requires security of processing including protection against
+      unauthorised access. All public APIs must be served only over TLS with
+      modern cipher suites.
+    enforcement: strict
+
+  - id: encryption-at-rest
+    title: Encrypt personal data at rest
+    description: >
+      GDPR Art. 32 applies equally to storage systems. Database resources must
+      enable storage encryption with customer-managed keys where supported.
+    enforcement: strict
+
+  - id: audit-logging
+    title: Log security-relevant operations on personal data
+    description: >
+      GDPR Art. 5(2) requires the controller to demonstrate accountability.
+      Create, read, update, delete, and export operations must append an
+      audit_log row with actor, subject, and operation.
+    enforcement: strict
+
+  - id: data-subject-identification
+    title: Authenticate the data subject before sensitive operations
+    description: >
+      Recital 64 expects the controller to verify identity before granting
+      access or erasure. Sensitive endpoints must require a valid session
+      bound to the subject id in the path.
+    enforcement: strict

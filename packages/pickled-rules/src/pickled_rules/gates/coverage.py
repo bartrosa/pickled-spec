@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from pickled_core import Feature, GateResult, SourceReference, Trace, Verdict
@@ -19,6 +20,25 @@ class CoverageReport:
     gate_result: GateResult
 
 
+def _collect_references(
+    features: Sequence[Feature],
+    ruleset: RuleSet,
+    *,
+    ruleset_short_name: str,
+) -> tuple[set[str], set[tuple[str, str]]]:
+    referenced_ids: set[str] = set()
+    unknown: set[tuple[str, str]] = set()
+    for feature in features:
+        scenario_refs = extract_references(feature, ruleset_filter=ruleset_short_name)
+        for sc in scenario_refs:
+            for _ruleset_name, rule_id in sc.references:
+                if ruleset.find(rule_id) is None:
+                    unknown.add((_ruleset_name, rule_id))
+                else:
+                    referenced_ids.add(rule_id)
+    return referenced_ids, unknown
+
+
 def coverage_gate(
     feature: Feature,
     ruleset: RuleSet,
@@ -34,16 +54,28 @@ def coverage_gate(
     unknown reference tags. **Advisory** and **informational** rules may remain
     unreferenced without failing.
     """
-    scenario_refs = extract_references(feature, ruleset_filter=ruleset_short_name)
+    return coverage_gate_features(
+        (feature,),
+        ruleset,
+        ruleset_short_name=ruleset_short_name,
+        artifact_ref=feature.path if feature.path else "<feature>",
+    )
 
-    referenced_ids: set[str] = set()
-    unknown: set[tuple[str, str]] = set()
-    for sc in scenario_refs:
-        for _ruleset_name, rule_id in sc.references:
-            if ruleset.find(rule_id) is None:
-                unknown.add((_ruleset_name, rule_id))
-            else:
-                referenced_ids.add(rule_id)
+
+def coverage_gate_features(
+    features: Sequence[Feature],
+    ruleset: RuleSet,
+    *,
+    ruleset_short_name: str,
+    artifact_ref: str | None = None,
+) -> CoverageReport:
+    """Compute coverage across one or more features (union of scenario tags)."""
+    referenced_ids, unknown = _collect_references(
+        features, ruleset, ruleset_short_name=ruleset_short_name
+    )
+    if artifact_ref is None:
+        paths = [f.path for f in features if f.path]
+        artifact_ref = ", ".join(paths) if paths else "<features>"
 
     referenced = tuple(r for r in ruleset.rules if r.id in referenced_ids)
     unreferenced = tuple(r for r in ruleset.rules if r.id not in referenced_ids)
@@ -51,7 +83,6 @@ def coverage_gate(
     strict_unreferenced = [r for r in unreferenced if r.enforcement == "strict"]
     passed = not strict_unreferenced and not unknown
 
-    artifact_ref = feature.path if feature.path else "<feature>"
     traces = tuple(
         Trace(
             source_reference=SourceReference(

@@ -34,6 +34,9 @@ pickled-rules = "pickled_rules.cli:main"
 [project.entry-points."pickled.mcp.subservers"]
 rules = "pickled_rules.mcp_cli:build_server"
 
+[project.entry-points."pickled.gates"]
+rules = "pickled_rules.gates_runner:run_all"
+
 [tool.uv.sources]
 pickled-bdd = { workspace = true }
 pickled-core = { workspace = true }

@@ -10,7 +10,7 @@ from pickled_bdd.adapters.pytest_bdd import PytestBddAdapter
 from pickled_core import Verdict
 
 from pickled_rules.builtin import BUILTIN_RULESETS, resolve_ruleset_name
-from pickled_rules.gates import coverage_gate
+from pickled_rules.gates import coverage_gate, coverage_gate_features
 from pickled_rules.loader import load_ruleset
 from pickled_rules.report import render_coverage_json, render_coverage_markdown
 
@@ -30,6 +30,23 @@ def main() -> None:
     """pickled-rules: rule coverage analysis for project artifacts."""
 
 
+@main.command("list-rules")
+@click.option(
+    "--ruleset",
+    required=True,
+    help="Built-in rule set name or path to a YAML rule set file.",
+)
+def list_rules(ruleset: str) -> None:
+    """List rule ids from a YAML rule set."""
+    try:
+        resolved_path = _resolve_ruleset_path(ruleset)
+    except KeyError as exc:
+        raise click.ClickException(str(exc)) from exc
+    ruleset_obj = load_ruleset(resolved_path)
+    for rule in ruleset_obj.rules:
+        click.echo(f"{rule.id}\t{rule.enforcement}\t{rule.title}")
+
+
 @main.command()
 @click.option(
     "--ruleset",
@@ -40,8 +57,14 @@ def main() -> None:
     "--feature",
     "feature_path",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    required=True,
-    help="Gherkin feature file to analyse.",
+    default=None,
+    help="Single Gherkin feature file to analyse.",
+)
+@click.option(
+    "--feature-glob",
+    default=None,
+    help="Glob of feature files; multiple matches are checked as one union "
+    "(strict rules must appear across the set, not in each file).",
 )
 @click.option(
     "--ruleset-name",
@@ -71,13 +94,19 @@ def main() -> None:
 )
 def check(
     ruleset: str,
-    feature_path: Path,
+    feature_path: Path | None,
+    feature_glob: str | None,
     ruleset_name: str | None,
     output_format: str,
     output: Path | None,
     quiet: bool,
 ) -> None:
     """Check feature coverage against a YAML rule set."""
+    if feature_path is None and feature_glob is None:
+        raise click.ClickException("Provide --feature or --feature-glob")
+    if feature_path is not None and feature_glob is not None:
+        raise click.ClickException("Use only one of --feature or --feature-glob")
+
     try:
         resolved_path = _resolve_ruleset_path(ruleset)
     except KeyError as exc:
@@ -91,30 +120,56 @@ def check(
         short_name = resolved_path.stem.lower()
 
     ruleset_obj = load_ruleset(resolved_path)
-    feature = PytestBddAdapter().parse_feature_file(feature_path)
+    if feature_glob:
+        from glob import glob
 
-    report = coverage_gate(feature, ruleset_obj, ruleset_short_name=short_name)
-
-    if output_format.lower() == "json":
-        body = render_coverage_json(report, ruleset_obj, feature_path=str(feature_path))
+        paths = [Path(p) for p in glob(feature_glob, recursive=True)]
+        paths = [p for p in paths if p.is_file()]
     else:
-        body = render_coverage_markdown(report, ruleset_obj, feature_path=str(feature_path))
+        assert feature_path is not None
+        paths = [feature_path]
+
+    if not paths:
+        raise click.ClickException("No feature files matched")
+
+    adapter = PytestBddAdapter()
+    parsed = [adapter.parse_feature_file(fp) for fp in sorted(paths)]
+
+    if len(parsed) == 1:
+        report = coverage_gate(parsed[0], ruleset_obj, ruleset_short_name=short_name)
+        worst = report.gate_result.verdict
+        if output_format.lower() == "json":
+            body = render_coverage_json(report, ruleset_obj, feature_path=str(paths[0]))
+        else:
+            body = render_coverage_markdown(report, ruleset_obj, feature_path=str(paths[0]))
+    else:
+        report = coverage_gate_features(
+            parsed, ruleset_obj, ruleset_short_name=short_name
+        )
+        worst = report.gate_result.verdict
+        label = ", ".join(str(p) for p in sorted(paths))
+        if output_format.lower() == "json":
+            body = render_coverage_json(report, ruleset_obj, feature_path=label)
+        else:
+            body = render_coverage_markdown(report, ruleset_obj, feature_path=label)
+        if not quiet:
+            click.echo(
+                f"Union coverage across {len(paths)} feature file(s).",
+                err=True,
+            )
 
     if quiet:
-        v = report.gate_result.verdict
-        label = "PASS" if v == Verdict.PASS else "FAIL"
-        click.echo(f"{label}: {report.gate_result.notes}")
+        label = "PASS" if worst == Verdict.PASS else "FAIL"
+        click.echo(f"{label}: checked {len(paths)} feature(s)")
         if output is not None:
             output.write_text(body, encoding="utf-8")
-            click.echo(f"Report written to {output}", err=True)
     elif output is not None:
         output.write_text(body, encoding="utf-8")
         click.echo(f"Report written to {output}", err=True)
-        click.echo(report.gate_result.notes, err=True)
     else:
         click.echo(body)
 
-    if report.gate_result.verdict != Verdict.PASS:
+    if worst != Verdict.PASS:
         sys.exit(1)
 
 
