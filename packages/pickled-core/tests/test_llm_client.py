@@ -1,48 +1,61 @@
 from __future__ import annotations
 
-import builtins
+from collections.abc import Mapping
 from typing import Any
 
 import pytest
+from pickled_core.cost.models import TokenUsage
 from pickled_core.llm import LLMClient
-from pickled_core.llm.anthropic import AnthropicClient
+from pickled_core.llm.base import Completion, Message
+from pickled_core.llm.providers.anthropic import AnthropicClient
 
 
-class FakeLLMClient:
+class FakeLLMClient(LLMClient):
+    provider_key = "fake"
+
     def __init__(self, reply: str = "ok") -> None:
         self._reply = reply
 
     def complete(
         self,
-        prompt: str,
         *,
-        system: str | None = None,
-    ) -> str:
-        _ = prompt, system
-        return self._reply
+        messages: list[Message],
+        model: str,
+        max_tokens: int,
+        temperature: float | None,
+        stop: list[str] | None,
+        extras: Mapping[str, Any] | None,
+    ) -> Completion:
+        _ = messages, max_tokens, temperature, stop, extras
+        return Completion(
+            text=self._reply,
+            usage=TokenUsage(),
+            model_id_resolved=model,
+            raw_response=None,
+        )
+
+    def count_tokens(self, messages: list[Message], model: str) -> int:
+        _ = model
+        return 1
 
 
-def test_fake_llm_satisfies_protocol() -> None:
+def test_fake_is_llm_client() -> None:
     fake = FakeLLMClient("configured-reply")
     assert isinstance(fake, LLMClient)
-    assert fake.complete("hello") == "configured-reply"
+    out = fake.complete(
+        messages=[Message(role="user", content="hello")],
+        model="m",
+        max_tokens=10,
+        temperature=None,
+        stop=None,
+        extras=None,
+    )
+    assert out.text == "configured-reply"
 
 
-def test_anthropic_client_raises_helpful_import_error(monkeypatch: pytest.MonkeyPatch) -> None:
-    real_import = builtins.__import__
+def test_anthropic_module_importable() -> None:
+    pytest.importorskip("anthropic")
+    from pickled_core.cost import load_default_catalogue
 
-    def import_without_anthropic(
-        name: str,
-        globals: dict[str, Any] | None = None,
-        locals: dict[str, Any] | None = None,
-        fromlist: tuple[str, ...] = (),
-        level: int = 0,
-    ) -> Any:
-        if name == "anthropic":
-            raise ImportError("No module named 'anthropic'")
-        return real_import(name, globals, locals, fromlist, level)
-
-    monkeypatch.setattr(builtins, "__import__", import_without_anthropic)
-
-    with pytest.raises(ImportError, match=r"pickled-core\[anthropic\]"):
-        AnthropicClient()
+    client = AnthropicClient(api_key="k", catalogue=load_default_catalogue())
+    assert client.provider_key == "anthropic"
