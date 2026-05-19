@@ -26,8 +26,14 @@ dependencies = [
     "click>=8.1",
 ]
 
+[project.optional-dependencies]
+mcp = ["pickled-core[mcp]"]
+
 [project.scripts]
 pickled-bdd = "pickled_bdd.cli:main"
+
+[project.entry-points."pickled.mcp.subservers"]
+bdd = "pickled_bdd.mcp_cli:build_server"
 
 [tool.uv.sources]
 pickled-core = { workspace = true }

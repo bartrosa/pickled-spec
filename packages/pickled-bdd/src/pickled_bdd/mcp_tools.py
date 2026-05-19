@@ -1,33 +1,31 @@
 """MCP tool registration for pickled-bdd.
 
-After `register(server)` is called, the server's registry contains:
+After ``register`` or ``register_with_fastmcp`` is called:
 
-- `draft_feature_from_story` — wraps FeatureDrafter.
-- `validate_feature_ambiguity` — wraps AmbiguityGate.
-
-Transport is deferred to v0.1.1; this module is invoked today by the
-CLI's `serve` command and by the test suite.
+- ``draft_feature_from_story`` — wraps FeatureDrafter.
+- ``validate_feature_ambiguity`` — wraps AmbiguityGate.
 """
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pickled_core import AmbiguityFinding, LLMClient, PickledMCPServer
+
+if TYPE_CHECKING:
+    from fastmcp import FastMCP
 
 from pickled_bdd.adapters.pytest_bdd import PytestBddAdapter
 from pickled_bdd.drafter import FeatureDrafter
 from pickled_bdd.gates.ambiguity import AmbiguityGate
 
 
-def register(server: PickledMCPServer, *, llm: LLMClient) -> None:
-    """Register pickled-bdd's tools with the server.
-
-    Caller provides the LLM client; the same client is shared by both
-    tool handlers. Test code passes a fake; CLI passes AnthropicClient.
-    """
+def _build_handlers(
+    llm: LLMClient,
+) -> tuple[
+    Any,
+    Any,
+]:
     drafter = FeatureDrafter(llm)
     gate = AmbiguityGate(llm)
     adapter = PytestBddAdapter()
@@ -40,23 +38,8 @@ def register(server: PickledMCPServer, *, llm: LLMClient) -> None:
             "warnings": list(result.warnings),
         }
 
-    def validate_feature_ambiguity(
-        *,
-        feature_text: str,
-    ) -> dict[str, Any]:
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            suffix=".feature",
-            delete=False,
-            encoding="utf-8",
-        ) as fp:
-            fp.write(feature_text)
-            tmp_path = Path(fp.name)
-        try:
-            feature = adapter.parse_feature_file(tmp_path)
-        finally:
-            tmp_path.unlink(missing_ok=True)
-
+    def validate_feature_ambiguity(*, feature_text: str) -> dict[str, Any]:
+        feature = adapter.parse_feature_text(feature_text)
         result = gate.run(feature)
         return {
             "verdict": result.verdict.value,
@@ -71,6 +54,42 @@ def register(server: PickledMCPServer, *, llm: LLMClient) -> None:
                 if isinstance(f, AmbiguityFinding)
             ],
         }
+
+    return draft_feature_from_story, validate_feature_ambiguity
+
+
+def register_with_fastmcp(app: FastMCP, *, llm: LLMClient | None = None) -> None:
+    """Register tools directly on a FastMCP application."""
+    if llm is not None:
+        draft_feature_from_story, validate_feature_ambiguity = _build_handlers(llm)
+    else:
+
+        def draft_feature_from_story(*, story_text: str) -> dict[str, Any]:
+            _ = story_text
+            msg = "LLM client not configured (set pickled.config.yaml or PICKLED_BDD_LLM_FACTORY)"
+            raise RuntimeError(msg)
+
+        def validate_feature_ambiguity(*, feature_text: str) -> dict[str, Any]:
+            _ = feature_text
+            msg = "LLM client not configured (set pickled.config.yaml or PICKLED_BDD_LLM_FACTORY)"
+            raise RuntimeError(msg)
+
+    @app.tool(name="draft_feature_from_story")
+    def _draft(*, story_text: str) -> dict[str, Any]:
+        """Draft a Gherkin .feature file from a natural-language user story."""
+        out: dict[str, Any] = draft_feature_from_story(story_text=story_text)
+        return out
+
+    @app.tool(name="validate_feature_ambiguity")
+    def _validate(*, feature_text: str) -> dict[str, Any]:
+        """Run the ambiguity gate against a Gherkin .feature file."""
+        out: dict[str, Any] = validate_feature_ambiguity(feature_text=feature_text)
+        return out
+
+
+def register(server: PickledMCPServer, *, llm: LLMClient) -> None:
+    """Register pickled-bdd's tools with a :class:`PickledMCPServer`."""
+    draft_feature_from_story, validate_feature_ambiguity = _build_handlers(llm)
 
     server.register_tool(
         "draft_feature_from_story",
@@ -111,3 +130,6 @@ def register(server: PickledMCPServer, *, llm: LLMClient) -> None:
             "required": ["feature_text"],
         },
     )
+
+
+__all__ = ["register", "register_with_fastmcp"]

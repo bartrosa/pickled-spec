@@ -7,10 +7,8 @@ from pickled_core import PickledMCPServer, ToolAlreadyRegisteredError
 
 
 def test_register_adds_two_tools() -> None:
-    llm = CannedLLMClient(
-        '{"is_ambiguous": false, "alternatives": [], "suggested_fix": ""}'
-    )
-    server = PickledMCPServer()
+    llm = CannedLLMClient('{"is_ambiguous": false, "alternatives": [], "suggested_fix": ""}')
+    server = PickledMCPServer("test-bdd")
     mcp_tools.register(server, llm=llm)
     names = [t.name for t in server.registry.list()]
     assert names == [
@@ -22,7 +20,7 @@ def test_register_adds_two_tools() -> None:
 def test_draft_handler_shape() -> None:
     feature_body = "Feature: X\n  Scenario: Y\n    Given z\n"
     llm = CannedLLMClient(feature_body)
-    server = PickledMCPServer()
+    server = PickledMCPServer("test-bdd")
     mcp_tools.register(server, llm=llm)
 
     tool = server.registry.get("draft_feature_from_story")
@@ -36,7 +34,7 @@ def test_draft_handler_shape() -> None:
 def test_validate_handler_shape() -> None:
     ok = '{"is_ambiguous": false, "alternatives": [], "suggested_fix": ""}'
     llm = CannedLLMClient(ok)
-    server = PickledMCPServer()
+    server = PickledMCPServer("test-bdd")
     mcp_tools.register(server, llm=llm)
 
     gherkin = """Feature: Smoke
@@ -53,7 +51,7 @@ def test_validate_handler_shape() -> None:
 
 def test_register_twice_raises() -> None:
     llm = CannedLLMClient("x")
-    server = PickledMCPServer()
+    server = PickledMCPServer("test-bdd")
     mcp_tools.register(server, llm=llm)
     with pytest.raises(ToolAlreadyRegisteredError):
         mcp_tools.register(server, llm=llm)

@@ -43,7 +43,7 @@ class CannedLLMClient(LLMClient):
 def build_fake_llm() -> LLMClient:
     """Import path for ``PICKLED_BDD_LLM_FACTORY`` in tests."""
     return CannedLLMClient(
-        'Feature: CLI Smoke\n  Scenario: Example\n    Given the app is up\n',
+        "Feature: CLI Smoke\n  Scenario: Example\n    Given the app is up\n",
     )
 
 
