@@ -6,6 +6,9 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
+import pytest
+
+pytest.importorskip("anthropic")
 import anthropic
 import httpx
 import pytest

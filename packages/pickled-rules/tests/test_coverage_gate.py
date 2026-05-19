@@ -4,6 +4,7 @@ from datetime import date
 
 from pickled_core import Feature, Scenario, Verdict
 from pickled_rules import Rule, RuleSet, coverage_gate
+from pickled_rules.gates import coverage_gate_features
 
 
 def _tiny_ruleset() -> RuleSet:
@@ -77,6 +78,24 @@ def test_advisory_unreferenced_does_not_fail() -> None:
         path="f.feature",
     )
     r = coverage_gate(feat, rs, ruleset_short_name="r")
+    assert r.gate_result.verdict == Verdict.PASS
+
+
+def test_aggregate_across_features() -> None:
+    rs = _tiny_ruleset()
+    f1 = Feature(
+        name="F1",
+        description="",
+        scenarios=(Scenario(name="S1", steps=(), tags=("r:1",)),),
+        path="a.feature",
+    )
+    f2 = Feature(
+        name="F2",
+        description="",
+        scenarios=(Scenario(name="S2", steps=(), tags=("r:2",)),),
+        path="b.feature",
+    )
+    r = coverage_gate_features((f1, f2), rs, ruleset_short_name="r")
     assert r.gate_result.verdict == Verdict.PASS
 
 

@@ -28,12 +28,7 @@ def build_umbrella() -> FastMCP:
     return umbrella
 
 
-@click.group()
-def main() -> None:
-    """pickled-spec umbrella CLI."""
-
-
-@main.command("mcp")
+@click.command("mcp")
 @click.option(
     "--transport",
     type=click.Choice(["stdio", "http"]),
@@ -66,4 +61,4 @@ def mcp(
 # Back-compat alias for console script entry if referenced as ``cli``.
 cli = mcp
 
-__all__ = ["build_umbrella", "cli", "main", "mcp"]
+__all__ = ["build_umbrella", "cli", "mcp"]

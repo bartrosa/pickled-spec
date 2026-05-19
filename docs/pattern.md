@@ -90,7 +90,7 @@ relative to the original story.
 
 ## Mapping pickled-* packages to oracle strength
 
-The following table maps each planned package to its primary backend strength.
+The following table maps each family package to its primary backend strength.
 `pickled-core` supplies shared types and protocols; it is not an oracle for end
 artifacts.
 
@@ -134,3 +134,4 @@ change.
 - [`monorepo.md`](monorepo.md) — workspace layout and core sizing rules.
 - [`gates.md`](gates.md) — compensating gate taxonomy.
 - [`mcp.md`](mcp.md) — exposing package capabilities as MCP tools.
+- [`integration-example.md`](integration-example.md) — five packages on one workspace.

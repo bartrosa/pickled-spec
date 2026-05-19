@@ -34,6 +34,9 @@ pickled-data = "pickled_data.cli:main"
 [project.entry-points."pickled.mcp.subservers"]
 data = "pickled_data.mcp_cli:build_server"
 
+[project.entry-points."pickled.gates"]
+data = "pickled_data.gates_runner:run_all"
+
 [tool.uv.sources]
 pickled-core = { workspace = true }
 pickled-schema = { workspace = true }

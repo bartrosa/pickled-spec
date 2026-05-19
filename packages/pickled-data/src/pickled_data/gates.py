@@ -36,6 +36,42 @@ def _normalize_columns(schema: dict[str, Any]) -> dict[str, set[tuple[str, str, 
     return out
 
 
+def _column_keys(cols: set[tuple[str, str, bool]]) -> set[tuple[str, str]]:
+    return {(name, col_type) for name, col_type, _nullable in cols}
+
+
+def _compare_schemas(
+    expected: dict[str, set[tuple[str, str, bool]]],
+    actual: dict[str, set[tuple[str, str, bool]]],
+) -> tuple[bool, str]:
+    """Compare schemas; ignore nullable-only drift (e.g. SQLite DEFAULT → NOT NULL)."""
+    if set(expected) != set(actual):
+        return (
+            False,
+            f"drift: expected tables {sorted(expected)} vs actual {sorted(actual)}",
+        )
+    nullable_notes: list[str] = []
+    for table in sorted(expected):
+        exp_cols = expected[table]
+        act_cols = actual[table]
+        if _column_keys(exp_cols) != _column_keys(act_cols):
+            return (
+                False,
+                f"drift: table {table!r} expected {_column_keys(exp_cols)} "
+                f"vs actual {_column_keys(act_cols)}",
+            )
+        exp_null = {(n, t): nullable for n, t, nullable in exp_cols}
+        act_null = {(n, t): nullable for n, t, nullable in act_cols}
+        for key, exp_n in exp_null.items():
+            act_n = act_null.get(key)
+            if act_n is not None and exp_n != act_n:
+                nullable_notes.append(f"{table}.{key[0]} expected nullable={exp_n} got {act_n}")
+    if nullable_notes:
+        detail = "; ".join(nullable_notes)
+        return True, f"Schema matches expected (nullable differs: {detail})."
+    return True, "Schema matches expected."
+
+
 class MigrationDriftGate:
     """Compare oracle schema output vs expected schema YAML."""
 
@@ -70,19 +106,10 @@ class MigrationDriftGate:
         actual = apply_migration(target, dialect=dialect)
         exp_tables = _normalize_columns(expected)
         act_tables = _normalize_columns(actual)
-        if exp_tables == act_tables:
-            return GateResult(
-                gate_name=self.name,
-                verdict=Verdict.PASS,
-                notes="Schema matches expected.",
-            )
-        notes = (
-            f"drift: expected tables {sorted(exp_tables)} "
-            f"vs actual {sorted(act_tables)}"
-        )
+        ok, notes = _compare_schemas(exp_tables, act_tables)
         return GateResult(
             gate_name=self.name,
-            verdict=Verdict.FAIL,
+            verdict=Verdict.PASS if ok else Verdict.FAIL,
             notes=notes,
         )
 

@@ -33,6 +33,9 @@ pickled-iac = "pickled_iac.cli:main"
 [project.entry-points."pickled.mcp.subservers"]
 iac = "pickled_iac.mcp_cli:build_server"
 
+[project.entry-points."pickled.gates"]
+iac = "pickled_iac.gates_runner:run_all"
+
 [tool.uv.sources]
 pickled-core = { workspace = true }
 

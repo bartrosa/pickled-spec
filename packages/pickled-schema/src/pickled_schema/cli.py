@@ -162,17 +162,40 @@ def draft(
         click.echo(artifact.content)
 
 
+def _resolve_feature_paths(
+    feature_dir: Path | None,
+    feature_glob: str | None,
+) -> list[Path]:
+    if feature_dir is not None and feature_glob is not None:
+        raise click.ClickException("Use only one of --feature-dir or --feature-glob")
+    if feature_dir is not None:
+        return sorted(feature_dir.glob("**/*.feature"))
+    if feature_glob is not None:
+        from glob import glob
+
+        return sorted(Path(p) for p in glob(feature_glob, recursive=True) if Path(p).is_file())
+    raise click.ClickException("Provide --feature-dir or --feature-glob")
+
+
 @main.command()
 @click.option("--spec", required=True, type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--feature-dir",
-    required=True,
+    default=None,
     type=click.Path(exists=True, file_okay=False, path_type=Path),
+    help="Directory tree containing .feature files.",
 )
-def check(spec: Path, feature_dir: Path) -> None:
+@click.option(
+    "--feature-glob",
+    default=None,
+    help="Glob of .feature files (alternative to --feature-dir).",
+)
+def check(spec: Path, feature_dir: Path | None, feature_glob: str | None) -> None:
     """Run SchemaCoverageGate on @schema:endpoint tags in .feature files."""
     spec_dict, _, _ = load_openapi_file(spec)
-    feature_paths = sorted(feature_dir.glob("**/*.feature"))
+    feature_paths = _resolve_feature_paths(feature_dir, feature_glob)
+    if not feature_paths:
+        raise click.ClickException("No feature files matched")
     gate = SchemaCoverageGate()
     result = gate.run(spec_dict, context={"feature_paths": feature_paths})
     payload = {

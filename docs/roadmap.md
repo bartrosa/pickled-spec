@@ -1,159 +1,129 @@
 # Roadmap — pickled-* family
 
-Directional plan for the monorepo. This is not a contractual schedule; there are
-no dates by design — priorities shift with feedback and maintenance capacity.
+Directional plan for the monorepo. No dates by design — priorities shift with
+feedback and maintenance capacity.
+
+## Current state (repository snapshot)
+
+The following is **implemented in-tree** (pre-alpha / v0.1 dev):
+
+| Area | Delivered |
+|------|-----------|
+| **Workspace** | Six packages under `packages/*`, uv workspace, CI (ruff, mypy, pytest) |
+| **pickled-core** | Types, `Gate`, LLM clients, cost/telemetry, FastMCP umbrella, `pickled-spec check-all` |
+| **pickled-bdd** | Gherkin parse, AmbiguityGate, draft CLI, MCP, `pickled.gates` runner |
+| **pickled-rules** | YAML rule sets, CoverageGate (union across features), `gdpr-web-crud` example, MCP |
+| **pickled-schema** | OpenAPI 3.x validate/draft, SchemaCoverageGate, JSON Schema, proto parse, MCP |
+| **pickled-iac** | Terraform/tofu validate, plan diff gate, optional Trivy scan, MCP |
+| **pickled-data** | SQL parse, SQLite oracle, MigrationDriftGate (nullable-tolerant), MCP |
+| **MCP transport** | stdio + HTTP via FastMCP; umbrella mounts all leaf servers |
+| **Integration** | [`examples/user-management-crud/`](../examples/user-management-crud/) + [`integration-example.md`](integration-example.md) |
+
+**Next likely increments:** DataContractGate and PlanDiffGate in `check-all`;
+rules MCP parity; CI recipe publishing `check-all` on PRs; package 1.0 hardening.
+
+---
 
 ## Versioning rule
 
 Each package has **independent semver**. **`pickled-core` 1.0** does not ship until
-**two consumer packages** (family members that depend on core) have reached stable,
-reviewed public APIs — so core’s stability promises align with real downstream use,
-not theory.
-
-## Phase 1 — Foundations and BDD (v0.1)
-
-**Intent:** Prove the LLM-to-DSL pattern on one weak-oracle domain end-to-end.
-
-**Scope (PR-00 through PR-11):**
-
-- Monorepo bootstrap with **uv** workspace, **GitHub Actions** CI (ruff, mypy,
-  pytest, gitlint on Conventional Commits).
-- Top-level and architecture docs: pattern, monorepo, gates, MCP plan.
-- **`pickled-core`:** shared types, **`Gate`** protocol, **`LLMClient`** boundary,
-  optional **Anthropic** client, **`PickledMCPServer`** registry (transport
-  deferred).
-- **`pickled-bdd`:** Gherkin adapter aligned with pytest-bdd, **FeatureDrafter**,
-  **Ambiguity** compensating gate, CLI (**draft**, **check**, **serve**),
-  **`mcp_tools.register`**, tests and examples.
-- **Placeholder directories** for **`pickled-schema`**, **`pickled-iac`**,
-  **`pickled-data`** (README only; excluded from the workspace until each gains a
-  `pyproject.toml`).
-- **`pickled-rules`:** YAML rule sets, coverage gate, Markdown report, CLI.
-- **Closing PR (this phase):** roadmap (this document), ADR template and process,
-  full **contributing** guide, README polish.
-
-**Definition of done:** CI green on `main`; a contributor can clone, `uv sync`,
-run tests, draft/check the password-reset example with a configured LLM or fake
-factory; MCP tools register in-process; stdio MCP transport explicitly still
-out of scope for v0.1.
-
-**Status:** DONE after the Phase 1 closing PR merges.
+**two consumer packages** have stable, reviewed public APIs.
 
 ---
 
-## Phase 2 — Second instance (v0.2)
+## Phase 1 — Foundations and BDD (v0.1)
 
-**Intent:** Ship **exactly one** of **`pickled-schema`** or expand
-**`pickled-rules`** MCP/reporting first — not both in the same release train —
-so review bandwidth and narrative stay focused.
+**Status: DONE.**
 
-| Option | Pros | Cons |
-|--------|------|------|
-| **pickled-schema** (OpenAPI / JSON Schema / Protobuf) | Broad adoption; clear deterministic backends (validators, contract tests); fits “weak oracle + gates” story. | Large surface area (formats, versions); easy to sprawl. |
-| **pickled-rules** (YAML rule sets) | Simple deterministic backend; clean fit for the gate pattern; easy demo with neutral example rule sets. | Schema design needs care — generic enough to be reusable, specific enough to be useful. |
+Monorepo bootstrap, `pickled-core`, `pickled-bdd`, `pickled-rules` coverage gate,
+docs, examples, CI.
 
-The choice will be recorded in **`docs/decisions/0001-second-package.md`** when
-made.
+---
 
-**Definition of done:** Chosen package has `pyproject.toml`, parser/drafter path,
-at least one compensating gate, CLI or MCP hooks consistent with v0.1 BDD; removed
-from workspace **`exclude`**; published dev/pre-release workflow documented.
+## Phase 2 — Schema and rules expansion (v0.1–v0.2)
+
+**Status: DONE (dev).**
+
+- **`pickled-schema`** in workspace: OpenAPI first, coverage gate, MCP.
+- **`pickled-rules`:** example rule sets pivot, `list-rules`, union coverage, `gdpr-web-crud`.
+
+Further v0.2 work: stabilise JSON report format, relation-aware coverage (below).
 
 ---
 
 ## Phase 3 — MCP transport (v0.2.x)
 
-**Intent:** Wire the official **`mcp`** Python SDK so the same tool registry
-serves **stdio** clients.
+**Status: DONE (dev).**
 
-**Definition of done:** End-to-end validation with **Claude Desktop** and
-**Cursor** (or equivalent); documented connection snippet in **`docs/mcp.md`**;
-**`pickled-bdd serve`** (and siblings as they exist) runs without
-**NotImplementedError** for transport.
+stdio/HTTP via `mcp` + FastMCP; `pickled-spec mcp`; per-package `mcp serve`;
+[`mcp.md`](mcp.md) and smoke script.
 
 ---
 
-## Phase 4 — Third package (v0.3)
+## Phase 4 — IaC and data (v0.3)
 
-**Intent:** Implement the **other** Phase 2 candidate (schema or policy) so both
-contract and policy bridges exist.
+**Status: DONE (dev).**
 
-**Definition of done:** Same bar as Phase 2 for the second package; no regression
-to core **Gate** / **LLM** contracts without coordinated releases.
+- **`pickled-iac`:** validate, plan diff, security baseline (Trivy optional).
+- **`pickled-data`:** migrations, drift gate, sandbox apply.
+- **`pickled-spec check-all`:** `pickled.gates` entry points from all five leaves.
 
 ---
 
-## Phase 5 — Drift gate and CI integration (v0.3.x)
+## Phase 5 — Drift and CI integration (v0.3.x)
 
-**Intent:** **Drift**-style gates where artifacts can be compared to live systems
-or golden files; reusable **GitHub Actions** recipes per package.
+**Status: PARTIAL.**
 
-**Definition of done:** At least one package ships a Drift (or equivalent)
-gate with documented inputs; example workflows in-repo for “gate on PR” that
-don’t require proprietary secrets in CI logs.
+- Migration drift gate and schema coverage exist; workspace `check-all` documented.
+- **Remaining:** reusable GitHub Actions workflows; ruleset version drift gate;
+  broader “live system” drift connectors.
 
 ---
 
 ## Phase 6 — Robustness and external connectors (v0.4+)
 
-**Intent:** Hardening and product-adjacent integrations.
+**Intent:** Hardening and optional integrations (mutation testing, issue trackers,
+GitLab/GitHub spec diff, cloud connectors for IaC).
 
-- **Mutation testing** (or similar) where it catches real gate gaps.
-- **Issue trackers:** Jira / Linear connectors for **pickled-bdd** (link scenarios
-  to work items).
-- **Drift:** GitHub (or GitLab) diff connector for comparing specs to repo state.
-- **pickled-iac:** cloud provider connectors once Phase 2–5 patterns are stable.
-
-**Definition of done:** Scoped per connector (no big-bang); each integration is
-optional and documented; secrets handled via env / OIDC patterns, not baked into
-tools.
+**Status: NOT STARTED** (directional only).
 
 ---
 
 ## pickled-rules — rule coverage analysis
 
-Loads YAML rule sets and verifies that Gherkin features reference the rules that
-apply. Tag convention: `@<ruleset>:<rule_id>`.
+Tag convention: `@<ruleset>:<rule_id>`.
 
 ### v0.1 (current)
 
 - Rule set loader and validation
-- Two example rule sets (API conventions, code-review checklist)
-- Coverage gate (strict rules must be referenced; unknown tags fail)
-- Markdown coverage report and `pickled-rules check` CLI
+- Example rule sets (`team-api-conventions`, `code-review-checklist`, `gdpr-web-crud`)
+- Coverage gate (strict rules required; union across multiple feature files)
+- Markdown/JSON reports, `pickled-rules check`, `list-rules`, MCP tools
 
 ### v0.2
 
-- MCP tools mirroring `pickled-bdd` (`check_feature_coverage`, `list_rulesets`,
-  `validate_ruleset`)
 - JSON report format stabilised for automation
+- MCP tool parity with CLI edge cases
 
 ### v0.3
 
-- Relation-aware coverage: flag missing targets for
-  `requires_implementation_of` relations
+- Relation-aware coverage for `requires_implementation_of`
 
 ### v0.4
 
-- Drift detection when `source_version` or rule `description` changes between
-  rule set revisions
+- Drift when `source_version` or rule `description` changes between revisions
 
 ---
 
 ## Non-goals
 
-- **Replacing domain experts** — gates assist; they do not certify production
-  readiness alone.
-- **A generic “do anything” agent framework** — scope stays DSL drafting plus
-  deterministic verification loops.
-- **Vendor lock-in** — Anthropic is the reference client; the abstraction stays
-  swappable.
+- Replacing domain experts — gates assist; they do not alone certify production.
+- A generic “do anything” agent framework — scope stays DSL + deterministic loops.
+- Vendor lock-in — Anthropic is the reference client; `LLMClient` stays swappable.
 
 ---
 
 ## How to read this roadmap
 
-This document is **directional**. It does not promise dates or ordering beyond the
-broad version bands above. When trade-offs appear, prefer shipping a smaller,
-correct increment over expanding simultaneous tracks. For the historical PR
-sequence that built v0.1, see [`plan.md`](../plan.md).
+Directional only — no fixed dates. Prefer smaller correct increments. For the
+historical PR sequence that built v0.1, see [`plan.md`](../plan.md) when present.
