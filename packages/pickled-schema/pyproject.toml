@@ -42,6 +42,9 @@ pickled-schema = "pickled_schema.cli:main"
 [project.entry-points."pickled.mcp.subservers"]
 schema = "pickled_schema.mcp_cli:build_server"
 
+[project.entry-points."pickled.gates"]
+schema = "pickled_schema.gates_runner:run_all"
+
 [tool.uv.sources]
 pickled-core = { workspace = true }
 
