@@ -1,0 +1,53 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pickled-schema"
+version = "0.1.0.dev0"
+description = "Multi-format schema drafting and verification (OpenAPI, JSON Schema, Protobuf)."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Bart Rosa" }]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
+dependencies = [
+    "click>=8.1",
+    "pickled-core",
+    "PyYAML>=6.0.2",
+]
+
+[project.optional-dependencies]
+openapi = ["openapi-spec-validator>=0.8.5", "PyYAML>=6.0.2"]
+json-schema = ["jsonschema>=4.26.0"]
+proto = ["grpcio-tools>=1.80.0", "protobuf>=5.28"]
+all-formats = [
+    "openapi-spec-validator>=0.8.5",
+    "PyYAML>=6.0.2",
+    "jsonschema>=4.26.0",
+    "grpcio-tools>=1.80.0",
+    "protobuf>=5.28",
+]
+mcp = ["pickled-core[mcp]", "openapi-spec-validator>=0.8.5"]
+
+[project.scripts]
+pickled-schema = "pickled_schema.cli:main"
+
+[project.entry-points."pickled.mcp.subservers"]
+schema = "pickled_schema.mcp_cli:build_server"
+
+[tool.uv.sources]
+pickled-core = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pickled_schema"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/pickled_schema/openapi/prompts" = "pickled_schema/openapi/prompts"
+"src/pickled_schema/prompts" = "pickled_schema/prompts"

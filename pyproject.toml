@@ -11,11 +11,11 @@ dev-dependencies = [
 pickled-core = { workspace = true }
 pickled-bdd = { workspace = true }
 pickled-rules = { workspace = true }
+pickled-schema = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/*"]
 exclude = [
-    "packages/pickled-schema",
     "packages/pickled-iac",
     "packages/pickled-data",
 ]
@@ -41,6 +41,15 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["anthropic.*", "openai.*", "google.*", "google.genai.*", "tenacity.*", "ulid.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "openapi_spec_validator.*",
+    "jsonschema.*",
+    "grpc_tools.*",
+    "google.protobuf.*",
+]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
