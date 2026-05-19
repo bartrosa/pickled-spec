@@ -29,8 +29,17 @@ Match CI locally before pushing:
 
 ```bash
 uv run ruff check .
-uv run mypy packages/pickled-core/src packages/pickled-bdd/src packages/pickled-rules/src
+uv run mypy packages/pickled-core/src packages/pickled-bdd/src packages/pickled-rules/src \
+  packages/pickled-schema/src packages/pickled-iac/src packages/pickled-data/src
 uv run pytest -q
+```
+
+Optional integration smoke:
+
+```bash
+uv sync --extra mcp
+uv run pickled-spec check-all --workdir examples/user-management-crud/ --warn-ok
+uv run python scripts/smoke_mcp_stdio.py
 ```
 
 Optional: enforce **Conventional Commits** on a message file with
@@ -44,11 +53,11 @@ Optional: enforce **Conventional Commits** on a message file with
   `src/`, and usually `tests/`.
 - **`docs/`** — cross-cutting architecture and process docs (pattern, gates,
   MCP, roadmap, ADRs).
-- **`tests/`** at the repo root — optional smoke or integration tests; most
-  coverage lives beside each package.
+- **`examples/`** — cross-package workspaces (see [`integration-example.md`](integration-example.md)).
+- **`scripts/`** — repo smoke tests (for example MCP stdio).
+- **`tests/`** at the repo root — optional; most coverage lives beside each package.
 
-Placeholder directories (`pickled-schema`, …) hold READMEs only and are listed in
-the workspace **`exclude`** until they gain a real package manifest.
+All six packages under `packages/*` are full workspace members with `pyproject.toml`.
 
 ## PR-driven workflow
 
@@ -82,7 +91,9 @@ automation and gitlint in CI expect this shape.
 - **Heuristic:** code used by **exactly one** package stays in that package until
   a second consumer appears.
 - **Domain parsers, runners, product logic** — live in the leaf package
-  (`pickled-bdd`, future `pickled-schema`, …), not in core.
+  (`pickled-bdd`, `pickled-schema`, `pickled-iac`, `pickled-data`, …), not in core.
+- **`pickled.gates` runners** — thin `gates_runner.py` modules that discover
+  conventional paths under a workspace; register in the package `pyproject.toml`.
 
 See [`monorepo.md`](monorepo.md) for the full “core stays small” rationale.
 

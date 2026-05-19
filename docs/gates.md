@@ -5,9 +5,9 @@ backends (BDD runners, browser harnesses, etc.) prove little about whether the
 artifact captures stakeholder intent. Gates ask orthogonal questions: ambiguity,
 coverage, drift, robustness, and domain-specific controls.
 
-This document defines the taxonomy used across packages. **v0.1** implements
-only **Ambiguity** (see PR-08); the others are specified here so later PRs extend
-behavior without renaming concepts.
+This document defines the taxonomy used across packages. Several gate types are
+**implemented** in v0.1 dev; others remain specified for future work without
+renaming concepts.
 
 ---
 
@@ -124,16 +124,33 @@ and Gherkin tags.
 
 ## Implementation scope
 
-| Gate               | Documented | First implementation target |
-|--------------------|------------|-----------------------------|
-| Ambiguity          | yes        | PR-08 (v0.1)                |
-| Coverage           | yes        | `pickled-rules` v0.1        |
-| Drift              | yes        | later                       |
-| Robustness         | yes        | later                       |
-| Maintainer review  | yes        | workflow (out of band)      |
-| Rule-set regression| yes        | later                       |
+| Gate | Documented | Implemented in repo (v0.1 dev) |
+|------|------------|--------------------------------|
+| Ambiguity | yes | `pickled-bdd` — LLM critic (`AmbiguityGate`); optional via env factory |
+| Coverage | yes | `pickled-rules` — Gherkin tags vs YAML rules; `pickled-schema` — `@schema:endpoint:*` vs OpenAPI paths |
+| Drift | yes | `pickled-data` — `MigrationDriftGate` (oracle schema vs expected YAML); IaC plan diff gate in `pickled-iac` |
+| Security baseline | (IaC) | `pickled-iac` — Trivy config scan (skipped if binary missing) |
+| Robustness | yes | not yet |
+| Maintainer review | yes | workflow (out of band) |
+| Rule-set regression | yes | not yet |
+
+### Workspace runners (`pickled-spec check-all`)
+
+Each leaf package exposes `run_all(workdir)` via the `pickled.gates` entry-point
+group. Typical layout under `workdir`:
+
+| Path | Package checks |
+|------|----------------|
+| `features/**/*.feature` | bdd parse; rules coverage; schema coverage |
+| `specs/*.yaml` | schema validate |
+| `infra/` | iac validate + security scan |
+| `migrations/*.sql` + `expected_schema.yaml` | data parse + migration drift |
+
+`check-all` does not yet invoke every gate class (for example `DataContractGate` or
+`PlanDiffGate` outside their dedicated CLIs/MCP tools).
 
 ## See also
 
 - [`pattern.md`](pattern.md) — oracle strengths and why gates exist.
 - [`mcp.md`](mcp.md) — exposing gate-assisted workflows as MCP tools.
+- [`integration-example.md`](integration-example.md) — all five leaves on one example.
