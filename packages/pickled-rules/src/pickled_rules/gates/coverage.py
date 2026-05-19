@@ -73,8 +73,7 @@ def coverage_gate(
 
     if passed:
         notes = (
-            f"All strict rules in {ruleset.source_id} are referenced; "
-            "no unknown reference tags."
+            f"All strict rules in {ruleset.source_id} are referenced; no unknown reference tags."
         )
     else:
         parts: list[str] = []

@@ -44,9 +44,7 @@ class JsonLLMClient(LLMClient):
 
 
 def _feature(*scenario_names: str) -> Feature:
-    scenarios = tuple(
-        Scenario(name=n, steps=("Given x", "Then y")) for n in scenario_names
-    )
+    scenarios = tuple(Scenario(name=n, steps=("Given x", "Then y")) for n in scenario_names)
     return Feature(name="F", description="", scenarios=scenarios)
 
 
@@ -59,9 +57,7 @@ def test_pass_when_all_unambiguous() -> None:
 
 
 def test_warn_when_one_ambiguous() -> None:
-    amb = (
-        '{"is_ambiguous": true, "alternatives": ["A", "B"], "suggested_fix": "Be specific"}'
-    )
+    amb = '{"is_ambiguous": true, "alternatives": ["A", "B"], "suggested_fix": "Be specific"}'
     ok = '{"is_ambiguous": false, "alternatives": [], "suggested_fix": ""}'
     gate = AmbiguityGate(JsonLLMClient([amb, ok, ok]))
     result = gate.run(_feature("S1", "S2", "S3"))
@@ -70,9 +66,7 @@ def test_warn_when_one_ambiguous() -> None:
 
 
 def test_fail_when_all_ambiguous() -> None:
-    amb = (
-        '{"is_ambiguous": true, "alternatives": ["A", "B"], "suggested_fix": "Be specific"}'
-    )
+    amb = '{"is_ambiguous": true, "alternatives": ["A", "B"], "suggested_fix": "Be specific"}'
     gate = AmbiguityGate(JsonLLMClient([amb, amb, amb]))
     result = gate.run(_feature("S1", "S2", "S3"))
     assert result.verdict == Verdict.FAIL
@@ -110,9 +104,7 @@ def test_non_feature_target_fails() -> None:
 
 
 def test_parse_error_on_one_scenario_warns() -> None:
-    amb = (
-        '{"is_ambiguous": true, "alternatives": ["x"], "suggested_fix": "fix"}'
-    )
+    amb = '{"is_ambiguous": true, "alternatives": ["x"], "suggested_fix": "fix"}'
     gate = AmbiguityGate(JsonLLMClient(["bad", amb]))
     result = gate.run(_feature("S1", "S2"))
     assert result.verdict == Verdict.WARN

@@ -15,9 +15,7 @@ def _ruleset() -> RuleSet:
         maintainer="Team",
         source_version="1",
         active_from=date(2024, 1, 1),
-        rules=(
-            Rule(id="a", title="A|pipe", description="body", enforcement="strict"),
-        ),
+        rules=(Rule(id="a", title="A|pipe", description="body", enforcement="strict"),),
     )
 
 

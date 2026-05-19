@@ -87,28 +87,52 @@ def check(feature_file: str, gate: str) -> None:
     sys.exit(exit_codes[result.verdict])
 
 
+@main.group()
+def mcp() -> None:
+    """MCP server commands."""
+
+
+@mcp.command("serve")
+@click.option(
+    "--transport",
+    type=click.Choice(["stdio", "http"]),
+    default="stdio",
+    show_default=True,
+)
+@click.option("--host", default=None)
+@click.option("--port", type=int, default=None)
+@click.option("--allow-public", is_flag=True, default=False)
+def mcp_serve(
+    transport: str,
+    host: str | None,
+    port: int | None,
+    allow_public: bool,
+) -> None:
+    """Run the pickled-bdd MCP server."""
+    from pickled_bdd.mcp_cli import cli as mcp_cli_main
+
+    mcp_cli_main.main(
+        args=[
+            "--transport",
+            transport,
+            *(["--host", host] if host else []),
+            *(["--port", str(port)] if port is not None else []),
+            *(["--allow-public"] if allow_public else []),
+        ],
+        standalone_mode=False,
+    )
+
+
 @main.command()
 def serve() -> None:
-    """Start the pickled-bdd MCP server.
-
-    Builds a server, registers pickled-bdd tools, and calls serve().
-    Note: transport wiring lands in v0.1.1; this command currently
-    exits with NotImplementedError but the registration path runs and
-    can be exercised in tests.
-    """
-    from pickled_core import PickledMCPServer
-
-    from pickled_bdd import mcp_tools
-
-    llm = _build_llm_client()
-    server = PickledMCPServer()
-    mcp_tools.register(server, llm=llm)
+    """Deprecated alias for ``pickled-bdd mcp serve``."""
     click.echo(
-        f"Registered {len(server.registry)} tools. "
-        "Transport wiring lands in v0.1.1.",
+        "Warning: `pickled-bdd serve` is deprecated; use `pickled-bdd mcp serve`.",
         err=True,
     )
-    server.serve()
+    from pickled_bdd.mcp_cli import cli as mcp_cli_main
+
+    mcp_cli_main.main(args=["--transport", "stdio"], standalone_mode=True)
 
 
 def _build_llm_client() -> LLMClient:

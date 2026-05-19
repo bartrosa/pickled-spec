@@ -28,11 +28,7 @@ class TokenUsage:
 
     def total_all(self) -> int:
         return (
-            self.input
-            + self.output
-            + self.reasoning
-            + self.cache_read
-            + self.total_cache_write()
+            self.input + self.output + self.reasoning + self.cache_read + self.total_cache_write()
         )
 
 

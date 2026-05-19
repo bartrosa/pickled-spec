@@ -72,13 +72,9 @@ class PytestBddAdapter:
             if "background" in child:
                 background_steps = self._extract_steps(child["background"])
             elif "scenario" in child:
-                scenarios.extend(
-                    self._expand_scenario(child["scenario"], background_steps)
-                )
+                scenarios.extend(self._expand_scenario(child["scenario"], background_steps))
             elif "rule" in child:
-                scenarios.extend(
-                    self._expand_rule(child["rule"], background_steps)
-                )
+                scenarios.extend(self._expand_rule(child["rule"], background_steps))
 
         if feature_tags:
             scenarios = [
@@ -178,9 +174,7 @@ class PytestBddAdapter:
             for row in example_block.get("tableBody", []):
                 values = [cell["value"] for cell in row.get("cells", [])]
                 row_map = dict(zip(header, values, strict=True))
-                expanded_steps = tuple(
-                    self._substitute(step, row_map) for step in base_steps
-                )
+                expanded_steps = tuple(self._substitute(step, row_map) for step in base_steps)
                 result.append(
                     Scenario(
                         name=scenario_name,

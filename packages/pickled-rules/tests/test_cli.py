@@ -33,7 +33,7 @@ def test_cli_builtin_partial_coverage_fails_with_strict_gaps() -> None:
 def test_cli_ruleset_path_happy(tmp_path: Path) -> None:
     feat = tmp_path / "tiny_ruleset.feature"
     feat.write_text(
-        'Feature: T\n  @tiny_ruleset:1.1\n  Scenario: S\n    Given x\n',
+        "Feature: T\n  @tiny_ruleset:1.1\n  Scenario: S\n    Given x\n",
         encoding="utf-8",
     )
     runner = CliRunner(mix_stderr=False)
@@ -83,11 +83,7 @@ def test_cli_feature_level_tags(tmp_path: Path) -> None:
 def test_cli_rule_block_scenario(tmp_path: Path) -> None:
     feat = tmp_path / "rule.feature"
     feat.write_text(
-        "Feature: T\n"
-        "  Rule: Covers 1.1\n"
-        "    @tiny_ruleset:1.1\n"
-        "    Scenario: S\n"
-        "      Given x\n",
+        "Feature: T\n  Rule: Covers 1.1\n    @tiny_ruleset:1.1\n    Scenario: S\n      Given x\n",
         encoding="utf-8",
     )
     runner = CliRunner(mix_stderr=False)

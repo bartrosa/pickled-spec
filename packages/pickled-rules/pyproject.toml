@@ -25,8 +25,14 @@ dependencies = [
     "pyyaml>=6.0",
 ]
 
+[project.optional-dependencies]
+mcp = ["pickled-core[mcp]"]
+
 [project.scripts]
 pickled-rules = "pickled_rules.cli:main"
+
+[project.entry-points."pickled.mcp.subservers"]
+rules = "pickled_rules.mcp_cli:build_server"
 
 [tool.uv.sources]
 pickled-bdd = { workspace = true }

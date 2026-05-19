@@ -40,9 +40,7 @@ def load_ruleset(path: Path) -> RuleSet:
         raise RuleSetValidationError(f"Malformed YAML in {path}: {exc}") from exc
 
     if not isinstance(raw, dict):
-        raise RuleSetValidationError(
-            f"Rule set root must be a mapping, got {type(raw).__name__}"
-        )
+        raise RuleSetValidationError(f"Rule set root must be a mapping, got {type(raw).__name__}")
 
     metadata_raw = _require(raw, "metadata", path)
     if not isinstance(metadata_raw, dict):
@@ -92,9 +90,7 @@ def ruleset_to_references(ruleset: RuleSet) -> list[SourceReference]:
 def _str_field(d: dict[str, Any], key: str, path: Path) -> str:
     v = _require(d, key, path)
     if not isinstance(v, str):
-        raise RuleSetValidationError(
-            f"'{key}' must be a string in {path}, got {type(v).__name__}"
-        )
+        raise RuleSetValidationError(f"'{key}' must be a string in {path}, got {type(v).__name__}")
     return v
 
 
@@ -111,9 +107,7 @@ def _parse_date(raw: Any, path: Path) -> date:
         try:
             return date.fromisoformat(raw)
         except ValueError as exc:
-            raise RuleSetValidationError(
-                f"Invalid ISO date '{raw}' in {path}: {exc}"
-            ) from exc
+            raise RuleSetValidationError(f"Invalid ISO date '{raw}' in {path}: {exc}") from exc
     raise RuleSetValidationError(
         f"Date must be ISO string or date, got {type(raw).__name__} in {path}"
     )

@@ -37,7 +37,5 @@ def resolve_ruleset_name(name: str) -> Path:
     Raises `KeyError` with a helpful message on unknown names.
     """
     if name not in BUILTIN_RULESETS:
-        raise KeyError(
-            f"Unknown rule set {name!r}. Available: {sorted(BUILTIN_RULESETS.keys())}"
-        )
+        raise KeyError(f"Unknown rule set {name!r}. Available: {sorted(BUILTIN_RULESETS.keys())}")
     return BUILTIN_RULESETS[name]

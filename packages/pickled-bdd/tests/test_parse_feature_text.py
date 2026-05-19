@@ -5,12 +5,7 @@ from pickled_bdd.adapters.pytest_bdd import PytestBddAdapter
 
 
 def test_minimal_feature() -> None:
-    text = (
-        "Feature: Minimal\n"
-        "\n"
-        "  Scenario: One\n"
-        "    Given x\n"
-    )
+    text = "Feature: Minimal\n\n  Scenario: One\n    Given x\n"
     feature = PytestBddAdapter().parse_feature_text(text)
     assert feature.name == "Minimal"
     assert len(feature.scenarios) == 1

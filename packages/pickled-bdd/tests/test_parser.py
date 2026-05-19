@@ -31,11 +31,7 @@ def test_background_prepended_to_all_scenarios() -> None:
 def test_scenario_outline_substitution() -> None:
     adapter = PytestBddAdapter()
     feature = adapter.parse_feature_file(PASSWORD_FEATURE)
-    outline_scenarios = [
-        s
-        for s in feature.scenarios
-        if "ghost@example.com" in "".join(s.steps)
-    ]
+    outline_scenarios = [s for s in feature.scenarios if "ghost@example.com" in "".join(s.steps)]
     assert len(outline_scenarios) == 1
     sc = outline_scenarios[0]
     joined = "\n".join(sc.steps)
@@ -47,12 +43,12 @@ def test_scenario_outline_substitution() -> None:
 
 def test_tag_extraction() -> None:
     adapter = PytestBddAdapter()
-    text = '''Feature: Tagged
+    text = """Feature: Tagged
 
   @critical
   Scenario: One
     Given x
-'''
+"""
     path = Path(__file__).resolve().parent / "_tagged.feature"
     path.write_text(text, encoding="utf-8")
     try:
@@ -105,7 +101,7 @@ def test_feature_level_tags_propagate_through_outline(tmp_path: Path) -> None:
         "Feature: Outline tags\n"
         "\n"
         "  Scenario Outline: Login as <role>\n"
-        "    Given user role is \"<role>\"\n"
+        '    Given user role is "<role>"\n'
         "    Then login succeeds\n"
         "\n"
         "    Examples:\n"
