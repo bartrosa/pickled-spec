@@ -1,0 +1,47 @@
+tables:
+  - name: users
+    columns:
+      - name: id
+        type: TEXT
+        nullable: true
+      - name: email
+        type: TEXT
+        nullable: false
+      - name: name
+        type: TEXT
+        nullable: false
+      - name: consent_marketing
+        type: INTEGER
+        nullable: false
+      - name: consent_at
+        type: TEXT
+        nullable: false
+      - name: created_at
+        type: TEXT
+        nullable: false
+      - name: deleted_at
+        type: TEXT
+        nullable: true
+      - name: hard_delete_after
+        type: TEXT
+        nullable: true
+  - name: audit_log
+    columns:
+      - name: id
+        type: INTEGER
+        nullable: true
+      - name: actor_id
+        type: TEXT
+        nullable: false
+      - name: subject_id
+        type: TEXT
+        nullable: false
+      - name: operation
+        type: TEXT
+        nullable: false
+      - name: occurred_at
+        type: TEXT
+        nullable: false
+      - name: payload
+        type: TEXT
+        nullable: true

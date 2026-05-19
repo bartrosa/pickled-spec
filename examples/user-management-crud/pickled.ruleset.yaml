@@ -1,0 +1,2 @@
+ruleset: ../../packages/pickled-rules/rulesets/examples/gdpr-web-crud.yaml
+ruleset_short_name: gdpr-web-crud
