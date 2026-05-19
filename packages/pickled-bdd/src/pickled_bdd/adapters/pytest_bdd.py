@@ -43,10 +43,22 @@ class PytestBddAdapter:
         """
         p = Path(path)
         text = p.read_text(encoding="utf-8")
-        ast = cast(dict[str, Any], Parser().parse(TokenScanner(text)))
-        return self._build_feature(ast, path=str(p))
+        return self.parse_feature_text(text, path=str(p))
 
-    def _build_feature(self, ast: dict[str, Any], *, path: str) -> Feature:
+    def parse_feature_text(self, gherkin_text: str, *, path: str | None = None) -> Feature:
+        """Parse a Gherkin string into a Feature.
+
+        Same Background-prepending and feature-tag-inheritance semantics as
+        :meth:`parse_feature_file`. Use ``path=None`` for in-memory content.
+        """
+        if not gherkin_text.strip():
+            raise ValueError("Gherkin text is empty")
+        ast = cast(dict[str, Any], Parser().parse(TokenScanner(gherkin_text)))
+        if ast.get("feature") is None:
+            raise ValueError("No Feature found in Gherkin text")
+        return self._build_feature(ast, path=path)
+
+    def _build_feature(self, ast: dict[str, Any], *, path: str | None) -> Feature:
         feature_node = ast.get("feature") or {}
         name = feature_node.get("name", "")
         raw_desc = feature_node.get("description") or ""

@@ -22,7 +22,10 @@ class FeatureDrafter:
         leaves a generic rationale string.
         """
         prompt = self._template.render(story=story)
-        feature_text = self._llm.complete(
+        from pickled_core.llm.turns import complete_prompt
+
+        feature_text = complete_prompt(
+            self._llm,
             prompt,
             system="You output only Gherkin. No prose, no fences.",
         )
