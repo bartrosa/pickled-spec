@@ -98,12 +98,54 @@ def plan(tf_dir: Path, out_file: Path) -> PlanResult:
     return PlanResult(plan_json=plan_json, plan_file=out_file, format=fmt)
 
 
+class UnsafeTerraformFilenameError(ValueError):
+    """Raised when ``validate_files`` is given a filename that would escape the temp dir."""
+
+
+def _safe_join(root: Path, name: str) -> Path:
+    """Resolve ``root / name`` while refusing path traversal or absolute paths.
+
+    Caller-supplied filenames (e.g. from an MCP tool request) must not be able
+    to write outside the temp directory. We:
+
+    * Reject empty names, null bytes, absolute paths, and any path component
+      equal to ``..`` (the explicit traversal token).
+    * After resolution, require that the candidate path is still inside
+      ``root`` to defend against tricks such as symlinked components.
+    """
+    if not name:
+        raise UnsafeTerraformFilenameError("empty filename")
+    if "\x00" in name:
+        raise UnsafeTerraformFilenameError(f"filename contains NUL byte: {name!r}")
+    candidate = Path(name)
+    if candidate.is_absolute() or (candidate.drive and candidate.drive != ""):
+        raise UnsafeTerraformFilenameError(f"absolute filename not allowed: {name!r}")
+    if any(part == ".." for part in candidate.parts):
+        raise UnsafeTerraformFilenameError(f"filename must not contain '..': {name!r}")
+    root_resolved = root.resolve()
+    target = (root_resolved / candidate).resolve()
+    try:
+        target.relative_to(root_resolved)
+    except ValueError as exc:
+        raise UnsafeTerraformFilenameError(
+            f"filename escapes temp dir: {name!r}"
+        ) from exc
+    return target
+
+
 def validate_files(tf_files: dict[str, str]) -> ValidateResult:
-    """Write *tf_files* to a temp dir and validate."""
+    """Write *tf_files* to a temp dir and validate.
+
+    Filenames are caller-supplied (notably via the
+    ``validate_terraform_dir`` MCP tool) so they are sanitised here to
+    prevent path-traversal arbitrary-file-write outside the temp dir.
+    """
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         for name, body in tf_files.items():
-            (root / name).write_text(body, encoding="utf-8")
+            target = _safe_join(root, name)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(body, encoding="utf-8")
         return validate(root)
 
 
@@ -112,4 +154,11 @@ def plan_json_from_dict(plan_data: dict[str, Any]) -> dict[str, Any]:
     return plan_data
 
 
-__all__ = ["iac_binary", "plan", "plan_json_from_dict", "validate", "validate_files"]
+__all__ = [
+    "UnsafeTerraformFilenameError",
+    "iac_binary",
+    "plan",
+    "plan_json_from_dict",
+    "validate",
+    "validate_files",
+]
