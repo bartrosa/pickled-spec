@@ -1,4 +1,15 @@
-"""MCP tool registration for pickled-rules."""
+"""MCP tool registration for pickled-rules.
+
+The MCP server is reachable over stdio or HTTP and may serve untrusted
+clients (per the threat model that motivated PR #18: any caller of a
+pickled-* MCP tool should be assumed hostile). Tools therefore accept
+feature *text* rather than filesystem paths: an attacker that can pass a
+path on the host triggers ``read_text`` on that path and, since
+``gherkin``'s parser embeds the offending file contents verbatim into its
+``CompositeParserException`` messages, gets an arbitrary-file-read
+primitive against the server process (e.g. ``/etc/passwd``, dotenv files,
+SSH keys). Forwarding text avoids that entire class of bug.
+"""
 
 from __future__ import annotations
 
@@ -57,15 +68,21 @@ def register_with_fastmcp(app: FastMCP) -> None:
     def check_ruleset_coverage(
         *,
         ruleset_yaml_text: str,
-        feature_file_paths: list[str],
+        feature_texts: list[str],
         ruleset_short_name: str,
     ) -> dict[str, Any]:
-        """Check Gherkin features against a YAML rule set (coverage gate)."""
+        """Check Gherkin features against a YAML rule set (coverage gate).
+
+        ``feature_texts`` are the **contents** of ``.feature`` files. The
+        previous version accepted server-side filesystem paths, which gave
+        any MCP client an arbitrary-file-read primitive via parser error
+        messages — see the module docstring.
+        """
         ruleset = _load_ruleset_from_text(ruleset_yaml_text)
         reports: list[dict[str, Any]] = []
         verdicts: list[Verdict] = []
-        for path_str in feature_file_paths:
-            feature = adapter.parse_feature_file(path_str)
+        for index, text in enumerate(feature_texts):
+            feature = adapter.parse_feature_text(text, path=f"<feature-{index}>")
             report = coverage_gate(
                 feature,
                 ruleset,
@@ -75,7 +92,7 @@ def register_with_fastmcp(app: FastMCP) -> None:
             verdicts.append(gr.verdict)
             reports.append(
                 {
-                    "feature_path": path_str,
+                    "feature_index": index,
                     "verdict": gr.verdict.value,
                     "notes": gr.notes,
                     "referenced_rule_ids": [r.id for r in report.referenced_rules],
