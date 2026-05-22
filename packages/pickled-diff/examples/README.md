@@ -15,6 +15,15 @@ Save as `corpus.json` in this directory:
 ]
 ```
 
+## `pickled-spec check-all`
+
+This directory includes **`pickled.diff.yaml`** so the umbrella command can verify
+the example without extra flags:
+
+```bash
+uv run pickled-spec check-all --workdir packages/pickled-diff/examples/ --warn-ok
+```
+
 ## CLI
 
 From the monorepo root (adjust paths to your clone):

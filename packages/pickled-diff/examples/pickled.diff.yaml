@@ -1,0 +1,9 @@
+oracle_command:
+  - python
+  - trivial_oracle.py
+candidate_command:
+  - python
+  - trivial_candidate.py
+corpus: corpus.json
+comparator: exact
+timeout_seconds: 30
