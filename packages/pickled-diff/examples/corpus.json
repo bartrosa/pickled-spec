@@ -1,0 +1,5 @@
+[
+  {"name": "zero", "payload": "0"},
+  {"name": "one", "payload": "1"},
+  {"name": "ten", "payload": "10"}
+]
