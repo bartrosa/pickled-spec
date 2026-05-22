@@ -32,6 +32,7 @@ See [`docs/pattern.md`](docs/pattern.md).
 | [`pickled-schema`](packages/pickled-schema/) | OpenAPI 3.x, JSON Schema, proto3 | medium | Validate, draft, SchemaCoverageGate, MCP |
 | [`pickled-iac`](packages/pickled-iac/) | Terraform / OpenTofu HCL | medium | `validate`, plan JSON diff, Trivy baseline (optional), MCP |
 | [`pickled-data`](packages/pickled-data/) | SQL DDL / migrations | medium | sqlglot parse, SQLite sandbox, MigrationDriftGate, MCP |
+| [`pickled-diff`](packages/pickled-diff/) | Reference vs candidate outputs | reference | `DifferentialOracleGate`, runners, comparators, MCP |
 
 Each package can publish to PyPI independently. `pickled-core` is the shared
 dependency; leaf packages are opt-in.
@@ -97,6 +98,7 @@ pip install pickled-bdd
 | `pickled-schema` | `validate`, `check`, `draft`, `mcp serve` |
 | `pickled-iac` | `validate`, `plan-cmd`, `diff`, `scan`, `mcp serve` |
 | `pickled-data` | `parse`, `apply`, `check-drift`, `mcp serve` |
+| `pickled-diff` | `verify`, `serve` |
 
 Details and environment variables: each [`packages/<name>/README.md`](packages/).
 
