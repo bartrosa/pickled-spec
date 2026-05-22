@@ -58,7 +58,12 @@ uv run pickled-rules mcp serve --transport stdio
 uv run pickled-schema mcp serve --transport stdio
 uv run pickled-iac mcp serve --transport stdio
 uv run pickled-data mcp serve --transport stdio
+uv run pickled-diff serve
 ```
+
+`pickled-diff` exposes **`verify_against_oracle`** (deterministic; no LLM). It is
+not yet mounted on the umbrella server; use the package `serve` command or register
+tools in-process until a `pickled.mcp.subservers` entry is added.
 
 `pickled-bdd serve` remains a **deprecated** alias for `pickled-bdd mcp serve`.
 

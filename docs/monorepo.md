@@ -26,6 +26,7 @@ All six packages are workspace **members** (no placeholder excludes):
 | pickled-schema | `packages/pickled-schema/` |
 | pickled-iac | `packages/pickled-iac/` |
 | pickled-data | `packages/pickled-data/` |
+| pickled-diff | `packages/pickled-diff/` |
 
 Each package has its own `pyproject.toml`, version, optional extras, and tests.
 

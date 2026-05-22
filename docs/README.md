@@ -48,3 +48,4 @@ uv run python scripts/smoke_mcp_stdio.py
 - [`pickled-schema`](../packages/pickled-schema/README.md)
 - [`pickled-iac`](../packages/pickled-iac/README.md)
 - [`pickled-data`](../packages/pickled-data/README.md)
+- [`pickled-diff`](../packages/pickled-diff/README.md)
