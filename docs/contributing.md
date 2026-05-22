@@ -30,7 +30,8 @@ Match CI locally before pushing:
 ```bash
 uv run ruff check .
 uv run mypy packages/pickled-core/src packages/pickled-bdd/src packages/pickled-rules/src \
-  packages/pickled-schema/src packages/pickled-iac/src packages/pickled-data/src
+  packages/pickled-schema/src packages/pickled-iac/src packages/pickled-data/src \
+  packages/pickled-diff/src
 uv run pytest -q
 ```
 

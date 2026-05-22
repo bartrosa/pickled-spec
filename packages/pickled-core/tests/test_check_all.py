@@ -24,6 +24,14 @@ def test_check_all_rules_coverage_pass() -> None:
     assert coverage[0].verdict is Verdict.PASS
 
 
+def test_check_all_pickled_diff_examples() -> None:
+    examples = _REPO_ROOT / "packages" / "pickled-diff" / "examples"
+    rows, exit_code = run_check_all(examples, warn_ok=True)
+    assert exit_code == 0
+    diff_rows = [r for r in rows if r.package == "diff"]
+    assert any(r.gate == "diff.differential_oracle" and r.verdict is Verdict.PASS for r in diff_rows)
+
+
 def test_check_all_warn_ok_vs_strict_exit() -> None:
     rows, code_strict = run_check_all(_EXAMPLE, warn_ok=False)
     _, code_relaxed = run_check_all(_EXAMPLE, warn_ok=True)

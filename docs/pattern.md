@@ -48,6 +48,24 @@ Examples:
 Strong-oracle packages need fewer *compensating* checks because the backend
 already constrains the artifact semantics tightly relative to the encoded theory.
 
+### Reference oracle
+
+The backend is an **existing trusted implementation** whose outputs are taken as
+truth on a **sampled input corpus**. A separate **candidate** implementation is
+run on the same inputs; a pluggable comparator decides whether outputs are
+equivalent.
+
+This sits between strong and weak oracles in practice: stronger than weak flows
+(which only check execution-shaped behaviour against the candidate's own tests),
+weaker than strong flows (no proof—only agreement with the reference on the corpus).
+
+Typical uses (described neutrally): verifying an LLM-generated replacement against
+a known program, checking semantic preservation after refactors, validating
+optimization passes, or comparing two builds of the same logic.
+
+**`pickled-diff`** is the family member for this category: `DifferentialOracleGate`
+with `OracleRunner`, `Corpus`, and `Comparator` protocols.
+
 ### Medium oracle
 
 The backend enforces **structured validity** and often **domain semantics** on
@@ -98,6 +116,7 @@ artifacts.
 |------------------|-----------------------------------|-----------------|
 | `pickled-core`   | Shared types, gates, MCP wiring   | n/a (library)   |
 | `pickled-bdd`    | Gherkin / pytest-bdd              | weak            |
+| `pickled-diff`   | Reference vs candidate outputs    | reference       |
 | `pickled-schema` | OpenAPI / JSON Schema / Protobuf  | medium          |
 | `pickled-rules`  | YAML rule sets / Gherkin tags     | n/a (coverage)  |
 | `pickled-iac`    | Terraform / OpenTofu              | medium          |

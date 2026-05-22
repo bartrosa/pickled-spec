@@ -18,6 +18,7 @@ The following is **implemented in-tree** (pre-alpha / v0.1 dev):
 | **pickled-data** | SQL parse, SQLite oracle, MigrationDriftGate (nullable-tolerant), MCP |
 | **MCP transport** | stdio + HTTP via FastMCP; umbrella mounts all leaf servers |
 | **Integration** | [`examples/user-management-crud/`](../examples/user-management-crud/) + [`integration-example.md`](integration-example.md) |
+| **pickled-diff** | Reference-oracle category; `DifferentialOracleGate`, CLI, MCP tool (parallel track, v0.1 dev) |
 
 **Next likely increments:** DataContractGate and PlanDiffGate in `check-all`;
 rules MCP parity; CI recipe publishing `check-all` on PRs; package 1.0 hardening.
@@ -46,6 +47,9 @@ docs, examples, CI.
 
 - **`pickled-schema`** in workspace: OpenAPI first, coverage gate, MCP.
 - **`pickled-rules`:** example rule sets pivot, `list-rules`, union coverage, `gdpr-web-crud`.
+- **`pickled-diff` (parallel track, non-blocking):** reference-oracle category and
+  `DifferentialOracleGate`. Does not compete for the same review bandwidth as
+  schema/rules expansion; ships as an independent leaf package.
 
 Further v0.2 work: stabilise JSON report format, relation-aware coverage (below).
 
