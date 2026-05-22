@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import subprocess
 from collections.abc import Callable
+from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 from pickled_diff.types import OracleOutput
@@ -46,10 +47,12 @@ class SubprocessRunner:
         *,
         name: str = "subprocess",
         timeout_seconds: float = 30.0,
+        cwd: str | Path | None = None,
     ) -> None:
         self.name = name
         self._command = command
         self._timeout = timeout_seconds
+        self._cwd = str(cwd) if cwd is not None else None
 
     def run(self, input_payload: str) -> OracleOutput:
         try:
@@ -60,6 +63,7 @@ class SubprocessRunner:
                 text=True,
                 timeout=self._timeout,
                 check=False,
+                cwd=self._cwd,
             )
         except subprocess.TimeoutExpired:
             return OracleOutput(
