@@ -168,6 +168,7 @@ group. Typical layout under `workdir`:
 | `specs/*.yaml` | schema validate |
 | `infra/` | iac validate + security scan |
 | `migrations/*.sql` + `expected_schema.yaml` | data parse + migration drift |
+| `pickled.diff.yaml` (or `diff/pickled.diff.yaml`) | diff differential oracle |
 
 `check-all` does not yet invoke every gate class (for example `DataContractGate` or
 `PlanDiffGate` outside their dedicated CLIs/MCP tools).

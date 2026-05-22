@@ -32,7 +32,7 @@ See [`docs/pattern.md`](docs/pattern.md).
 | [`pickled-schema`](packages/pickled-schema/) | OpenAPI 3.x, JSON Schema, proto3 | medium | Validate, draft, SchemaCoverageGate, MCP |
 | [`pickled-iac`](packages/pickled-iac/) | Terraform / OpenTofu HCL | medium | `validate`, plan JSON diff, Trivy baseline (optional), MCP |
 | [`pickled-data`](packages/pickled-data/) | SQL DDL / migrations | medium | sqlglot parse, SQLite sandbox, MigrationDriftGate, MCP |
-| [`pickled-diff`](packages/pickled-diff/) | Reference vs candidate outputs | reference | `DifferentialOracleGate`, runners, comparators, MCP |
+| [`pickled-diff`](packages/pickled-diff/) | Reference vs candidate outputs | reference | `DifferentialOracleGate`, `pickled.diff.yaml` + `check-all`, MCP `diff_*` |
 
 Each package can publish to PyPI independently. `pickled-core` is the shared
 dependency; leaf packages are opt-in.
@@ -55,8 +55,9 @@ uv run pickled-spec mcp --transport stdio
 ```
 
 Gates are registered via the `pickled.gates` entry-point group in each leaf
-package. `check-all` discovers them at runtime; it does not yet run every gate
-class in each library (for example PlanDiffGate or DataContractGate).
+package (`bdd`, `rules`, `schema`, `iac`, `data`, `diff`). `check-all` discovers
+them at runtime; it does not yet run every gate class in each library (for example
+PlanDiffGate or DataContractGate).
 
 ## Integration example
 

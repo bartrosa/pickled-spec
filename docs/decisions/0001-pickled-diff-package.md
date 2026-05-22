@@ -40,8 +40,8 @@ Types such as `DifferentialFinding` and the runner/comparator protocols remain i
 **Negative**
 
 - One more workspace member to maintain and eventually add to CI mypy paths.
-- Umbrella MCP does not mount `pickled-diff` until an entry point is added in a
-  follow-up (out of scope for the initial package PR).
+- Umbrella MCP and `check-all` integration require entry points (`pickled.mcp.subservers`,
+  `pickled.gates`) registered in `pyproject.toml`.
 
 ## Alternatives considered
 

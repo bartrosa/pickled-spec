@@ -37,7 +37,7 @@ One process mounts every package that registers a `pickled.mcp.subservers` entry
 uv run pickled-spec mcp --transport stdio
 ```
 
-Tool name prefixes (examples): `bdd_*`, `rules_*`, `schema_*`, `iac_*`, `data_*`.
+Tool name prefixes (examples): `bdd_*`, `rules_*`, `schema_*`, `iac_*`, `data_*`, `diff_*`.
 Core resources: `pickled://runs`, `pickled://config`.
 
 HTTP for local testing:
@@ -58,12 +58,11 @@ uv run pickled-rules mcp serve --transport stdio
 uv run pickled-schema mcp serve --transport stdio
 uv run pickled-iac mcp serve --transport stdio
 uv run pickled-data mcp serve --transport stdio
-uv run pickled-diff serve
+uv run pickled-diff mcp serve --transport stdio
 ```
 
-`pickled-diff` exposes **`verify_against_oracle`** (deterministic; no LLM). It is
-not yet mounted on the umbrella server; use the package `serve` command or register
-tools in-process until a `pickled.mcp.subservers` entry is added.
+`pickled-diff` exposes **`verify_against_oracle`** (deterministic; no LLM). On the
+umbrella server it is mounted as **`diff_verify_against_oracle`** (namespace `diff`).
 
 `pickled-bdd serve` remains a **deprecated** alias for `pickled-bdd mcp serve`.
 
