@@ -11,6 +11,7 @@ members = [
     "pickled-bdd",
     "pickled-core",
     "pickled-data",
+    "pickled-diff",
     "pickled-iac",
     "pickled-rules",
     "pickled-schema",
@@ -1477,6 +1478,28 @@ requires-dist = [
     { name = "sqlglot", specifier = ">=25.0" },
 ]
 provides-extras = ["cross-contract", "mcp"]
+
+[[package]]
+name = "pickled-diff"
+version = "0.1.0.dev0"
+source = { editable = "packages/pickled-diff" }
+dependencies = [
+    { name = "click" },
+    { name = "pickled-core" },
+]
+
+[package.optional-dependencies]
+mcp = [
+    { name = "pickled-core", extra = ["mcp"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "click", specifier = ">=8.1" },
+    { name = "pickled-core", editable = "packages/pickled-core" },
+    { name = "pickled-core", extras = ["mcp"], marker = "extra == 'mcp'", editable = "packages/pickled-core" },
+]
+provides-extras = ["mcp"]
 
 [[package]]
 name = "pickled-iac"
