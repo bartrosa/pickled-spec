@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pickled-diff"
+version = "0.1.0.dev0"
+description = "Differential oracle verification: compare a candidate implementation against a reference implementation across an input corpus."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Bart Rosa" }]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pickled-core",
+    "click>=8.1",
+]
+
+[project.optional-dependencies]
+mcp = ["pickled-core[mcp]"]
+
+[project.scripts]
+pickled-diff = "pickled_diff.cli:main"
+
+[tool.uv.sources]
+pickled-core = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pickled_diff"]
