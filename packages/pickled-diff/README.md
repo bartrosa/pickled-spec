@@ -36,7 +36,8 @@ uv run pickled-diff --help
 | Command | Purpose |
 |---------|---------|
 | **`verify`** | Run `DifferentialOracleGate` with subprocess commands and a JSON corpus. Prints JSON; exit **0** / **1** / **2** for pass / warn / fail. |
-| **`serve`** | Start stdio MCP with `verify_against_oracle`. |
+| **`mcp serve`** | Start stdio MCP with `verify_against_oracle`. |
+| **`serve`** | Deprecated alias for `mcp serve`. |
 
 ### Example
 
@@ -77,8 +78,17 @@ Domain-specific equivalence (tolerant numerics, AST shapes, and so on) belongs i
 ## MCP tool registration
 
 `pickled_diff.mcp_tools.register(server)` adds **`verify_against_oracle`** to a
-`PickledMCPServer`. No LLM is required. Umbrella mounting is described in
-[`docs/mcp.md`](../../docs/mcp.md).
+`PickledMCPServer`. The umbrella server mounts this package as namespace **`diff`**
+(`diff_verify_against_oracle`). No LLM is required. See [`docs/mcp.md`](../../docs/mcp.md).
+
+### `pickled-spec check-all`
+
+When a workspace contains **`pickled.diff.yaml`** (see [`examples/pickled.diff.yaml`](examples/pickled.diff.yaml)),
+`check-all` runs the differential oracle gate:
+
+```bash
+uv run pickled-spec check-all --workdir packages/pickled-diff/examples/ --warn-ok
+```
 
 ## Monorepo context
 

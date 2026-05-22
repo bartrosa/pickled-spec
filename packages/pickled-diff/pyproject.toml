@@ -30,6 +30,12 @@ mcp = ["pickled-core[mcp]"]
 [project.scripts]
 pickled-diff = "pickled_diff.cli:main"
 
+[project.entry-points."pickled.mcp.subservers"]
+diff = "pickled_diff.mcp_cli:build_server"
+
+[project.entry-points."pickled.gates"]
+diff = "pickled_diff.gates_runner:run_all"
+
 [tool.uv.sources]
 pickled-core = { workspace = true }
 
