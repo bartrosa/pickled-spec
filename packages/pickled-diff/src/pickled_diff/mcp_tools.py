@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pickled_core import PickledMCPServer
+
+if TYPE_CHECKING:
+    from fastmcp import FastMCP
 
 from pickled_diff.comparator import ExactEqComparator, StructuralJsonComparator
 from pickled_diff.corpus import CorpusItem, InMemoryCorpus
@@ -22,14 +25,56 @@ def _comparator_from_name(name: str) -> ExactEqComparator | StructuralJsonCompar
     raise ValueError(msg)
 
 
-def register(server: PickledMCPServer) -> None:
-    """Register pickled-diff's MCP tools.
+def _verify_against_oracle(
+    *,
+    oracle_command: list[str],
+    candidate_command: list[str],
+    corpus_items: list[dict[str, str]],
+    comparator: str = "exact",
+    timeout_seconds: float = 30.0,
+) -> dict[str, Any]:
+    oracle = SubprocessRunner(
+        oracle_command,
+        name="oracle",
+        timeout_seconds=timeout_seconds,
+    )
+    candidate = SubprocessRunner(
+        candidate_command,
+        name="candidate",
+        timeout_seconds=timeout_seconds,
+    )
+    items = [
+        CorpusItem(name=str(item["name"]), payload=str(item["payload"]))
+        for item in corpus_items
+    ]
+    corpus = InMemoryCorpus(items)
+    gate = DifferentialOracleGate(
+        oracle=oracle,
+        candidate=candidate,
+        comparator=_comparator_from_name(comparator),
+    )
+    result = gate.run(corpus)
+    return {
+        "verdict": result.verdict.value,
+        "notes": result.notes,
+        "findings": [
+            {
+                "input_repr": f.input_repr,
+                "oracle_output": f.oracle_output,
+                "candidate_output": f.candidate_output,
+                "diff_summary": f.diff_summary,
+            }
+            for f in result.findings
+            if isinstance(f, DifferentialFinding)
+        ],
+    }
 
-    Unlike pickled-bdd, this register() does NOT take an ``llm`` parameter:
-    differential verification is deterministic and does not invoke an LLM.
-    """
 
-    def verify_against_oracle(
+def register_with_fastmcp(app: FastMCP) -> None:
+    """Register tools directly on a FastMCP application."""
+
+    @app.tool(name="verify_against_oracle")
+    def _tool(
         *,
         oracle_command: list[str],
         candidate_command: list[str],
@@ -37,45 +82,25 @@ def register(server: PickledMCPServer) -> None:
         comparator: str = "exact",
         timeout_seconds: float = 30.0,
     ) -> dict[str, Any]:
-        oracle = SubprocessRunner(
-            oracle_command,
-            name="oracle",
+        """Compare candidate vs reference command output on a corpus."""
+        return _verify_against_oracle(
+            oracle_command=oracle_command,
+            candidate_command=candidate_command,
+            corpus_items=corpus_items,
+            comparator=comparator,
             timeout_seconds=timeout_seconds,
         )
-        candidate = SubprocessRunner(
-            candidate_command,
-            name="candidate",
-            timeout_seconds=timeout_seconds,
-        )
-        items = [
-            CorpusItem(name=str(item["name"]), payload=str(item["payload"]))
-            for item in corpus_items
-        ]
-        corpus = InMemoryCorpus(items)
-        gate = DifferentialOracleGate(
-            oracle=oracle,
-            candidate=candidate,
-            comparator=_comparator_from_name(comparator),
-        )
-        result = gate.run(corpus)
-        return {
-            "verdict": result.verdict.value,
-            "notes": result.notes,
-            "findings": [
-                {
-                    "input_repr": f.input_repr,
-                    "oracle_output": f.oracle_output,
-                    "candidate_output": f.candidate_output,
-                    "diff_summary": f.diff_summary,
-                }
-                for f in result.findings
-                if isinstance(f, DifferentialFinding)
-            ],
-        }
 
+
+def register(server: PickledMCPServer) -> None:
+    """Register pickled-diff's MCP tools.
+
+    Unlike pickled-bdd, this register() does NOT take an ``llm`` parameter:
+    differential verification is deterministic and does not invoke an LLM.
+    """
     server.register_tool(
         "verify_against_oracle",
-        verify_against_oracle,
+        _verify_against_oracle,
         description=(
             "Compare a candidate command's stdout against a reference oracle command "
             "for each item in an input corpus."
@@ -120,4 +145,4 @@ def register(server: PickledMCPServer) -> None:
     )
 
 
-__all__ = ["register"]
+__all__ = ["register", "register_with_fastmcp"]

@@ -9,9 +9,8 @@ from pathlib import Path
 from typing import Any
 
 import click
-from pickled_core import PickledMCPServer, Verdict
+from pickled_core import Verdict
 
-from pickled_diff import mcp_tools
 from pickled_diff.comparator import ExactEqComparator, StructuralJsonComparator
 from pickled_diff.corpus import CorpusItem, InMemoryCorpus
 from pickled_diff.gate import DifferentialOracleGate
@@ -101,12 +100,50 @@ def verify(
     sys.exit(exit_codes[result.verdict])
 
 
+@main.group()
+def mcp() -> None:
+    """MCP server commands."""
+
+
+@mcp.command("serve")
+@click.option(
+    "--transport",
+    type=click.Choice(["stdio", "http"]),
+    default="stdio",
+    show_default=True,
+)
+@click.option("--host", default=None)
+@click.option("--port", type=int, default=None)
+@click.option("--allow-public", is_flag=True, default=False)
+def mcp_serve(
+    transport: str,
+    host: str | None,
+    port: int | None,
+    allow_public: bool,
+) -> None:
+    """Run the pickled-diff MCP server."""
+    from pickled_diff.mcp_cli import cli as mcp_cli_main
+
+    mcp_cli_main.main(
+        args=[
+            "--transport",
+            transport,
+            *(["--host", host] if host else []),
+            *(["--port", str(port)] if port is not None else []),
+            *(["--allow-public"] if allow_public else []),
+        ],
+        standalone_mode=False,
+    )
+
+
 @main.command()
 def serve() -> None:
-    """Run the pickled-diff MCP server (stdio)."""
-    server = PickledMCPServer("pickled-diff")
-    mcp_tools.register(server)
-    server.serve()
+    """Deprecated alias for ``pickled-diff mcp serve``."""
+    click.echo(
+        "Warning: `pickled-diff serve` is deprecated; use `pickled-diff mcp serve`.",
+        err=True,
+    )
+    mcp_serve(transport="stdio", host=None, port=None, allow_public=False)
 
 
 if __name__ == "__main__":
