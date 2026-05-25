@@ -31,7 +31,9 @@ class GeminiClient(LLMClient):
         api_key: str,
         catalogue: PricingCatalogue,
         cache: LLMCache | None = None,
+        default_model: str = "gemini-2.5-pro",
     ) -> None:
+        self.default_model = default_model
         self._catalogue = catalogue
         self._cache = cache
         self._client = genai.Client(api_key=api_key)

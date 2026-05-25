@@ -27,7 +27,9 @@ class OpenAIClient(LLMClient):
         catalogue: PricingCatalogue,
         cache: LLMCache | None = None,
         default_headers: Mapping[str, str] | None = None,
+        default_model: str = "gpt-4o-2024-11-20",
     ) -> None:
+        self.default_model = default_model
         self._catalogue = catalogue
         self._cache = cache
         kwargs: dict[str, Any] = {"api_key": api_key}
