@@ -1,0 +1,4 @@
+Draft an internal API conventions ruleset for a JSON HTTP service.
+Require consistent resource naming in URLs and stable error response shapes.
+Cover authentication headers on mutating endpoints and idempotent retry hints.
+Prefer strict enforcement for anything that would break client integrations.

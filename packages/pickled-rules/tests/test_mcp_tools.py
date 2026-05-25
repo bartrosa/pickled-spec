@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pickled_bdd.testing import CannedLLMClient
 from pickled_rules.mcp_tools import register_with_fastmcp
 
 
@@ -46,9 +47,9 @@ rules:
 """
 
 
-def _build_tools() -> dict[str, object]:
+def _build_tools(*, llm: object | None = None) -> dict[str, object]:
     app = _FakeApp()
-    register_with_fastmcp(app)  # type: ignore[arg-type]
+    register_with_fastmcp(app, llm=llm)  # type: ignore[arg-type]
     return app.tools
 
 
@@ -123,3 +124,33 @@ def test_check_ruleset_coverage_does_not_read_paths(tmp_path: Path) -> None:
     assert secret_value not in raised_message, (
         "parser exception leaked file content; see module docstring"
     )
+
+
+_VALID_DRAFT_YAML = _TINY_RULESET_YAML + "\n---RATIONALE---\nok\n"
+
+
+def test_register_with_llm_adds_draft_tool() -> None:
+    llm = CannedLLMClient(_VALID_DRAFT_YAML)
+    tools = _build_tools(llm=llm)
+    assert set(tools.keys()) == {
+        "list_rules",
+        "check_ruleset_coverage",
+        "draft_ruleset_from_brief",
+    }
+
+
+def test_register_without_llm_stub_tool_raises() -> None:
+    tools = _build_tools(llm=None)
+    handler = tools["draft_ruleset_from_brief"]
+    try:
+        handler(  # type: ignore[operator]
+            brief_text="x",
+            ruleset_short_name="tiny",
+            source_id="tiny",
+            applies_to="global",
+            active_from="2025-01-01",
+        )
+    except RuntimeError as exc:
+        assert "PICKLED_RULES_LLM_FACTORY" in str(exc)
+    else:
+        raise AssertionError("expected RuntimeError when llm is None")
