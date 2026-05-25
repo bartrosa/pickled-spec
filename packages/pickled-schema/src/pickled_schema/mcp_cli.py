@@ -3,13 +3,10 @@
 from __future__ import annotations
 
 import contextlib
-import importlib
-import os
-from typing import cast
 
 import click
 from fastmcp import FastMCP
-from pickled_core import LLMClient
+from pickled_core.llm import LLMClient
 from pickled_core.mcp.stdio_logging import setup_logging_for_stdio
 from pickled_core.mcp.transport import resolve_transport
 
@@ -17,22 +14,11 @@ from pickled_schema.mcp_tools import register_with_fastmcp
 
 
 def _build_llm_client() -> LLMClient:
-    factory = os.environ.get("PICKLED_SCHEMA_LLM_FACTORY")
-    if factory:
-        module_name, sep, attr = factory.partition(":")
-        if not sep:
-            raise click.ClickException(
-                "PICKLED_SCHEMA_LLM_FACTORY must be 'module:callable'"
-            )
-        module = importlib.import_module(module_name)
-        return cast(LLMClient, getattr(module, attr)())
+    from pickled_core.llm.bootstrap import build_default_client
+    from pickled_core.llm.config import ConfigError
 
-    from pickled_core.llm.config import ConfigError, load_config
-    from pickled_core.llm.factory import build_client
-
-    provider = os.environ.get("PICKLED_LLM_PROVIDER", "anthropic")
     try:
-        return build_client(provider, config=load_config())
+        return build_default_client(factory_env="PICKLED_SCHEMA_LLM_FACTORY")
     except ConfigError as exc:
         raise click.ClickException(str(exc)) from exc
 

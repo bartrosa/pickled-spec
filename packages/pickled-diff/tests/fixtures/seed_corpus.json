@@ -1,0 +1,5 @@
+[
+  {"name": "empty", "payload": ""},
+  {"name": "ascii-word", "payload": "hello"},
+  {"name": "unicode", "payload": "café"}
+]

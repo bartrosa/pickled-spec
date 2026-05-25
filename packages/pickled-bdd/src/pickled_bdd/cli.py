@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import importlib
-import os
 from pathlib import Path
-from typing import cast
 
 import click
 from pickled_core.llm import LLMClient
@@ -137,24 +134,11 @@ def serve() -> None:
 
 def _build_llm_client() -> LLMClient:
     """Build an LLM client. Override via PICKLED_BDD_LLM_FACTORY for tests."""
-    factory = os.environ.get("PICKLED_BDD_LLM_FACTORY")
-    if factory:
-        module_name, sep, attr = factory.partition(":")
-        if not sep:
-            raise click.ClickException(
-                "PICKLED_BDD_LLM_FACTORY must be 'module:callable' "
-                "(e.g. pickled_bdd.testing:build_fake_llm)"
-            )
-        module = importlib.import_module(module_name)
-        builder = getattr(module, attr)
-        return cast(LLMClient, builder())
+    from pickled_core.llm.bootstrap import build_default_client
+    from pickled_core.llm.config import ConfigError
 
-    from pickled_core.llm.config import ConfigError, load_config
-    from pickled_core.llm.factory import build_client
-
-    provider = os.environ.get("PICKLED_LLM_PROVIDER", "anthropic")
     try:
-        return build_client(provider, config=load_config())
+        return build_default_client(factory_env="PICKLED_BDD_LLM_FACTORY")
     except ConfigError as exc:
         raise click.ClickException(str(exc)) from exc
 

@@ -5,6 +5,8 @@ dev-dependencies = [
     "mypy>=1.10",
     "gitlint>=0.19.1",
     "pre-commit>=4.0",
+    "pickled-core[all-providers]",
+    "pickled-core[mcp]",
 ]
 
 [tool.uv.sources]

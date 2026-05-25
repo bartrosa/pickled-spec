@@ -79,7 +79,24 @@ Domain-specific equivalence (tolerant numerics, AST shapes, and so on) belongs i
 
 `pickled_diff.mcp_tools.register(server)` adds **`verify_against_oracle`** to a
 `PickledMCPServer`. The umbrella server mounts this package as namespace **`diff`**
-(`diff_verify_against_oracle`). No LLM is required. See [`docs/mcp.md`](../../docs/mcp.md).
+(`diff_verify_against_oracle`). See [`docs/mcp.md`](../../docs/mcp.md).
+
+| MCP tool | Description |
+|----------|-------------|
+| `verify_against_oracle` | Differential check (deterministic) |
+| `draft_corpus_from_examples` | Expand seed examples into a corpus |
+
+## Drafting a corpus from seed examples
+
+```bash
+pickled-diff draft-corpus \
+  --seeds path/to/seed_corpus.json \
+  --target-size 10 \
+  --notes path/to/notes.txt
+```
+
+Use `-` for `--seeds` or `--notes` to read from stdin. LLM cache and budget
+settings follow [docs/mcp.md](../../docs/mcp.md).
 
 ### `pickled-spec check-all`
 

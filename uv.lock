@@ -21,6 +21,8 @@ members = [
 dev = [
     { name = "gitlint", specifier = ">=0.19.1" },
     { name = "mypy", specifier = ">=1.10" },
+    { name = "pickled-core", extras = ["all-providers"], editable = "packages/pickled-core" },
+    { name = "pickled-core", extras = ["mcp"], editable = "packages/pickled-core" },
     { name = "pre-commit", specifier = ">=4.0" },
     { name = "pytest", specifier = ">=8.0" },
     { name = "ruff", specifier = ">=0.5" },
