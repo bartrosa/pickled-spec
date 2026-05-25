@@ -10,9 +10,11 @@ from typing import Any
 
 import click
 from pickled_core import Verdict
+from pickled_core.llm import LLMClient
 
 from pickled_diff.comparator import ExactEqComparator, StructuralJsonComparator
 from pickled_diff.corpus import CorpusItem, InMemoryCorpus
+from pickled_diff.drafter import CorpusDrafter
 from pickled_diff.gate import DifferentialOracleGate
 from pickled_diff.runner import SubprocessRunner
 
@@ -21,6 +23,45 @@ def _comparator(name: str) -> ExactEqComparator | StructuralJsonComparator:
     if name == "structural_json":
         return StructuralJsonComparator()
     return ExactEqComparator()
+
+
+def _build_llm_client() -> LLMClient:
+    from pickled_core.llm.bootstrap import build_default_client
+    from pickled_core.llm.config import ConfigError
+
+    try:
+        return build_default_client(factory_env="PICKLED_DIFF_LLM_FACTORY")
+    except ConfigError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+
+def _read_text_arg(path: str) -> str:
+    if path == "-":
+        return sys.stdin.read()
+    return Path(path).read_text(encoding="utf-8")
+
+
+def _emit_corpus_output(
+    *,
+    items: tuple[dict[str, str], ...],
+    rationale: str,
+    warnings: tuple[str, ...],
+    output: Path | None,
+) -> None:
+    body = json.dumps(list(items), indent=2, ensure_ascii=False) + "\n"
+    if output is not None:
+        output.write_text(body, encoding="utf-8")
+    else:
+        click.echo(body, nl=False)
+        if not body.endswith("\n"):
+            click.echo()
+    if rationale:
+        for line in rationale.splitlines():
+            click.echo(f"rationale: {line}", err=True)
+    for warning in warnings:
+        click.echo(f"warning: {warning}", err=True)
+    if warnings:
+        raise SystemExit(1)
 
 
 def _gate_result_to_json(result: Any) -> dict[str, Any]:
@@ -98,6 +139,69 @@ def verify(
     click.echo(json.dumps(_gate_result_to_json(result), indent=2, ensure_ascii=False))
     exit_codes = {Verdict.PASS: 0, Verdict.WARN: 1, Verdict.FAIL: 2}
     sys.exit(exit_codes[result.verdict])
+
+
+@main.command("draft-corpus")
+@click.option(
+    "--seeds",
+    required=True,
+    help="JSON file with seed items, or '-' for stdin.",
+)
+@click.option("--target-size", required=True, type=int, help="Total corpus size.")
+@click.option(
+    "--notes",
+    default=None,
+    help="Optional notes file path or '-' for stdin.",
+)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help="Write corpus JSON to this path. Default: stdout.",
+)
+def draft_corpus(
+    seeds: str,
+    target_size: int,
+    notes: str | None,
+    output: Path | None,
+) -> None:
+    """Expand seed examples into a larger differential corpus."""
+    if target_size < 1:
+        raise click.ClickException("--target-size must be a positive integer")
+    raw = json.loads(_read_text_arg(seeds))
+    if not isinstance(raw, list):
+        raise click.ClickException("seeds JSON must be a list")
+    seed_examples: list[dict[str, str]] = []
+    for entry in raw:
+        if not isinstance(entry, dict):
+            raise click.ClickException("each seed must be an object")
+        name = entry.get("name")
+        payload = entry.get("payload")
+        if not isinstance(name, str) or not isinstance(payload, str):
+            raise click.ClickException("each seed needs string name and payload")
+        seed_examples.append({"name": name, "payload": payload})
+    notes_text: str | None = None
+    if notes is not None:
+        notes_text = _read_text_arg(notes)
+    try:
+        llm = _build_llm_client()
+        result = CorpusDrafter(llm).draft_from_examples(
+            seed_examples=seed_examples,
+            target_size=target_size,
+            notes=notes_text,
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:
+        click.echo(str(exc), err=True)
+        raise SystemExit(2) from exc
+    _emit_corpus_output(
+        items=result.items,
+        rationale=result.rationale,
+        warnings=result.warnings,
+        output=output,
+    )
 
 
 @main.group()

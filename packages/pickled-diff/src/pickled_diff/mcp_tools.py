@@ -5,12 +5,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from pickled_core import PickledMCPServer
+from pickled_core.llm import LLMClient
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 from pickled_diff.comparator import ExactEqComparator, StructuralJsonComparator
 from pickled_diff.corpus import CorpusItem, InMemoryCorpus
+from pickled_diff.drafter import CorpusDrafter
 from pickled_diff.gate import DifferentialOracleGate
 from pickled_diff.runner import SubprocessRunner
 from pickled_diff.types import DifferentialFinding
@@ -70,8 +72,9 @@ def _verify_against_oracle(
     }
 
 
-def register_with_fastmcp(app: FastMCP) -> None:
+def register_with_fastmcp(app: FastMCP, *, llm: LLMClient | None = None) -> None:
     """Register tools directly on a FastMCP application."""
+    drafter: CorpusDrafter | None = CorpusDrafter(llm) if llm is not None else None
 
     @app.tool(name="verify_against_oracle")
     def _tool(
@@ -90,6 +93,43 @@ def register_with_fastmcp(app: FastMCP) -> None:
             comparator=comparator,
             timeout_seconds=timeout_seconds,
         )
+
+    if drafter is None:
+
+        @app.tool(name="draft_corpus_from_examples")
+        def _draft_corpus_from_examples_stub(
+            *,
+            seed_examples: list[dict[str, str]],
+            target_size: int,
+            notes: str | None = None,
+        ) -> dict[str, Any]:
+            _ = seed_examples, target_size, notes
+            msg = (
+                "LLM client not configured (set pickled.config.yaml or "
+                "PICKLED_DIFF_LLM_FACTORY)"
+            )
+            raise RuntimeError(msg)
+
+    else:
+
+        @app.tool(name="draft_corpus_from_examples")
+        def _draft_corpus_from_examples(
+            *,
+            seed_examples: list[dict[str, str]],
+            target_size: int,
+            notes: str | None = None,
+        ) -> dict[str, Any]:
+            """Expand a small set of seed examples into a larger differential corpus."""
+            result = drafter.draft_from_examples(
+                seed_examples=seed_examples,
+                target_size=target_size,
+                notes=notes,
+            )
+            return {
+                "corpus_items": list(result.items),
+                "rationale": result.rationale,
+                "warnings": list(result.warnings),
+            }
 
 
 def register(server: PickledMCPServer) -> None:
