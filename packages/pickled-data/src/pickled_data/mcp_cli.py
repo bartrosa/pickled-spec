@@ -4,15 +4,18 @@ from __future__ import annotations
 
 import click
 from fastmcp import FastMCP
+from pickled_core.mcp.llm_client import build_llm_client, optional_llm_client
 from pickled_core.mcp.stdio_logging import setup_logging_for_stdio
 from pickled_core.mcp.transport import resolve_transport
 
 from pickled_data.mcp_tools import register_with_fastmcp
 
+_FACTORY_ENV = "PICKLED_DATA_LLM_FACTORY"
+
 
 def build_server() -> FastMCP:
     app = FastMCP("pickled-data")
-    register_with_fastmcp(app)
+    register_with_fastmcp(app, llm=optional_llm_client(factory_env=_FACTORY_ENV))
     return app
 
 
@@ -29,7 +32,8 @@ def cli(
 ) -> None:
     if transport == "stdio":
         setup_logging_for_stdio()
-    app = build_server()
+    app = FastMCP("pickled-data")
+    register_with_fastmcp(app, llm=build_llm_client(factory_env=_FACTORY_ENV))
     kwargs = resolve_transport(transport, host, port, allow_public)  # type: ignore[arg-type]
     transport_name = kwargs.pop("transport")
     app.run(transport=transport_name, **kwargs)
