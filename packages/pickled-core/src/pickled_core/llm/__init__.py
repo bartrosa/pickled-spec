@@ -10,10 +10,13 @@ from pickled_core.llm.base import (
     LLMError,
     Message,
 )
+from pickled_core.llm.bootstrap import build_default_client
 from pickled_core.llm.budget import Budget, BudgetGuard, BudgetState
 from pickled_core.llm.budget_context import active_budget_guard, set_budget_guard
 from pickled_core.llm.cache import CacheMode, LLMCache
 from pickled_core.llm.config import (
+    BudgetSettings,
+    CacheSettings,
     ConfigError,
     LLMProviderType,
     PickledConfig,
@@ -27,8 +30,10 @@ __all__ = [
     "Budget",
     "BudgetExceededError",
     "BudgetGuard",
+    "BudgetSettings",
     "BudgetState",
     "CacheMode",
+    "CacheSettings",
     "Completion",
     "ConfigError",
     "DEFAULT_MODEL",
@@ -42,6 +47,7 @@ __all__ = [
     "TokenUsage",
     "active_budget_guard",
     "build_client",
+    "build_default_client",
     "complete_prompt",
     "load_config",
     "set_budget_guard",
