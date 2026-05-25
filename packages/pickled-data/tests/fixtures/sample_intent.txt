@@ -1,0 +1,1 @@
+add a soft-delete column to the users table, SQLite-compatible
