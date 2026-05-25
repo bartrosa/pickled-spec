@@ -27,7 +27,9 @@ class OpenAICompatClient(LLMClient):
         base_url: str,
         catalogue: PricingCatalogue,
         cache: LLMCache | None = None,
+        default_model: str = "meta-llama/Llama-3.3-70B-Instruct",
     ) -> None:
+        self.default_model = default_model
         self._catalogue = catalogue
         self._cache = cache
         self._client = openai.OpenAI(api_key=api_key, base_url=base_url)

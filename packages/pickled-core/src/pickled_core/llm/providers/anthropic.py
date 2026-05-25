@@ -27,7 +27,9 @@ class AnthropicClient(LLMClient):
         catalogue: PricingCatalogue,
         cache: LLMCache | None = None,
         default_headers: Mapping[str, str] | None = None,
+        default_model: str = "claude-sonnet-4-5-20250929",
     ) -> None:
+        self.default_model = default_model
         self._catalogue = catalogue
         self._cache = cache
         kwargs: dict[str, Any] = {"api_key": api_key}
