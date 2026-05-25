@@ -4,6 +4,11 @@ Each pickled-* package exposes workflows over the [Model Context Protocol](https
 so tools like Cursor and Claude Desktop can draft artifacts, run gates, and inspect
 run telemetry without bespoke UIs.
 
+LLM-backed tools in **pickled-rules**, **pickled-data**, and **pickled-diff** build
+clients via `pickled_core.llm.bootstrap.build_default_client`, so they honor the
+`cache:` and `budget:` settings in `pickled.config.yaml` (and env overrides) from
+the bootstrap PR.
+
 ## Install
 
 From the monorepo root:
@@ -19,6 +24,36 @@ pip install 'pickled-core[mcp]'
 ```
 
 Dependencies: `mcp>=1.27.1`, `fastmcp>=3.3.1,<4.0`.
+
+## Response cache, budget cap, and model
+
+LLM completions are cached on disk so reruns of `draft_*` and `validate_*`
+tools do not re-bill the provider. A budget cap can be installed to abort
+LLM calls once a cumulative cost ceiling is reached.
+The model used by `complete_prompt`-based drafters is taken from the
+provider's `default_model` in `pickled.config.yaml`.
+
+```yaml
+providers:
+  anthropic:
+    type: anthropic
+    default_model: claude-sonnet-4-5-20250929   # used by every drafter
+    api_key_env: ANTHROPIC_API_KEY
+cache:
+  dir: .pickled-cache                           # relative paths resolve
+  mode: read_write                              # off | read_write | read_only
+budget:
+  max_cost_usd: "5.00"                          # omit or null for no cap
+```
+
+Env overrides (env wins over YAML):
+
+- `PICKLED_CACHE_DIR` — directory for cached JSON entries (CWD-relative)
+- `PICKLED_CACHE_MODE` — `off` disables, `read_only` forbids new writes
+- `PICKLED_MAX_COST_USD` — decimal string cap
+- `PICKLED_LLM_PROVIDER` — pick a provider when multiple are configured
+
+Add `.pickled-cache/` to `.gitignore` if you keep the default location.
 
 ## Stdio hygiene
 
@@ -61,10 +96,28 @@ uv run pickled-data mcp serve --transport stdio
 uv run pickled-diff mcp serve --transport stdio
 ```
 
-`pickled-diff` exposes **`verify_against_oracle`** (deterministic; no LLM). On the
-umbrella server it is mounted as **`diff_verify_against_oracle`** (namespace `diff`).
-
 `pickled-bdd serve` remains a **deprecated** alias for `pickled-bdd mcp serve`.
+
+## Tool reference (umbrella prefixes)
+
+| Prefix | Tool | Description |
+|--------|------|-------------|
+| `rules_` | `list_rules` | List rules from YAML text |
+| `rules_` | `check_ruleset_coverage` | Coverage gate over feature texts |
+| `rules_` | `draft_ruleset_from_brief` | Draft a YAML rule set from a brief |
+| `data_` | `parse_sql_migration` | Parse SQL to AST summary |
+| `data_` | `apply_sql_to_sandbox` | Apply SQL in-memory |
+| `data_` | `check_migration_drift` | Compare migration schema to YAML |
+| `data_` | `draft_sql_migration_from_intent` | Draft SQL DDL from intent |
+| `diff_` | `verify_against_oracle` | Differential check (deterministic) |
+| `diff_` | `draft_corpus_from_examples` | Expand seed examples into a corpus |
+| `iac_` | `draft_terraform_module` | Draft Terraform from a user story |
+| `iac_` | `validate_terraform_dir` | Validate Terraform file contents |
+| `iac_` | `diff_terraform_plans` | Compare plan JSON |
+| `iac_` | `explain_plan_diff` | Summarise plan JSON, flag risky actions |
+| `iac_` | `suggest_security_remediation` | Patch hints for Trivy findings |
+
+Other prefixes (`bdd_`, `schema_`) are documented in their package READMEs.
 
 ## Cursor configuration
 
@@ -126,7 +179,8 @@ numbers.
 uv run python scripts/smoke_mcp_stdio.py
 ```
 
-Expect at least a dozen tools from the umbrella list.
+Expect at least a dozen tools from the umbrella list (19 with rules/data/diff
+draft and iac advisor tools).
 
 ## Workspace gates vs MCP tools
 
