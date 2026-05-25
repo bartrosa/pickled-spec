@@ -8,13 +8,17 @@ import yaml
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
+from pickled_core.llm import LLMClient
 
+from pickled_data.drafter import MigrationDrafter
 from pickled_data.gates import MigrationDriftGate
 from pickled_data.oracle import apply_migration
 from pickled_data.parser import ast_summary, parse_sql
 
 
-def register_with_fastmcp(app: FastMCP) -> None:
+def register_with_fastmcp(app: FastMCP, *, llm: LLMClient | None = None) -> None:
+    drafter: MigrationDrafter | None = MigrationDrafter(llm) if llm is not None else None
+
     @app.tool(name="parse_sql_migration")
     def parse_sql_migration(*, sql: str, dialect: str = "postgres") -> dict[str, Any]:
         """Parse SQL and return AST summary."""
@@ -53,6 +57,43 @@ def register_with_fastmcp(app: FastMCP) -> None:
             "notes": result.notes,
             "findings": list(result.findings),
         }
+
+    if drafter is None:
+
+        @app.tool(name="draft_sql_migration_from_intent")
+        def _draft_sql_migration_from_intent_stub(
+            *,
+            intent_text: str,
+            dialect: str,
+            current_schema_yaml: str | None = None,
+        ) -> dict[str, Any]:
+            _ = intent_text, dialect, current_schema_yaml
+            msg = (
+                "LLM client not configured (set pickled.config.yaml or "
+                "PICKLED_DATA_LLM_FACTORY)"
+            )
+            raise RuntimeError(msg)
+
+    else:
+
+        @app.tool(name="draft_sql_migration_from_intent")
+        def _draft_sql_migration_from_intent(
+            *,
+            intent_text: str,
+            dialect: str,
+            current_schema_yaml: str | None = None,
+        ) -> dict[str, Any]:
+            """Draft a SQL migration from a natural-language intent."""
+            result = drafter.draft_from_intent(
+                intent_text=intent_text,
+                dialect=dialect,
+                current_schema_yaml=current_schema_yaml,
+            )
+            return {
+                "sql_text": result.text,
+                "rationale": result.rationale,
+                "warnings": list(result.warnings),
+            }
 
 
 __all__ = ["register_with_fastmcp"]

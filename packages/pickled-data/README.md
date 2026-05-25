@@ -20,6 +20,25 @@ uv run pickled-data check-drift --migration 001.sql --expected schema.yaml
 Install `pickled-data[cross-contract]` for `DataContractGate` integration with
 `pickled_schema.api.SchemaRegistry`.
 
-## MCP
+## MCP tools
+
+| Tool | Description |
+|------|-------------|
+| `parse_sql_migration` | Parse SQL to AST summary |
+| `apply_sql_to_sandbox` | Apply SQL in-memory |
+| `check_migration_drift` | Compare migration schema to YAML |
+| `draft_sql_migration_from_intent` | Draft SQL DDL from intent |
 
 Mounts as `data_*` on the umbrella `pickled-spec mcp` server.
+
+## Drafting a migration from intent
+
+```bash
+pickled-data draft \
+  --intent path/to/intent.txt \
+  --dialect sqlite \
+  --current-schema path/to/schema.yaml
+```
+
+Use `-` for `--intent` to read from stdin. LLM cache and budget caps follow
+[docs/mcp.md](../../docs/mcp.md).
