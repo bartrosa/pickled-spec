@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 from pickled_core import LLMClient
 
+from pickled_iac.advisor import IaCAdvisor
 from pickled_iac.drafter import IaCDrafter
 from pickled_iac.gates import PlanDiffFinding, PlanDiffGate
 from pickled_iac.oracle import validate_files
@@ -24,7 +25,10 @@ def register_with_fastmcp(app: FastMCP, *, llm: LLMClient | None = None) -> None
     ) -> dict[str, Any]:
         """Draft a Terraform module from a user story."""
         if llm is None:
-            msg = "LLM client not configured"
+            msg = (
+                "LLM client not configured (set pickled.config.yaml or "
+                "PICKLED_IAC_LLM_FACTORY)"
+            )
             raise RuntimeError(msg)
         artifact = IaCDrafter(llm).draft_module(user_story, provider=provider)
         return {
@@ -68,6 +72,37 @@ def register_with_fastmcp(app: FastMCP, *, llm: LLMClient | None = None) -> None
             "notes": result.notes,
             "findings": findings,
         }
+
+    @app.tool(name="explain_plan_diff")
+    def explain_plan_diff(*, plan_json: str) -> dict[str, Any]:
+        """Summarise a terraform plan JSON and flag risky actions."""
+        if llm is None:
+            msg = (
+                "LLM client not configured (set pickled.config.yaml or "
+                "PICKLED_IAC_LLM_FACTORY)"
+            )
+            raise RuntimeError(msg)
+        result = IaCAdvisor(llm).explain_plan_diff(plan_json=plan_json)
+        return {"text": result.text, "warnings": list(result.warnings)}
+
+    @app.tool(name="suggest_security_remediation")
+    def suggest_security_remediation(
+        *,
+        trivy_findings_json: str,
+        hcl_text: str = "",
+    ) -> dict[str, Any]:
+        """Suggest HCL patches for Trivy config-scan findings."""
+        if llm is None:
+            msg = (
+                "LLM client not configured (set pickled.config.yaml or "
+                "PICKLED_IAC_LLM_FACTORY)"
+            )
+            raise RuntimeError(msg)
+        result = IaCAdvisor(llm).suggest_security_remediation(
+            trivy_findings_json=trivy_findings_json,
+            hcl_text=hcl_text,
+        )
+        return {"text": result.text, "warnings": list(result.warnings)}
 
 
 __all__ = ["register_with_fastmcp"]
