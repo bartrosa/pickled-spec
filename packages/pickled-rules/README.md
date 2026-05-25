@@ -51,6 +51,29 @@ pickled-rules check \
 Built-in rule sets: `team-api-conv`, `review-checklist`. Pass a file path instead
 of a name for custom YAML.
 
+## MCP tools
+
+| Tool | Description |
+|------|-------------|
+| `list_rules` | List rules from YAML text |
+| `check_ruleset_coverage` | Coverage gate over feature texts |
+| `draft_ruleset_from_brief` | Draft a YAML rule set from a brief |
+
+## Drafting a rule set from a brief
+
+```bash
+pickled-rules draft \
+  --brief path/to/brief.txt \
+  --short-name my-rules \
+  --source-id MY-RULES \
+  --applies-to backend-api \
+  --active-from 2026-05-25
+```
+
+Use `-` for `--brief` to read from stdin. Cache and budget settings in
+`pickled.config.yaml` apply to LLM calls (see
+[docs/mcp.md](../../docs/mcp.md)).
+
 ## What v0.1 ships
 
 - YAML rule set loader and schema validation
