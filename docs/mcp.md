@@ -189,6 +189,10 @@ points) over a directory layout (`features/`, `specs/`, `infra/`, `migrations/`)
 MCP tools expose finer-grained operations (draft, single gate, parse). Both share
 the same underlying gate classes where applicable.
 
+For workspaces that need to enforce more than one rule set in parallel,
+`pickled.ruleset.yaml` also accepts a `rulesets:` list — see
+[`packages/pickled-rules/README.md`](../packages/pickled-rules/README.md).
+
 ## See also
 
 - [`pattern.md`](pattern.md) — LLM-to-DSL bridge
