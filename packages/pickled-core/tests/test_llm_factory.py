@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 from pathlib import Path
 
 import pytest
@@ -66,3 +67,30 @@ def test_openai_compat_optional_key(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_unknown_provider_name() -> None:
     with pytest.raises(ConfigError, match="unknown"):
         build_client("nope", config=PickledConfig(providers={}))
+
+
+def test_missing_provider_extra_raises_configerror(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    real_import_module = importlib.import_module
+
+    def _fail_import(name: str, *args: object, **kwargs: object) -> object:
+        if name == "pickled_core.llm.providers.anthropic":
+            raise ImportError("No module named 'anthropic'")
+        return real_import_module(name, *args, **kwargs)
+
+    monkeypatch.setattr(importlib, "import_module", _fail_import)
+    cfg = PickledConfig(
+        providers={
+            "mine": ProviderConfigEntry(
+                name="mine",
+                type=LLMProviderType.ANTHROPIC,
+                api_key_env="SK",
+                base_url=None,
+                default_model="claude-3-5-sonnet-20241022",
+            ),
+        },
+    )
+    monkeypatch.setenv("SK", "secret-key")
+    with pytest.raises(ConfigError, match="pickled-core\\[anthropic\\]"):
+        build_client("mine", config=cfg)

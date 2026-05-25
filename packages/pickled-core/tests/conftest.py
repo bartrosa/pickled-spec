@@ -10,6 +10,10 @@ def pytest_configure(config: pytest.Config) -> None:
         "markers",
         "requires_anthropic: needs the anthropic package installed",
     )
+    config.addinivalue_line(
+        "markers",
+        "requires_openai: needs the openai package installed",
+    )
 
 
 def pytest_collection_modifyitems(
@@ -25,4 +29,22 @@ def pytest_collection_modifyitems(
                 "test_llm_anthropic.py",
                 "test_llm_client.py",
             }:
+                item.add_marker(skip)
+            if item.name == "test_make_anthropic":
+                item.add_marker(skip)
+
+    try:
+        import openai  # noqa: F401
+    except ImportError:
+        skip = pytest.mark.skip(reason="openai package not installed")
+        for item in items:
+            if item.name == "test_openai_compat_optional_key":
+                item.add_marker(skip)
+
+    try:
+        from google import genai  # noqa: F401
+    except ImportError:
+        skip = pytest.mark.skip(reason="google-genai package not installed")
+        for item in items:
+            if "gemini" in item.nodeid:
                 item.add_marker(skip)
