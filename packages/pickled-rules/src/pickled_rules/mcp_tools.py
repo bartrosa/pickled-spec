@@ -13,42 +13,23 @@ SSH keys). Forwarding text avoids that entire class of bug.
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
-
-import yaml
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 from pickled_bdd.adapters.pytest_bdd import PytestBddAdapter
 from pickled_core import Verdict
+from pickled_core.llm import LLMClient
 
+from pickled_rules.drafter import RuleSetDrafter
 from pickled_rules.gates import coverage_gate
-from pickled_rules.loader import RuleSetValidationError, load_ruleset
+from pickled_rules.loader import load_ruleset_from_text as _load_ruleset_from_text
 
 
-def _load_ruleset_from_text(ruleset_yaml_text: str) -> Any:
-    data = yaml.safe_load(ruleset_yaml_text)
-    if not isinstance(data, dict):
-        raise RuleSetValidationError("YAML root must be a mapping")
-    with tempfile.NamedTemporaryFile(
-        mode="w",
-        suffix=".yaml",
-        delete=False,
-        encoding="utf-8",
-    ) as fp:
-        fp.write(ruleset_yaml_text)
-        path = Path(fp.name)
-    try:
-        return load_ruleset(path)
-    finally:
-        path.unlink(missing_ok=True)
-
-
-def register_with_fastmcp(app: FastMCP) -> None:
+def register_with_fastmcp(app: FastMCP, *, llm: LLMClient | None = None) -> None:
     """Register rules tools on a FastMCP application."""
     adapter = PytestBddAdapter()
+    drafter: RuleSetDrafter | None = RuleSetDrafter(llm) if llm is not None else None
 
     @app.tool(name="list_rules")
     def list_rules(*, ruleset_yaml_text: str) -> list[dict[str, str]]:
@@ -113,6 +94,55 @@ def register_with_fastmcp(app: FastMCP) -> None:
             "notes": f"checked {len(reports)} feature(s)",
             "reports": reports,
         }
+
+    if drafter is None:
+
+        @app.tool(name="draft_ruleset_from_brief")
+        def _draft_ruleset_from_brief_stub(
+            *,
+            brief_text: str,
+            ruleset_short_name: str,
+            source_id: str,
+            applies_to: str,
+            active_from: str,
+        ) -> dict[str, Any]:
+            _ = (
+                brief_text,
+                ruleset_short_name,
+                source_id,
+                applies_to,
+                active_from,
+            )
+            msg = (
+                "LLM client not configured (set pickled.config.yaml or "
+                "PICKLED_RULES_LLM_FACTORY)"
+            )
+            raise RuntimeError(msg)
+
+    else:
+
+        @app.tool(name="draft_ruleset_from_brief")
+        def _draft_ruleset_from_brief(
+            *,
+            brief_text: str,
+            ruleset_short_name: str,
+            source_id: str,
+            applies_to: str,
+            active_from: str,
+        ) -> dict[str, Any]:
+            """Draft a YAML rule set from a natural-language brief."""
+            result = drafter.draft_from_brief(
+                brief_text=brief_text,
+                ruleset_short_name=ruleset_short_name,
+                source_id=source_id,
+                applies_to=applies_to,
+                active_from=active_from,
+            )
+            return {
+                "ruleset_yaml_text": result.text,
+                "rationale": result.rationale,
+                "warnings": list(result.warnings),
+            }
 
 
 __all__ = ["register_with_fastmcp"]

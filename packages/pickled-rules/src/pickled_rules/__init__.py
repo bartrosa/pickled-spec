@@ -2,7 +2,7 @@
 
 from pickled_rules.builtin import BUILTIN_RULESETS, resolve_ruleset_name
 from pickled_rules.gates import CoverageReport, coverage_gate
-from pickled_rules.loader import RuleSetValidationError, load_ruleset
+from pickled_rules.loader import RuleSetValidationError, load_ruleset, load_ruleset_from_text
 from pickled_rules.references import ScenarioReferences, extract_references
 from pickled_rules.report import render_coverage_json, render_coverage_markdown
 from pickled_rules.types import Enforcement, Rule, RuleRelation, RuleSet
@@ -19,6 +19,7 @@ __all__ = [
     "coverage_gate",
     "extract_references",
     "load_ruleset",
+    "load_ruleset_from_text",
     "render_coverage_json",
     "render_coverage_markdown",
     "resolve_ruleset_name",

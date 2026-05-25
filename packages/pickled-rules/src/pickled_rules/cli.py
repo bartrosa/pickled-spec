@@ -8,11 +8,49 @@ from pathlib import Path
 import click
 from pickled_bdd.adapters.pytest_bdd import PytestBddAdapter
 from pickled_core import Verdict
+from pickled_core.llm import LLMClient
 
 from pickled_rules.builtin import BUILTIN_RULESETS, resolve_ruleset_name
+from pickled_rules.drafter import RuleSetDrafter
 from pickled_rules.gates import coverage_gate, coverage_gate_features
 from pickled_rules.loader import load_ruleset
 from pickled_rules.report import render_coverage_json, render_coverage_markdown
+
+
+def _build_llm_client() -> LLMClient:
+    from pickled_core.llm.bootstrap import build_default_client
+    from pickled_core.llm.config import ConfigError
+
+    try:
+        return build_default_client(factory_env="PICKLED_RULES_LLM_FACTORY")
+    except ConfigError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+
+def _read_text_arg(path: str) -> str:
+    if path == "-":
+        return sys.stdin.read()
+    return Path(path).read_text(encoding="utf-8")
+
+
+def _emit_draft_output(
+    *,
+    text: str,
+    rationale: str,
+    warnings: tuple[str, ...],
+    output: Path | None,
+) -> None:
+    if output is not None:
+        output.write_text(text, encoding="utf-8")
+    else:
+        click.echo(text)
+    if rationale:
+        for line in rationale.splitlines():
+            click.echo(f"rationale: {line}", err=True)
+    for warning in warnings:
+        click.echo(f"warning: {warning}", err=True)
+    if warnings:
+        raise SystemExit(1)
 
 
 def _resolve_ruleset_path(ruleset: str) -> Path:
@@ -171,6 +209,50 @@ def check(
 
     if worst != Verdict.PASS:
         sys.exit(1)
+
+
+@main.command("draft")
+@click.option("--brief", required=True, help="Brief file path or '-' for stdin.")
+@click.option("--short-name", required=True, help="Ruleset short name for tagging.")
+@click.option("--source-id", required=True, help="metadata.source_id value.")
+@click.option("--applies-to", required=True, help="metadata.applies_to value.")
+@click.option("--active-from", required=True, help="metadata.active_from (YYYY-MM-DD).")
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help="Write YAML to this path. Default: stdout.",
+)
+def draft(
+    brief: str,
+    short_name: str,
+    source_id: str,
+    applies_to: str,
+    active_from: str,
+    output: Path | None,
+) -> None:
+    """Draft a YAML rule set from a natural-language brief."""
+    try:
+        llm = _build_llm_client()
+        result = RuleSetDrafter(llm).draft_from_brief(
+            brief_text=_read_text_arg(brief),
+            ruleset_short_name=short_name,
+            source_id=source_id,
+            applies_to=applies_to,
+            active_from=active_from,
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:
+        click.echo(str(exc), err=True)
+        raise SystemExit(2) from exc
+    _emit_draft_output(
+        text=result.text,
+        rationale=result.rationale,
+        warnings=result.warnings,
+        output=output,
+    )
 
 
 @main.group()

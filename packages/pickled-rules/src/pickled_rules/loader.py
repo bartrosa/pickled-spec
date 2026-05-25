@@ -71,6 +71,34 @@ def load_ruleset(path: Path) -> RuleSet:
     )
 
 
+def load_ruleset_from_text(yaml_text: str) -> RuleSet:
+    """Load a rule set from a YAML string.
+
+    Wraps ``load_ruleset`` via a temporary file so error messages keep
+    pointing at a path (preserves the existing error format). Raises
+    ``RuleSetValidationError`` on malformed input.
+    """
+    import tempfile
+
+    try:
+        data = yaml.safe_load(yaml_text)
+    except yaml.YAMLError as exc:
+        raise RuleSetValidationError(f"Malformed YAML: {exc}") from exc
+    if not isinstance(data, dict):
+        raise RuleSetValidationError(
+            f"Rule set root must be a mapping, got {type(data).__name__}"
+        )
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".yaml", delete=False, encoding="utf-8"
+    ) as fp:
+        fp.write(yaml_text)
+        path = Path(fp.name)
+    try:
+        return load_ruleset(path)
+    finally:
+        path.unlink(missing_ok=True)
+
+
 def ruleset_to_references(ruleset: RuleSet) -> list[SourceReference]:
     """Materialize each rule as a `pickled-core` `SourceReference`."""
     return [
