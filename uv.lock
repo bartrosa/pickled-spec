@@ -1427,6 +1427,10 @@ mcp = [
     { name = "fastmcp" },
     { name = "mcp" },
 ]
+mine = [
+    { name = "pickled-bdd" },
+    { name = "pickled-rules" },
+]
 openai = [
     { name = "openai" },
 ]
@@ -1442,12 +1446,14 @@ requires-dist = [
     { name = "mcp", marker = "extra == 'mcp'", specifier = ">=1.27.1" },
     { name = "openai", marker = "extra == 'all-providers'", specifier = ">=1.50" },
     { name = "openai", marker = "extra == 'openai'", specifier = ">=1.50" },
+    { name = "pickled-bdd", marker = "extra == 'mine'", editable = "packages/pickled-bdd" },
+    { name = "pickled-rules", marker = "extra == 'mine'", editable = "packages/pickled-rules" },
     { name = "pydantic", specifier = ">=2.10" },
     { name = "python-ulid", specifier = ">=3.0" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "tenacity", specifier = ">=9.0" },
 ]
-provides-extras = ["anthropic", "openai", "gemini", "all-providers", "mcp"]
+provides-extras = ["anthropic", "openai", "gemini", "all-providers", "mcp", "mine"]
 
 [[package]]
 name = "pickled-data"

@@ -5,3 +5,8 @@ providers:
     type: anthropic
     default_model: claude-sonnet-4-5-20250929
     api_key_env: ANTHROPIC_API_KEY
+cache:
+  dir: .pickled-cache
+  mode: read_write
+budget:
+  max_cost_usd: "5.00"
