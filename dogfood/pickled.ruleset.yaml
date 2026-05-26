@@ -1,0 +1,21 @@
+rulesets:
+  - path: ./rulesets/pickled-internal.yaml
+    short_name: pickled-internal
+  - path: ./rulesets/best-practices.yaml
+    short_name: best-practices
+  - path: ./rulesets/oss-hygiene.yaml
+    short_name: oss-hygiene
+  - path: ./rulesets/bdd-domain.yaml
+    short_name: bdd-domain
+  - path: ./rulesets/rules-domain.yaml
+    short_name: rules-domain
+  - path: ./rulesets/schema-domain.yaml
+    short_name: schema-domain
+  - path: ./rulesets/iac-domain.yaml
+    short_name: iac-domain
+  - path: ./rulesets/data-domain.yaml
+    short_name: data-domain
+  - path: ./rulesets/diff-domain.yaml
+    short_name: diff-domain
+  - path: ./rulesets/core-domain.yaml
+    short_name: core-domain
