@@ -14,3 +14,6 @@ htmlcov/
 
 .cursor/
 .pickled-cache/
+
+dogfood/inventory.json
+dogfood/inventory.md

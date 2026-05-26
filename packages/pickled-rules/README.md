@@ -74,6 +74,34 @@ Use `-` for `--brief` to read from stdin. Cache and budget settings in
 `pickled.config.yaml` apply to LLM calls (see
 [docs/mcp.md](../../docs/mcp.md)).
 
+## Workspace configuration
+
+`pickled-spec check-all --workdir <dir>` reads `pickled.ruleset.yaml`
+from the workspace root. Two equivalent forms are accepted.
+
+Single ruleset (backward-compatible):
+
+```yaml
+ruleset: ./rulesets/team-conventions.yaml
+ruleset_short_name: team-conv     # optional; default is the file stem
+```
+
+Multiple rulesets (each enforced independently):
+
+```yaml
+rulesets:
+  - path: ./rulesets/pickled-internal.yaml
+    short_name: pickled-internal
+  - path: ./rulesets/oss-hygiene.yaml
+  - path: ./rulesets/bdd-domain.yaml
+    short_name: bdd-domain
+```
+
+`short_name` defaults to the filename stem when omitted. Mixing `ruleset:`
+and `rulesets:` in the same file is an error. Each ruleset emits its own
+verdict (gate name `rules.coverage.<short_name>` when multiple are
+present; `rules.coverage` when only one is configured).
+
 ## What v0.1 ships
 
 - YAML rule set loader and schema validation
