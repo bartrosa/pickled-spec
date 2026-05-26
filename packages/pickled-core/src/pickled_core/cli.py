@@ -8,6 +8,7 @@ import click
 
 from pickled_core.check_all import format_table, run_check_all
 from pickled_core.mcp.umbrella import mcp
+from pickled_core.mine.cli import mine
 
 
 @click.group()
@@ -16,6 +17,7 @@ def main() -> None:
 
 
 main.add_command(mcp, name="mcp")
+main.add_command(mine)
 
 
 @main.command(name="check-all")
