@@ -24,6 +24,7 @@ from pickled_core.llm.config import (
     load_config,
 )
 from pickled_core.llm.factory import build_client
+from pickled_core.llm.sanitize import strip_markdown_fence
 from pickled_core.llm.turns import DEFAULT_MODEL, complete_prompt
 
 __all__ = [
@@ -51,4 +52,5 @@ __all__ = [
     "complete_prompt",
     "load_config",
     "set_budget_guard",
+    "strip_markdown_fence",
 ]

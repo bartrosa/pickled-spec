@@ -200,22 +200,73 @@ def _mcp_namespace_map(packages: dict[str, dict[str, Any]]) -> dict[str, str]:
     return mapping
 
 
-def _pickled_mcp_stdio_args(target: Path) -> list[str] | None:
-    root_toml = target / "pyproject.toml"
-    if not root_toml.is_file():
-        return None
-    data = _load_toml(root_toml)
-    project = data.get("project", {})
+def _scripts_dict(data: dict[str, Any]) -> dict[str, str]:
+    project = data.get("project")
     if not isinstance(project, dict):
+        return {}
+    scripts = project.get("scripts")
+    if not isinstance(scripts, dict):
+        return {}
+    return {str(k): str(v) for k, v in scripts.items()}
+
+
+def _has_mcp_subservers_entry_point(data: dict[str, Any]) -> bool:
+    sub = _project_entry_points(data).get("pickled.mcp.subservers", {})
+    return isinstance(sub, dict) and bool(sub)
+
+
+def _pick_umbrella_script_name(scripts: dict[str, str]) -> str | None:
+    if "pickled-spec" in scripts:
+        return "pickled-spec"
+    for name in sorted(scripts):
+        lower = name.lower()
+        if lower == "mcp" or lower.endswith("-spec"):
+            return name
+    return None
+
+
+def discover_umbrella_mcp_launch(target: Path) -> tuple[str, Path] | None:
+    """Find umbrella MCP CLI script on root or workspace member packages.
+
+    Returns ``(script_name, run_directory)`` for ``uv run --directory``.
+    """
+    target = target.resolve()
+    root_toml = target / "pyproject.toml"
+    if root_toml.is_file():
+        root_data = _load_toml(root_toml)
+        scripts = _scripts_dict(root_data)
+        picked = _pick_umbrella_script_name(scripts)
+        if picked and (
+            picked == "pickled-spec" or _has_mcp_subservers_entry_point(root_data)
+        ):
+            return picked, target
+
+    for pkg_dir in expand_packages(target):
+        if pkg_dir.resolve() == target.resolve():
+            continue
+        pkg_toml = pkg_dir / "pyproject.toml"
+        if not pkg_toml.is_file():
+            continue
+        data = _load_toml(pkg_toml)
+        scripts = _scripts_dict(data)
+        picked = _pick_umbrella_script_name(scripts)
+        if picked is None:
+            continue
+        if picked == "pickled-spec" or _has_mcp_subservers_entry_point(data):
+            return picked, target
+    return None
+
+
+def mcp_stdio_uv_args(target: Path) -> list[str] | None:
+    launch = discover_umbrella_mcp_launch(target)
+    if launch is None:
         return None
-    scripts = project.get("scripts", {})
-    if not isinstance(scripts, dict) or "pickled-spec" not in scripts:
-        return None
+    script_name, run_dir = launch
     return [
         "run",
         "--directory",
-        str(target),
-        "pickled-spec",
+        str(run_dir),
+        script_name,
         "mcp",
         "--transport",
         "stdio",
@@ -226,9 +277,9 @@ async def _list_mcp_tools_async(target: Path, timeout: float) -> list[dict[str, 
     from mcp.client.session import ClientSession
     from mcp.client.stdio import StdioServerParameters, stdio_client
 
-    args = _pickled_mcp_stdio_args(target)
+    args = mcp_stdio_uv_args(target)
     if args is None:
-        msg = "no pickled-spec MCP entry point in target pyproject.toml"
+        msg = "no umbrella MCP entry point found in target"
         raise RuntimeError(msg)
 
     params = StdioServerParameters(command="uv", args=args, cwd=str(target))
@@ -672,9 +723,9 @@ def build_inventory(
         inv.packages = _collect_packages(target, verbose)
 
     if "mcp" in include and not no_mcp:
-        if _pickled_mcp_stdio_args(target) is None:
-            log("WARN", "MCP tools skipped (no pickled-spec script in target)")
-            inv.warnings.append("MCP tools skipped: target has no pickled-spec entry point")
+        if discover_umbrella_mcp_launch(target) is None:
+            log("WARN", "MCP tools skipped (no umbrella MCP entry point found in target)")
+            inv.warnings.append("no umbrella MCP entry point found in target")
         else:
             try:
                 tools = asyncio.run(_list_mcp_tools_async(target, mcp_timeout))
@@ -714,4 +765,12 @@ def parse_include(raw: str) -> set[str]:
     return parts
 
 
-__all__ = ["Inventory", "build_inventory", "expand_packages", "parse_include", "walk_click_group"]
+__all__ = [
+    "Inventory",
+    "build_inventory",
+    "discover_umbrella_mcp_launch",
+    "expand_packages",
+    "mcp_stdio_uv_args",
+    "parse_include",
+    "walk_click_group",
+]
