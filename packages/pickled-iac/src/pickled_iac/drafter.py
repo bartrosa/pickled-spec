@@ -6,6 +6,8 @@ import tempfile
 from pathlib import Path
 
 from pickled_core import LLMClient, PromptTemplate
+from pickled_core.llm.sanitize import strip_markdown_fence
+from pickled_core.llm.turns import complete_prompt
 
 from pickled_iac.oracle import iac_binary, validate
 from pickled_iac.types import IaCArtifact
@@ -41,18 +43,13 @@ class IaCDrafter:
                 user_story=user_story,
                 error_feedback=feedback,
             )
-            from pickled_core.llm.turns import complete_prompt
-
-            hcl = complete_prompt(
-                self._llm,
-                prompt,
-                system="Output only Terraform HCL. No fences, no commentary.",
-            ).strip()
-            if hcl.startswith("```"):
-                lines = hcl.splitlines()
-                hcl = "\n".join(
-                    line for line in lines if not line.strip().startswith("```")
-                ).strip()
+            hcl = strip_markdown_fence(
+                complete_prompt(
+                    self._llm,
+                    prompt,
+                    system="Output only Terraform HCL. No fences, no commentary.",
+                )
+            )
 
             with tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
