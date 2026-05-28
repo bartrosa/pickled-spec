@@ -1,0 +1,118 @@
+{
+  "schema_version": "1",
+  "rulesets": [
+    {
+      "short_name": "pickled-internal",
+      "verdict": "pass",
+      "notes": "All strict rules in PICKLED-INTERNAL are referenced; no unknown reference tags.",
+      "referenced_rule_ids": [
+        "core-llm-cache-default-on",
+        "core-model-from-config-not-hardcoded",
+        "mcp-output-fixed-json-shape",
+        "mcp-subserver-llm-client-wired",
+        "stdio-hygiene-gates-log-stderr"
+      ],
+      "unreferenced_strict_rule_ids": [],
+      "unknown_references": []
+    },
+    {
+      "short_name": "best-practices",
+      "verdict": "pass",
+      "notes": "All strict rules in PICKLED-BEST-PRACTICES are referenced; no unknown reference tags.",
+      "referenced_rule_ids": [
+        "agent-path-first-class",
+        "cli-mcp-surface-parity",
+        "llm-drafter-temperature-zero"
+      ],
+      "unreferenced_strict_rule_ids": [],
+      "unknown_references": []
+    },
+    {
+      "short_name": "oss-hygiene",
+      "verdict": "pass",
+      "notes": "All strict rules in PICKLED-OSS-HYGIENE are referenced; no unknown reference tags.",
+      "referenced_rule_ids": [
+        "no-secrets-in-repo"
+      ],
+      "unreferenced_strict_rule_ids": [],
+      "unknown_references": []
+    },
+    {
+      "short_name": "bdd-domain",
+      "verdict": "fail",
+      "notes": "1 strict rule(s) unreferenced.",
+      "referenced_rule_ids": [
+        "draft-empty-story-deterministic-failure",
+        "draft-output-parses-via-pytest-bdd",
+        "draft-warnings-field-populated-on-failure",
+        "drafter-no-auto-tags",
+        "gherkin-feature-header-required"
+      ],
+      "unreferenced_strict_rule_ids": [
+        "gherkin-then-asserts-observable-outcome"
+      ],
+      "unknown_references": []
+    },
+    {
+      "short_name": "rules-domain",
+      "verdict": "pass",
+      "notes": "All strict rules in PICKLED-RULES-DOMAIN are referenced; no unknown reference tags.",
+      "referenced_rule_ids": [
+        "coverage-union-across-features",
+        "unknown-tag-fails-gate"
+      ],
+      "unreferenced_strict_rule_ids": [],
+      "unknown_references": []
+    },
+    {
+      "short_name": "schema-domain",
+      "verdict": "pass",
+      "notes": "All strict rules in PICKLED-SCHEMA-DOMAIN are referenced; no unknown reference tags.",
+      "referenced_rule_ids": [
+        "openapi-validate-deterministic"
+      ],
+      "unreferenced_strict_rule_ids": [],
+      "unknown_references": []
+    },
+    {
+      "short_name": "iac-domain",
+      "verdict": "pass",
+      "notes": "All strict rules in PICKLED-IAC-DOMAIN are referenced; no unknown reference tags.",
+      "referenced_rule_ids": [
+        "terraform-validate-entry"
+      ],
+      "unreferenced_strict_rule_ids": [],
+      "unknown_references": []
+    },
+    {
+      "short_name": "data-domain",
+      "verdict": "pass",
+      "notes": "All strict rules in PICKLED-DATA-DOMAIN are referenced; no unknown reference tags.",
+      "referenced_rule_ids": [
+        "migration-drift-gate"
+      ],
+      "unreferenced_strict_rule_ids": [],
+      "unknown_references": []
+    },
+    {
+      "short_name": "diff-domain",
+      "verdict": "pass",
+      "notes": "All strict rules in PICKLED-DIFF-DOMAIN are referenced; no unknown reference tags.",
+      "referenced_rule_ids": [
+        "differential-oracle-gate"
+      ],
+      "unreferenced_strict_rule_ids": [],
+      "unknown_references": []
+    },
+    {
+      "short_name": "core-domain",
+      "verdict": "pass",
+      "notes": "All strict rules in PICKLED-CORE-DOMAIN are referenced; no unknown reference tags.",
+      "referenced_rule_ids": [
+        "verdict-three-state-ladder"
+      ],
+      "unreferenced_strict_rule_ids": [],
+      "unknown_references": []
+    }
+  ]
+}
