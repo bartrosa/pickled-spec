@@ -193,8 +193,16 @@ For workspaces that need to enforce more than one rule set in parallel,
 `pickled.ruleset.yaml` also accepts a `rulesets:` list — see
 [`packages/pickled-rules/README.md`](../packages/pickled-rules/README.md).
 
+## Mining
+
+To introspect an arbitrary Python repo and scaffold stories, features, tags,
+and gate reports from its CLIs and MCP tools, use the staged
+[`pickled-spec mine`](mining.md) pipeline (`mine inventory`, `mine all`, …).
+Mining is CLI-first today; MCP wrappers for mine stages are not shipped yet.
+
 ## See also
 
+- [`mining.md`](mining.md) — staged mine pipeline for any Python repo
 - [`pattern.md`](pattern.md) — LLM-to-DSL bridge
 - [`gates.md`](gates.md) — compensating gates exposed as tools
 - [`integration-example.md`](integration-example.md) — end-to-end example
