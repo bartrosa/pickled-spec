@@ -205,6 +205,39 @@ def test_empty_rulesets_list_fails_validation(tmp_path: Path) -> None:
     assert "at least one ruleset entry required" in results[0].notes
 
 
+def test_default_feature_glob_unchanged(tmp_path: Path) -> None:
+    _write_workspace(
+        tmp_path,
+        config_yaml="ruleset: ./rulesets/rs.yaml\nruleset_short_name: team-rules\n",
+    )
+    results = run_all(tmp_path)
+    assert len(results) == 1
+    assert results[0].verdict == Verdict.PASS
+
+
+def test_custom_feature_glob_finds_features_in_subdir(tmp_path: Path) -> None:
+    rules_dir = tmp_path / "rulesets"
+    rules_dir.mkdir()
+    shutil.copy(_FIXTURE_RULESET, rules_dir / "rs.yaml")
+    (tmp_path / "pickled.ruleset.yaml").write_text(
+        """\
+ruleset: ./rulesets/rs.yaml
+ruleset_short_name: team-rules
+feature_glob: bdd/features/**/*.feature
+""",
+        encoding="utf-8",
+    )
+    bdd_features = tmp_path / "bdd" / "features"
+    bdd_features.mkdir(parents=True)
+    (bdd_features / "nested.feature").write_text(
+        _FEATURE_PASS.format(short="team-rules"),
+        encoding="utf-8",
+    )
+    results = run_all(tmp_path)
+    assert len(results) == 1
+    assert results[0].verdict == Verdict.PASS
+
+
 def test_non_mapping_entry_fails_validation(tmp_path: Path) -> None:
     (tmp_path / "pickled.ruleset.yaml").write_text(
         'rulesets: ["bad-string"]\n',

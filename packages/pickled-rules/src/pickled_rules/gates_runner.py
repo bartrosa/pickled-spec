@@ -28,6 +28,16 @@ def _workdir_config(root: Path) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def _feature_glob(cfg: dict[str, Any]) -> str:
+    raw = cfg.get("feature_glob")
+    if raw is None:
+        return "features/**/*.feature"
+    if not isinstance(raw, str):
+        msg = "pickled.ruleset.yaml: 'feature_glob' must be a string"
+        raise RuleSetValidationError(msg)
+    return raw
+
+
 def _resolve_ruleset_entries(root: Path, cfg: dict[str, Any]) -> list[_RulesetEntry]:
     has_singular = "ruleset" in cfg
     has_plural = "rulesets" in cfg
@@ -111,7 +121,8 @@ def run_all(workdir: Path | str) -> list[GateResult]:
             )
         ]
 
-    features = sorted(root.glob("features/**/*.feature"))
+    feature_pattern = _feature_glob(cfg)
+    features = sorted(root.glob(feature_pattern))
     if not features:
         return [
             GateResult(

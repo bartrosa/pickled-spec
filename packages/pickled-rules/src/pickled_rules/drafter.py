@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from pickled_core.llm.base import LLMClient, Message
+from pickled_core.llm.sanitize import strip_markdown_fence
 
 from pickled_rules.loader import RuleSetValidationError, load_ruleset_from_text
 
@@ -66,7 +67,7 @@ class RuleSetDrafter:
             stop=None,
             extras=None,
         )
-        text, rationale = self._split_output(completion.text)
+        text, rationale = self._split_output(strip_markdown_fence(completion.text))
         warnings = tuple(self._validate(text))
         return DraftResult(text=text, rationale=rationale, warnings=warnings)
 
