@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from pickled_core import DraftResult, LLMClient, PromptTemplate
+from pickled_core.llm.sanitize import strip_markdown_fence
+from pickled_core.llm.turns import complete_prompt
 
 from pickled_bdd.prompts import template_path
 
@@ -22,15 +24,13 @@ class FeatureDrafter:
         leaves a generic rationale string.
         """
         prompt = self._template.render(story=story)
-        from pickled_core.llm.turns import complete_prompt
-
         feature_text = complete_prompt(
             self._llm,
             prompt,
             system="You output only Gherkin. No prose, no fences.",
         )
         return DraftResult(
-            text=feature_text.strip(),
+            text=strip_markdown_fence(feature_text),
             rationale="LLM-drafted from user story; no post-processing applied.",
             warnings=(),
         )
