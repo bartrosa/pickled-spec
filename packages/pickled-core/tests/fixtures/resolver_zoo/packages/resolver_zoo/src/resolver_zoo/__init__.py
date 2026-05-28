@@ -1,0 +1,1 @@
+"""Resolver adversarial fixture package."""
