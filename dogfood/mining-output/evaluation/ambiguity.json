@@ -1,0 +1,509 @@
+{
+  "schema_version": "1",
+  "features": [
+    {
+      "feature": "features/bdd_draft_feature_from_story.feature",
+      "verdict": "fail",
+      "finding_count": 8,
+      "skipped": false,
+      "notes": "8/8 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/bdd_validate_feature_ambiguity.feature",
+      "verdict": "fail",
+      "finding_count": 12,
+      "skipped": false,
+      "notes": "12/12 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/data_apply_sql_to_sandbox.feature",
+      "verdict": "fail",
+      "finding_count": 13,
+      "skipped": false,
+      "notes": "13/13 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/data_check_migration_drift.feature",
+      "verdict": "fail",
+      "finding_count": 11,
+      "skipped": false,
+      "notes": "11/11 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/data_draft_sql_migration_from_intent.feature",
+      "verdict": "fail",
+      "finding_count": 13,
+      "skipped": false,
+      "notes": "13/13 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/data_parse_sql_migration.feature",
+      "verdict": "fail",
+      "finding_count": 14,
+      "skipped": false,
+      "notes": "14/14 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/diff_draft_corpus_from_examples.feature",
+      "verdict": "fail",
+      "finding_count": 9,
+      "skipped": false,
+      "notes": "9/9 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/diff_verify_against_oracle.feature",
+      "verdict": "fail",
+      "finding_count": 9,
+      "skipped": false,
+      "notes": "9/9 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/iac_diff_terraform_plans.feature",
+      "verdict": "fail",
+      "finding_count": 14,
+      "skipped": false,
+      "notes": "14/14 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/iac_draft_terraform_module.feature",
+      "verdict": "fail",
+      "finding_count": 15,
+      "skipped": false,
+      "notes": "15/15 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/iac_explain_plan_diff.feature",
+      "verdict": "fail",
+      "finding_count": 9,
+      "skipped": false,
+      "notes": "9/9 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/iac_suggest_security_remediation.feature",
+      "verdict": "fail",
+      "finding_count": 7,
+      "skipped": false,
+      "notes": "7/7 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/iac_validate_terraform_dir.feature",
+      "verdict": "fail",
+      "finding_count": 7,
+      "skipped": false,
+      "notes": "7/7 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_bdd_ambiguity.feature",
+      "verdict": "fail",
+      "finding_count": 14,
+      "skipped": false,
+      "notes": "14/14 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_bdd_ambiguitygate.feature",
+      "verdict": "warn",
+      "finding_count": 12,
+      "skipped": false,
+      "notes": "12/14 scenarios flagged ambiguous. Parse errors on: ['Quality engineer runs gate against LLM responses with markdown fences', 'Quality engineer runs gate against LLM responses with markdown fences']."
+    },
+    {
+      "feature": "features/pickled_bdd_check.feature",
+      "verdict": "fail",
+      "finding_count": 12,
+      "skipped": false,
+      "notes": "12/12 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_bdd_draft.feature",
+      "verdict": "fail",
+      "finding_count": 7,
+      "skipped": false,
+      "notes": "7/7 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_bdd_mcp.feature",
+      "verdict": "fail",
+      "finding_count": 3,
+      "skipped": false,
+      "notes": "3/3 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_bdd_run_all.feature",
+      "verdict": "fail",
+      "finding_count": 10,
+      "skipped": false,
+      "notes": "10/10 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_check_all.feature",
+      "verdict": "fail",
+      "finding_count": 10,
+      "skipped": false,
+      "notes": "10/10 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_mine.feature",
+      "verdict": "fail",
+      "finding_count": 6,
+      "skipped": false,
+      "notes": "6/6 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_mine_all.feature",
+      "verdict": "fail",
+      "finding_count": 13,
+      "skipped": false,
+      "notes": "13/13 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_mine_code.feature",
+      "verdict": "fail",
+      "finding_count": 14,
+      "skipped": false,
+      "notes": "14/14 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_mine_evaluate.feature",
+      "verdict": "fail",
+      "finding_count": 13,
+      "skipped": false,
+      "notes": "13/13 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_mine_features.feature",
+      "verdict": "fail",
+      "finding_count": 13,
+      "skipped": false,
+      "notes": "13/13 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_mine_inventory.feature",
+      "verdict": "fail",
+      "finding_count": 10,
+      "skipped": false,
+      "notes": "10/10 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_mine_report.feature",
+      "verdict": "fail",
+      "finding_count": 10,
+      "skipped": false,
+      "notes": "10/10 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_mine_stories.feature",
+      "verdict": "fail",
+      "finding_count": 15,
+      "skipped": false,
+      "notes": "15/15 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_core_mine_tag.feature",
+      "verdict": "fail",
+      "finding_count": 10,
+      "skipped": false,
+      "notes": "10/10 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_data_apply.feature",
+      "verdict": "fail",
+      "finding_count": 19,
+      "skipped": false,
+      "notes": "19/19 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_data_check_drift.feature",
+      "verdict": "fail",
+      "finding_count": 7,
+      "skipped": false,
+      "notes": "7/7 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_data_datacontractgate.feature",
+      "verdict": "fail",
+      "finding_count": 14,
+      "skipped": false,
+      "notes": "14/14 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_data_draft.feature",
+      "verdict": "fail",
+      "finding_count": 20,
+      "skipped": false,
+      "notes": "20/20 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_data_mcp.feature",
+      "verdict": "fail",
+      "finding_count": 5,
+      "skipped": false,
+      "notes": "5/5 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_data_migrationdriftgate.feature",
+      "verdict": "fail",
+      "finding_count": 18,
+      "skipped": false,
+      "notes": "18/18 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_data_parse.feature",
+      "verdict": "fail",
+      "finding_count": 9,
+      "skipped": false,
+      "notes": "9/9 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_data_run_all.feature",
+      "verdict": "fail",
+      "finding_count": 18,
+      "skipped": false,
+      "notes": "18/18 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_diff_draft_corpus.feature",
+      "verdict": "fail",
+      "finding_count": 8,
+      "skipped": false,
+      "notes": "8/8 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_diff_mcp.feature",
+      "verdict": "fail",
+      "finding_count": 3,
+      "skipped": false,
+      "notes": "3/3 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_diff_run_all.feature",
+      "verdict": "fail",
+      "finding_count": 17,
+      "skipped": false,
+      "notes": "17/17 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_diff_verify.feature",
+      "verdict": "fail",
+      "finding_count": 22,
+      "skipped": false,
+      "notes": "22/22 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_iac_diff.feature",
+      "verdict": "fail",
+      "finding_count": 22,
+      "skipped": false,
+      "notes": "22/22 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_iac_draft.feature",
+      "verdict": "warn",
+      "finding_count": 15,
+      "skipped": false,
+      "notes": "15/16 scenarios flagged ambiguous. Parse errors on: ['LLM response contains code fences which are stripped']."
+    },
+    {
+      "feature": "features/pickled_iac_iacambiguitygate.feature",
+      "verdict": "error",
+      "finding_count": 0,
+      "skipped": true,
+      "notes": "unparseable feature: Parser errors:\n(1:1): expected: #EOF, #Language, #TagLine, #FeatureLine, #Comment, #Empty, got '```gherkin'\n(141:0): unexpected end of file, expected: #DocStringSeparator, #Other"
+    },
+    {
+      "feature": "features/pickled_iac_mcp.feature",
+      "verdict": "fail",
+      "finding_count": 6,
+      "skipped": false,
+      "notes": "6/6 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_iac_plan_cmd.feature",
+      "verdict": "fail",
+      "finding_count": 8,
+      "skipped": false,
+      "notes": "8/8 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_iac_plandiffgate.feature",
+      "verdict": "fail",
+      "finding_count": 28,
+      "skipped": false,
+      "notes": "28/28 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_iac_run_all.feature",
+      "verdict": "fail",
+      "finding_count": 14,
+      "skipped": false,
+      "notes": "14/14 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_iac_scan.feature",
+      "verdict": "fail",
+      "finding_count": 12,
+      "skipped": false,
+      "notes": "12/12 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_iac_securitybaselinegate.feature",
+      "verdict": "fail",
+      "finding_count": 20,
+      "skipped": false,
+      "notes": "20/20 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_iac_validate.feature",
+      "verdict": "fail",
+      "finding_count": 6,
+      "skipped": false,
+      "notes": "6/6 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_rules_check.feature",
+      "verdict": "fail",
+      "finding_count": 25,
+      "skipped": false,
+      "notes": "25/25 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_rules_coverage_gate.feature",
+      "verdict": "fail",
+      "finding_count": 14,
+      "skipped": false,
+      "notes": "14/14 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_rules_coverage_gate_features.feature",
+      "verdict": "fail",
+      "finding_count": 12,
+      "skipped": false,
+      "notes": "12/12 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_rules_draft.feature",
+      "verdict": "fail",
+      "finding_count": 13,
+      "skipped": false,
+      "notes": "13/13 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_rules_list_rules.feature",
+      "verdict": "fail",
+      "finding_count": 8,
+      "skipped": false,
+      "notes": "8/8 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_rules_mcp.feature",
+      "verdict": "fail",
+      "finding_count": 3,
+      "skipped": false,
+      "notes": "3/3 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_rules_run_all.feature",
+      "verdict": "fail",
+      "finding_count": 19,
+      "skipped": false,
+      "notes": "19/19 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_schema_check.feature",
+      "verdict": "fail",
+      "finding_count": 16,
+      "skipped": false,
+      "notes": "16/16 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_schema_draft.feature",
+      "verdict": "fail",
+      "finding_count": 19,
+      "skipped": false,
+      "notes": "19/19 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_schema_mcp.feature",
+      "verdict": "fail",
+      "finding_count": 2,
+      "skipped": false,
+      "notes": "2/2 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_schema_parse.feature",
+      "verdict": "error",
+      "finding_count": 0,
+      "skipped": true,
+      "notes": "unparseable feature: Parser errors:\n(1:1): expected: #EOF, #Language, #TagLine, #FeatureLine, #Comment, #Empty, got '```gherkin'\n(95:1): expected: #EOF, #TableRow, #TagLine, #ExamplesLine, #ScenarioLine, #RuleLine, #Comment, #Empty, got '```'"
+    },
+    {
+      "feature": "features/pickled_schema_run_all.feature",
+      "verdict": "fail",
+      "finding_count": 25,
+      "skipped": false,
+      "notes": "25/25 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_schema_schemaambiguitygate.feature",
+      "verdict": "warn",
+      "finding_count": 17,
+      "skipped": false,
+      "notes": "17/18 scenarios flagged ambiguous. Parse errors on: ['Gate fails when LLM returns malformed markdown fences']."
+    },
+    {
+      "feature": "features/pickled_schema_schemacoveragegate.feature",
+      "verdict": "fail",
+      "finding_count": 23,
+      "skipped": false,
+      "notes": "23/23 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/pickled_schema_validate.feature",
+      "verdict": "fail",
+      "finding_count": 18,
+      "skipped": false,
+      "notes": "18/18 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/rules_check_ruleset_coverage.feature",
+      "verdict": "fail",
+      "finding_count": 9,
+      "skipped": false,
+      "notes": "9/9 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/rules_draft_ruleset_from_brief.feature",
+      "verdict": "fail",
+      "finding_count": 12,
+      "skipped": false,
+      "notes": "12/12 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/rules_list_rules.feature",
+      "verdict": "fail",
+      "finding_count": 10,
+      "skipped": false,
+      "notes": "10/10 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/schema_check_schema_coverage.feature",
+      "verdict": "fail",
+      "finding_count": 7,
+      "skipped": false,
+      "notes": "7/7 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/schema_draft_openapi_endpoint.feature",
+      "verdict": "fail",
+      "finding_count": 12,
+      "skipped": false,
+      "notes": "12/12 scenarios flagged ambiguous."
+    },
+    {
+      "feature": "features/schema_validate_openapi_spec.feature",
+      "verdict": "fail",
+      "finding_count": 5,
+      "skipped": false,
+      "notes": "5/5 scenarios flagged ambiguous."
+    }
+  ]
+}

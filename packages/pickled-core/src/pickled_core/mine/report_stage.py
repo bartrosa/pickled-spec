@@ -22,7 +22,93 @@ def _inventory_cli_table(data: dict[str, Any]) -> list[str]:
     return lines
 
 
-def render_mining_report(output_dir: Path, *, target_label: str | None = None) -> str:
+def _count_scenarios(features: list[Path]) -> int:
+    total = 0
+    for path in features:
+        total += path.read_text(encoding="utf-8").count("Scenario:")
+    return total
+
+
+def _count_tagged_scenarios(tags: dict[str, Any] | None) -> int:
+    if not tags:
+        return 0
+    count = 0
+    for entry in tags.get("features", []):
+        if not isinstance(entry, dict):
+            continue
+        for scenario in entry.get("scenarios", []):
+            if isinstance(scenario, dict) and scenario.get("selected"):
+                count += 1
+    return count
+
+
+def _next_moves(
+    *,
+    inventory: dict[str, Any] | None,
+    stories: list[Path],
+    features: list[Path],
+    tags: dict[str, Any] | None,
+    coverage: dict[str, Any] | None,
+    ambiguity: dict[str, Any] | None,
+    surfaces_filter: tuple[str, ...],
+) -> list[str]:
+    moves: list[str] = []
+    if surfaces_filter:
+        joined = ", ".join(surfaces_filter)
+        moves.append(
+            f"This run covered only surfaces matching `--surfaces {joined}`; "
+            "run without `--surfaces` for full coverage."
+        )
+    if not inventory:
+        moves.append("Run `pickled-spec mine inventory <target>` first.")
+        return moves
+
+    if coverage:
+        for entry in coverage.get("rulesets", []):
+            if not isinstance(entry, dict):
+                continue
+            if entry.get("verdict") != "pass":
+                unref = entry.get("unreferenced_strict_rule_ids", [])
+                if unref:
+                    ids = ", ".join(str(r) for r in unref[:10])
+                    moves.append(f"Add a story/feature covering strict rules: {ids}")
+
+    if ambiguity:
+        for entry in ambiguity.get("features", []):
+            if not isinstance(entry, dict):
+                continue
+            if entry.get("verdict") == "fail":
+                feature = entry.get("feature", "")
+                surface_id = Path(feature).stem
+                moves.append(
+                    f"Re-draft `{surface_id}` with tighter scope; see "
+                    "evaluation/ambiguity.json findings."
+                )
+
+    if tags and features:
+        tagged = _count_tagged_scenarios(tags)
+        scenario_total = _count_scenarios(features)
+        if tagged < scenario_total:
+            moves.append(
+                "Manually review tag proposals for scenarios without a selected tag."
+            )
+
+    if not stories:
+        moves.append("Generate stories from inventory surfaces.")
+    if not features:
+        moves.append("Draft features from generated stories (requires LLM).")
+    elif not coverage and not ambiguity:
+        moves.append("Run `pickled-spec mine evaluate` for coverage and ambiguity gates.")
+
+    return moves
+
+
+def render_mining_report(
+    output_dir: Path,
+    *,
+    target_label: str | None = None,
+    surfaces_filter: tuple[str, ...] = (),
+) -> str:
     """Build markdown report from whichever stage outputs exist."""
     paths = MiningPaths(output_dir.resolve())
     inventory = read_json_optional(paths.inventory_json)
@@ -35,9 +121,10 @@ def render_mining_report(output_dir: Path, *, target_label: str | None = None) -
     if target_label:
         lines.append(f"Target: `{target_label}`")
     lines.append(f"Output: `{paths.root}`")
+    if surfaces_filter:
+        lines.append(f"Surface filter: `{', '.join(surfaces_filter)}`")
     lines.append("")
 
-    # Summary
     lines.append("## Summary")
     lines.append("")
     if inventory:
@@ -56,12 +143,13 @@ def render_mining_report(output_dir: Path, *, target_label: str | None = None) -
 
     stories = sorted(paths.stories_dir.glob("*.story.md")) if paths.stories_dir.is_dir() else []
     features = sorted(paths.features_dir.glob("*.feature")) if paths.features_dir.is_dir() else []
-    lines.append(f"- Stories on disk: {len(stories)}")
-    lines.append(f"- Features on disk: {len(features)}")
     tags = read_json_optional(paths.tags_proposals)
-    lines.append(f"- Tag proposals: {'yes' if tags else 'no'}")
     coverage = read_json_optional(paths.coverage_json)
     ambiguity = read_json_optional(paths.ambiguity_json)
+
+    lines.append(f"- Stories on disk: {len(stories)}")
+    lines.append(f"- Features on disk: {len(features)}")
+    lines.append(f"- Tag proposals: {'yes' if tags else 'no'}")
     lines.append(f"- Coverage evaluation: {'yes' if coverage else 'no'}")
     lines.append(f"- Ambiguity evaluation: {'yes' if ambiguity else 'no'}")
     lines.append("")
@@ -78,17 +166,6 @@ def render_mining_report(output_dir: Path, *, target_label: str | None = None) -
                 f"{len(pkg.get('mcp_tools', []))} | {len(pkg.get('gates', []))} |"
             )
         lines.append("")
-        if inventory.get("adrs"):
-            lines.append("### ADRs")
-            lines.append("")
-            lines.append("| # | Title | Status |")
-            lines.append("|---|-------|--------|")
-            for adr in inventory["adrs"]:
-                num = adr.get("number", "")
-                title = adr.get("title", "")
-                status = adr.get("status", "")
-                lines.append(f"| {num} | {title} | {status} |")
-            lines.append("")
         cli_rows = _inventory_cli_table(inventory)
         if cli_rows:
             lines.append("### CLI commands")
@@ -109,6 +186,20 @@ def render_mining_report(output_dir: Path, *, target_label: str | None = None) -
             lines.append(f"| {path.stem} | `{path.relative_to(paths.root)}` |")
         lines.append("")
 
+    if tags:
+        lines.append("## Tag proposals")
+        lines.append("")
+        feature_entries = tags.get("features", [])
+        if isinstance(feature_entries, list):
+            for entry in feature_entries:
+                if not isinstance(entry, dict):
+                    continue
+                feature_path = entry.get("feature_path", "")
+                scenarios = entry.get("scenarios", [])
+                count = len(scenarios) if isinstance(scenarios, list) else 0
+                lines.append(f"- `{feature_path}`: {count} scenario(s)")
+        lines.append("")
+
     if features:
         lines.append("## Features generated")
         lines.append("")
@@ -125,35 +216,54 @@ def render_mining_report(output_dir: Path, *, target_label: str | None = None) -
     if coverage:
         lines.append("## Coverage by rule set")
         lines.append("")
+        lines.append("| Rule set | Verdict | Unreferenced strict |")
+        lines.append("|----------|---------|--------------------:|")
         for entry in coverage.get("rulesets", []):
-            lines.append(
-                f"- **{entry.get('short_name', '')}**: {entry.get('verdict', 'unknown')} "
-                f"— {entry.get('notes', '')}"
-            )
+            if not isinstance(entry, dict):
+                continue
+            short_name = entry.get("short_name", "")
+            verdict = entry.get("verdict", "unknown")
+            unref = entry.get("unreferenced_strict_rule_ids", [])
+            count = len(unref) if isinstance(unref, list) else 0
+            lines.append(f"| {short_name} | {verdict} | {count} |")
+            if unref and verdict != "pass":
+                lines.append("")
+                lines.append(f"Unreferenced strict rules in `{short_name}`:")
+                for rule_id in unref:
+                    lines.append(f"- `{rule_id}`")
+                lines.append("")
         lines.append("")
 
     if ambiguity:
-        lines.append("## Ambiguity")
+        lines.append("## Ambiguity by feature")
         lines.append("")
+        lines.append("| Feature | Verdict | Findings | Skipped |")
+        lines.append("|---------|---------|----------:|---------|")
         for entry in ambiguity.get("features", []):
+            if not isinstance(entry, dict):
+                continue
             lines.append(
-                f"- `{entry.get('feature', '')}`: {entry.get('verdict', 'unknown')} "
-                f"— {entry.get('notes', '')}"
+                f"| `{entry.get('feature', '')}` | {entry.get('verdict', '')} | "
+                f"{entry.get('finding_count', 0)} | "
+                f"{'yes' if entry.get('skipped') else 'no'} |"
             )
         lines.append("")
 
+    moves = _next_moves(
+        inventory=inventory,
+        stories=stories,
+        features=features,
+        tags=tags,
+        coverage=coverage,
+        ambiguity=ambiguity,
+        surfaces_filter=surfaces_filter,
+    )
     lines.append("## Suggested next moves")
     lines.append("")
-    if not inventory:
-        lines.append("- Run `pickled-spec mine inventory <target>` first.")
-    elif inventory.get("totals", {}).get("cli_commands", 0) == 0:
-        lines.append("- No CLI commands found; verify the target exposes Click entry points.")
+    if moves:
+        lines.extend(f"- {move}" for move in moves)
     else:
-        lines.append("- Run remaining stages: `stories`, `features`, `tag`, `evaluate`.")
-    if not stories:
-        lines.append("- Generate stories from inventory surfaces.")
-    if not features:
-        lines.append("- Draft features from generated stories.")
+        lines.append("- Mining pipeline complete for this output directory.")
     lines.append("")
 
     return "\n".join(lines)
@@ -164,11 +274,16 @@ def run_report(
     *,
     target_label: str | None = None,
     verbose: bool = False,
+    surfaces_filter: tuple[str, ...] = (),
 ) -> Path:
     """Write ``mining-report.md`` and return its path."""
     paths = MiningPaths(output_dir.resolve())
     paths.root.mkdir(parents=True, exist_ok=True)
-    report = render_mining_report(paths.root, target_label=target_label)
+    report = render_mining_report(
+        paths.root,
+        target_label=target_label,
+        surfaces_filter=surfaces_filter,
+    )
     write_text(paths.mining_report, report)
     if verbose:
         sys.stderr.write(f"[INFO] Wrote {paths.mining_report}\n")
@@ -176,19 +291,51 @@ def run_report(
 
 
 def print_stdout_summary(output_dir: Path, *, target_label: str) -> None:
-    """Brief summary for CI (stderr only except this is called from report with format json)."""
+    """Brief stderr summary for CI."""
     paths = MiningPaths(output_dir.resolve())
-    inventory = read_json_optional(paths.inventory_json)
-    stories = len(list(paths.stories_dir.glob("*.story.md"))) if paths.stories_dir.is_dir() else 0
-    features = len(list(paths.features_dir.glob("*.feature"))) if paths.features_dir.is_dir() else 0
-    cli_count = 0
-    if inventory:
-        cli_count = inventory.get("totals", {}).get("cli_commands", 0)
+    stories = list(paths.stories_dir.glob("*.story.md")) if paths.stories_dir.is_dir() else []
+    features = list(paths.features_dir.glob("*.feature")) if paths.features_dir.is_dir() else []
+    tags = read_json_optional(paths.tags_proposals)
+    coverage = read_json_optional(paths.coverage_json)
+    ambiguity = read_json_optional(paths.ambiguity_json)
+
+    scenario_count = _count_scenarios(features)
+    tagged_count = _count_tagged_scenarios(tags)
+
+    coverage_pass = coverage_fail = 0
+    if coverage:
+        for entry in coverage.get("rulesets", []):
+            if isinstance(entry, dict) and entry.get("verdict") == "pass":
+                coverage_pass += 1
+            elif isinstance(entry, dict):
+                coverage_fail += 1
+
+    ambiguity_pass = ambiguity_fail = 0
+    if ambiguity:
+        for entry in ambiguity.get("features", []):
+            if not isinstance(entry, dict):
+                continue
+            if entry.get("verdict") == "pass":
+                ambiguity_pass += 1
+            else:
+                ambiguity_fail += 1
+
+    sys.stderr.write(f"mining of {target_label} complete:\n")
     sys.stderr.write(
-        f"mining of {target_label} complete: cli_commands={cli_count} "
-        f"stories={stories} features={features}\n"
-        f"report: {paths.mining_report}\n"
+        f"  surfaces={len(stories)} stories={len(stories)} "
+        f"features={len(features)} scenarios={scenario_count} tagged={tagged_count}\n"
     )
+    if coverage:
+        total = coverage_pass + coverage_fail
+        sys.stderr.write(
+            f"  coverage: {coverage_pass}/{total} rulesets pass, {coverage_fail} fail\n"
+        )
+    if ambiguity:
+        total = ambiguity_pass + ambiguity_fail
+        sys.stderr.write(
+            f"  ambiguity: {ambiguity_pass}/{total} features pass, {ambiguity_fail} fail\n"
+        )
+    sys.stderr.write(f"report: {paths.mining_report}\n")
 
 
 __all__ = ["render_mining_report", "run_report", "print_stdout_summary"]

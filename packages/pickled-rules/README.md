@@ -102,6 +102,20 @@ and `rulesets:` in the same file is an error. Each ruleset emits its own
 verdict (gate name `rules.coverage.<short_name>` when multiple are
 present; `rules.coverage` when only one is configured).
 
+Optional `feature_glob:` selects where feature files live (glob relative
+to the workspace root). Default: `features/**/*.feature`.
+
+```yaml
+rulesets:
+  - path: ./rulesets/bdd-domain.yaml
+    short_name: bdd-domain
+feature_glob: bdd/features/**/*.feature
+```
+
+Dogfood keeps features under `bdd/features/`; set `feature_glob` so
+`pickled-spec check-all --workdir dogfood/` and mine evaluate find them
+without a top-level `features/` directory.
+
 ## What v0.1 ships
 
 - YAML rule set loader and schema validation

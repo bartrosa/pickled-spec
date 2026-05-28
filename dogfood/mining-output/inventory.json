@@ -1,0 +1,3341 @@
+{
+  "schema_version": "1",
+  "generated_at": "2026-05-28T13:39:04Z",
+  "repo_root": "/Users/bartlomiejrosa/Projects/PORTFOLIO/pickled-spec",
+  "totals": {
+    "packages": 7,
+    "cli_commands": 46,
+    "mcp_tools": 19,
+    "gates": 16,
+    "adrs": 7,
+    "workspaces": 2
+  },
+  "packages": {
+    "pickled-bdd": {
+      "version": "0.1.0.dev0",
+      "description": "LLM-to-Gherkin bridge with deterministic verification.",
+      "scripts": {
+        "pickled-bdd": "pickled_bdd.cli:main"
+      },
+      "entry_points": {
+        "pickled.mcp.subservers": {
+          "bdd": "pickled_bdd.mcp_cli:build_server"
+        },
+        "pickled.gates": {
+          "bdd": "pickled_bdd.gates_runner:run_all"
+        }
+      },
+      "optional_dependencies": [
+        "mcp"
+      ],
+      "cli_commands": [
+        {
+          "full_name": "ambiguity",
+          "help": "Run the ambiguity gate (alias for ``check --gate ambiguity``).",
+          "params": [
+            {
+              "name": "feature_file",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "feature_file"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "check",
+          "help": "Run compensating gates against a .feature file.",
+          "params": [
+            {
+              "name": "feature_file",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "feature_file"
+              ]
+            },
+            {
+              "name": "gate",
+              "type": "Option",
+              "required": false,
+              "default": "ambiguity",
+              "help": "Which gate to run.",
+              "secondary_opts": [],
+              "opts": [
+                "--gate"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "draft",
+          "help": "Draft a .feature file from a user story (Markdown).",
+          "params": [
+            {
+              "name": "story_file",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "story_file"
+              ]
+            },
+            {
+              "name": "output",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Write the drafted feature to this path. Defaults to stdout.",
+              "secondary_opts": [],
+              "opts": [
+                "-o",
+                "--output"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mcp",
+          "help": "MCP server commands.",
+          "params": [],
+          "is_group": true
+        },
+        {
+          "full_name": "mcp serve",
+          "help": "Run the pickled-bdd MCP server.",
+          "params": [
+            {
+              "name": "transport",
+              "type": "Option",
+              "required": false,
+              "default": "stdio",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--transport"
+              ]
+            },
+            {
+              "name": "host",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--host"
+              ]
+            },
+            {
+              "name": "port",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--port"
+              ]
+            },
+            {
+              "name": "allow_public",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--allow-public"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "serve",
+          "help": "Deprecated alias for ``pickled-bdd mcp serve``.",
+          "params": [],
+          "is_group": false
+        }
+      ],
+      "mcp_tools": [
+        {
+          "name": "bdd_draft_feature_from_story",
+          "description": "Draft a Gherkin .feature file from a natural-language user story.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "story_text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "story_text"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "bdd_validate_feature_ambiguity",
+          "description": "Run the ambiguity gate against a Gherkin .feature file.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "feature_text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "feature_text"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "gates": [
+        {
+          "kind": "class",
+          "name": "AmbiguityGate.run",
+          "module": "pickled_bdd.gates.ambiguity",
+          "file": "packages/pickled-bdd/src/pickled_bdd/gates/ambiguity.py",
+          "line": 44,
+          "returns": "GateResult",
+          "docstring_summary": "Compensating gate: flags scenarios that admit multiple implementations."
+        },
+        {
+          "kind": "function",
+          "name": "run_all",
+          "module": "pickled_bdd.gates_runner",
+          "file": "packages/pickled-bdd/src/pickled_bdd/gates_runner.py",
+          "line": 12,
+          "returns": "list[GateResult]",
+          "docstring_summary": "Parse Gherkin under ``features/`` (AmbiguityGate skipped without LLM)."
+        }
+      ]
+    },
+    "pickled-core": {
+      "version": "0.1.0.dev0",
+      "description": "Shared types, gate protocol, and infrastructure for the pickled-* family.",
+      "scripts": {
+        "pickled-spec": "pickled_core.cli:main"
+      },
+      "entry_points": {},
+      "optional_dependencies": [
+        "all-providers",
+        "anthropic",
+        "gemini",
+        "mcp",
+        "mine",
+        "openai"
+      ],
+      "cli_commands": [
+        {
+          "full_name": "check-all",
+          "help": "Run workspace gates from every pickled-* package against a directory.",
+          "params": [
+            {
+              "name": "workdir",
+              "type": "Option",
+              "required": false,
+              "default": ".",
+              "help": "Workspace root (features/, specs/, infra/, migrations/).",
+              "secondary_opts": [],
+              "opts": [
+                "--workdir"
+              ]
+            },
+            {
+              "name": "warn_ok",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Exit 0 when only WARN verdicts occur (e.g. terraform or LLM not configured).",
+              "secondary_opts": [],
+              "opts": [
+                "--warn-ok"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mcp",
+          "help": "Run the umbrella MCP server (all family packages mounted).",
+          "params": [
+            {
+              "name": "transport",
+              "type": "Option",
+              "required": false,
+              "default": "stdio",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--transport"
+              ]
+            },
+            {
+              "name": "host",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Bind host for HTTP transport.",
+              "secondary_opts": [],
+              "opts": [
+                "--host"
+              ]
+            },
+            {
+              "name": "port",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Bind port for HTTP transport.",
+              "secondary_opts": [],
+              "opts": [
+                "--port"
+              ]
+            },
+            {
+              "name": "allow_public",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Required to bind 0.0.0.0.",
+              "secondary_opts": [],
+              "opts": [
+                "--allow-public"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mine",
+          "help": "Mine a Python project for surfaces, stories, features, and gate results.",
+          "params": [],
+          "is_group": true
+        },
+        {
+          "full_name": "mine all",
+          "help": "Run inventory → code → stories → features → tag → evaluate → report.",
+          "params": [
+            {
+              "name": "target",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "target"
+              ]
+            },
+            {
+              "name": "output_dir",
+              "type": "Option",
+              "required": false,
+              "default": "./mining-output/",
+              "help": "Mining output directory.",
+              "secondary_opts": [],
+              "opts": [
+                "--output"
+              ]
+            },
+            {
+              "name": "quick",
+              "type": "Option",
+              "required": false,
+              "default": "True",
+              "help": "Quick mode (default) or interactive prompts.",
+              "secondary_opts": [
+                "--interactive"
+              ],
+              "opts": [
+                "--quick"
+              ]
+            },
+            {
+              "name": "verbose",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Extra logging to stderr.",
+              "secondary_opts": [],
+              "opts": [
+                "--verbose"
+              ]
+            },
+            {
+              "name": "surfaces",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Comma-separated filter on package name or surface-id substring.",
+              "secondary_opts": [],
+              "opts": [
+                "--surfaces"
+              ]
+            },
+            {
+              "name": "max_parallel",
+              "type": "Option",
+              "required": false,
+              "default": "4",
+              "help": "Max parallel LLM calls in quick mode (stories, features).",
+              "secondary_opts": [],
+              "opts": [
+                "--max-parallel"
+              ]
+            },
+            {
+              "name": "no_mcp",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--no-mcp"
+              ]
+            },
+            {
+              "name": "mcp_timeout",
+              "type": "Option",
+              "required": false,
+              "default": "30.0",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--mcp-timeout"
+              ]
+            },
+            {
+              "name": "ruleset_dir",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--ruleset-dir"
+              ]
+            },
+            {
+              "name": "ruleset_config",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--ruleset-config"
+              ]
+            },
+            {
+              "name": "overwrite_stories",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--overwrite-stories"
+              ]
+            },
+            {
+              "name": "overwrite_features",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--overwrite-features"
+              ]
+            },
+            {
+              "name": "depth",
+              "type": "Option",
+              "required": false,
+              "default": "body",
+              "help": "How much source to collect per surface.",
+              "secondary_opts": [],
+              "opts": [
+                "--depth"
+              ]
+            },
+            {
+              "name": "callee_scope",
+              "type": "Option",
+              "required": false,
+              "default": "same-package",
+              "help": "Which intra-project callees to follow.",
+              "secondary_opts": [],
+              "opts": [
+                "--callee-scope"
+              ]
+            },
+            {
+              "name": "max_hops",
+              "type": "Option",
+              "required": false,
+              "default": "2",
+              "help": "Callee expansion depth (callgraph only).",
+              "secondary_opts": [],
+              "opts": [
+                "--max-hops"
+              ]
+            },
+            {
+              "name": "max_callees",
+              "type": "Option",
+              "required": false,
+              "default": "8",
+              "help": "Hard cap on collected callee units per surface.",
+              "secondary_opts": [],
+              "opts": [
+                "--max-callees"
+              ]
+            },
+            {
+              "name": "max_code_lines",
+              "type": "Option",
+              "required": false,
+              "default": "400",
+              "help": "Hard cap on total source lines per surface.",
+              "secondary_opts": [],
+              "opts": [
+                "--max-code-lines"
+              ]
+            },
+            {
+              "name": "detect_cycles",
+              "type": "Option",
+              "required": false,
+              "default": "True",
+              "help": "Write code-context/_cycles.json from observed edges.",
+              "secondary_opts": [
+                "--no-detect-cycles"
+              ],
+              "opts": [
+                "--detect-cycles"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mine code",
+          "help": "Stage 2: extract code context per surface from inventory.json.",
+          "params": [
+            {
+              "name": "target",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "target"
+              ]
+            },
+            {
+              "name": "output_dir",
+              "type": "Option",
+              "required": false,
+              "default": "./mining-output/",
+              "help": "Mining output directory.",
+              "secondary_opts": [],
+              "opts": [
+                "--output"
+              ]
+            },
+            {
+              "name": "verbose",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Extra logging to stderr.",
+              "secondary_opts": [],
+              "opts": [
+                "--verbose"
+              ]
+            },
+            {
+              "name": "surfaces",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Comma-separated filter on package name or surface-id substring.",
+              "secondary_opts": [],
+              "opts": [
+                "--surfaces"
+              ]
+            },
+            {
+              "name": "depth",
+              "type": "Option",
+              "required": false,
+              "default": "body",
+              "help": "How much source to collect per surface.",
+              "secondary_opts": [],
+              "opts": [
+                "--depth"
+              ]
+            },
+            {
+              "name": "callee_scope",
+              "type": "Option",
+              "required": false,
+              "default": "same-package",
+              "help": "Which intra-project callees to follow.",
+              "secondary_opts": [],
+              "opts": [
+                "--callee-scope"
+              ]
+            },
+            {
+              "name": "max_hops",
+              "type": "Option",
+              "required": false,
+              "default": "2",
+              "help": "Callee expansion depth (callgraph only).",
+              "secondary_opts": [],
+              "opts": [
+                "--max-hops"
+              ]
+            },
+            {
+              "name": "max_callees",
+              "type": "Option",
+              "required": false,
+              "default": "8",
+              "help": "Hard cap on collected callee units per surface.",
+              "secondary_opts": [],
+              "opts": [
+                "--max-callees"
+              ]
+            },
+            {
+              "name": "max_code_lines",
+              "type": "Option",
+              "required": false,
+              "default": "400",
+              "help": "Hard cap on total source lines per surface.",
+              "secondary_opts": [],
+              "opts": [
+                "--max-code-lines"
+              ]
+            },
+            {
+              "name": "detect_cycles",
+              "type": "Option",
+              "required": false,
+              "default": "True",
+              "help": "Write code-context/_cycles.json from observed edges.",
+              "secondary_opts": [
+                "--no-detect-cycles"
+              ],
+              "opts": [
+                "--detect-cycles"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mine evaluate",
+          "help": "Stage 6: evaluate coverage and ambiguity gates.",
+          "params": [
+            {
+              "name": "target",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "target"
+              ]
+            },
+            {
+              "name": "output_dir",
+              "type": "Option",
+              "required": false,
+              "default": "./mining-output/",
+              "help": "Mining output directory.",
+              "secondary_opts": [],
+              "opts": [
+                "--output"
+              ]
+            },
+            {
+              "name": "verbose",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Extra logging to stderr.",
+              "secondary_opts": [],
+              "opts": [
+                "--verbose"
+              ]
+            },
+            {
+              "name": "surfaces",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Comma-separated filter on package name or surface-id substring.",
+              "secondary_opts": [],
+              "opts": [
+                "--surfaces"
+              ]
+            },
+            {
+              "name": "ruleset_dir",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--ruleset-dir"
+              ]
+            },
+            {
+              "name": "ruleset_config",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--ruleset-config"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mine features",
+          "help": "Stage 4: draft features from stories.",
+          "params": [
+            {
+              "name": "target",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "target"
+              ]
+            },
+            {
+              "name": "output_dir",
+              "type": "Option",
+              "required": false,
+              "default": "./mining-output/",
+              "help": "Mining output directory.",
+              "secondary_opts": [],
+              "opts": [
+                "--output"
+              ]
+            },
+            {
+              "name": "quick",
+              "type": "Option",
+              "required": false,
+              "default": "True",
+              "help": "Quick mode (default) or interactive prompts.",
+              "secondary_opts": [
+                "--interactive"
+              ],
+              "opts": [
+                "--quick"
+              ]
+            },
+            {
+              "name": "verbose",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Extra logging to stderr.",
+              "secondary_opts": [],
+              "opts": [
+                "--verbose"
+              ]
+            },
+            {
+              "name": "surfaces",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Comma-separated filter on package name or surface-id substring.",
+              "secondary_opts": [],
+              "opts": [
+                "--surfaces"
+              ]
+            },
+            {
+              "name": "max_parallel",
+              "type": "Option",
+              "required": false,
+              "default": "4",
+              "help": "Max parallel LLM calls in quick mode (stories, features).",
+              "secondary_opts": [],
+              "opts": [
+                "--max-parallel"
+              ]
+            },
+            {
+              "name": "overwrite_features",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--overwrite-features"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mine inventory",
+          "help": "Stage 1: introspect target and write inventory.json.",
+          "params": [
+            {
+              "name": "target",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "target"
+              ]
+            },
+            {
+              "name": "output_dir",
+              "type": "Option",
+              "required": false,
+              "default": "./mining-output/",
+              "help": "Mining output directory.",
+              "secondary_opts": [],
+              "opts": [
+                "--output"
+              ]
+            },
+            {
+              "name": "quick",
+              "type": "Option",
+              "required": false,
+              "default": "True",
+              "help": "Quick mode (default) or interactive prompts.",
+              "secondary_opts": [
+                "--interactive"
+              ],
+              "opts": [
+                "--quick"
+              ]
+            },
+            {
+              "name": "verbose",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Extra logging to stderr.",
+              "secondary_opts": [],
+              "opts": [
+                "--verbose"
+              ]
+            },
+            {
+              "name": "no_mcp",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Skip MCP tools/list.",
+              "secondary_opts": [],
+              "opts": [
+                "--no-mcp"
+              ]
+            },
+            {
+              "name": "mcp_timeout",
+              "type": "Option",
+              "required": false,
+              "default": "30.0",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--mcp-timeout"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mine report",
+          "help": "Stage 7: render mining-report.md from pipeline outputs.",
+          "params": [
+            {
+              "name": "target",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "target"
+              ]
+            },
+            {
+              "name": "output_dir",
+              "type": "Option",
+              "required": false,
+              "default": "./mining-output/",
+              "help": "Mining output directory.",
+              "secondary_opts": [],
+              "opts": [
+                "--output"
+              ]
+            },
+            {
+              "name": "quick",
+              "type": "Option",
+              "required": false,
+              "default": "True",
+              "help": "Quick mode (default) or interactive prompts.",
+              "secondary_opts": [
+                "--interactive"
+              ],
+              "opts": [
+                "--quick"
+              ]
+            },
+            {
+              "name": "verbose",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Extra logging to stderr.",
+              "secondary_opts": [],
+              "opts": [
+                "--verbose"
+              ]
+            },
+            {
+              "name": "surfaces",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Comma-separated filter on package name or surface-id substring.",
+              "secondary_opts": [],
+              "opts": [
+                "--surfaces"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mine stories",
+          "help": "Stage 3: emit stories from inventory.json.",
+          "params": [
+            {
+              "name": "target",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "target"
+              ]
+            },
+            {
+              "name": "output_dir",
+              "type": "Option",
+              "required": false,
+              "default": "./mining-output/",
+              "help": "Mining output directory.",
+              "secondary_opts": [],
+              "opts": [
+                "--output"
+              ]
+            },
+            {
+              "name": "quick",
+              "type": "Option",
+              "required": false,
+              "default": "True",
+              "help": "Quick mode (default) or interactive prompts.",
+              "secondary_opts": [
+                "--interactive"
+              ],
+              "opts": [
+                "--quick"
+              ]
+            },
+            {
+              "name": "verbose",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Extra logging to stderr.",
+              "secondary_opts": [],
+              "opts": [
+                "--verbose"
+              ]
+            },
+            {
+              "name": "surfaces",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Comma-separated filter on package name or surface-id substring.",
+              "secondary_opts": [],
+              "opts": [
+                "--surfaces"
+              ]
+            },
+            {
+              "name": "max_parallel",
+              "type": "Option",
+              "required": false,
+              "default": "4",
+              "help": "Max parallel LLM calls in quick mode (stories, features).",
+              "secondary_opts": [],
+              "opts": [
+                "--max-parallel"
+              ]
+            },
+            {
+              "name": "overwrite_stories",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--overwrite-stories"
+              ]
+            },
+            {
+              "name": "code_context_dir",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Directory with code-context/*.md (default: <output>/code-context when present).",
+              "secondary_opts": [],
+              "opts": [
+                "--code-context"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mine tag",
+          "help": "Stage 5: tag scenarios in generated features.",
+          "params": [
+            {
+              "name": "target",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "target"
+              ]
+            },
+            {
+              "name": "output_dir",
+              "type": "Option",
+              "required": false,
+              "default": "./mining-output/",
+              "help": "Mining output directory.",
+              "secondary_opts": [],
+              "opts": [
+                "--output"
+              ]
+            },
+            {
+              "name": "quick",
+              "type": "Option",
+              "required": false,
+              "default": "True",
+              "help": "Quick mode (default) or interactive prompts.",
+              "secondary_opts": [
+                "--interactive"
+              ],
+              "opts": [
+                "--quick"
+              ]
+            },
+            {
+              "name": "verbose",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Extra logging to stderr.",
+              "secondary_opts": [],
+              "opts": [
+                "--verbose"
+              ]
+            },
+            {
+              "name": "surfaces",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Comma-separated filter on package name or surface-id substring.",
+              "secondary_opts": [],
+              "opts": [
+                "--surfaces"
+              ]
+            },
+            {
+              "name": "ruleset_dir",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--ruleset-dir"
+              ]
+            },
+            {
+              "name": "ruleset_config",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--ruleset-config"
+              ]
+            }
+          ],
+          "is_group": false
+        }
+      ],
+      "mcp_tools": [],
+      "gates": []
+    },
+    "pickled-data": {
+      "version": "0.1.0.dev0",
+      "description": "SQL migration parsing, sandbox oracle, and schema contract gates.",
+      "scripts": {
+        "pickled-data": "pickled_data.cli:main"
+      },
+      "entry_points": {
+        "pickled.mcp.subservers": {
+          "data": "pickled_data.mcp_cli:build_server"
+        },
+        "pickled.gates": {
+          "data": "pickled_data.gates_runner:run_all"
+        }
+      },
+      "optional_dependencies": [
+        "cross-contract",
+        "mcp"
+      ],
+      "cli_commands": [
+        {
+          "full_name": "apply",
+          "help": "Apply migration to in-memory SQLite and print resulting schema.",
+          "params": [
+            {
+              "name": "migration",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "migration"
+              ]
+            },
+            {
+              "name": "dialect",
+              "type": "Option",
+              "required": false,
+              "default": "postgres",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--dialect"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "check-drift",
+          "help": "Run MigrationDriftGate against expected schema YAML.",
+          "params": [
+            {
+              "name": "migration",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--migration"
+              ]
+            },
+            {
+              "name": "expected",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--expected"
+              ]
+            },
+            {
+              "name": "dialect",
+              "type": "Option",
+              "required": false,
+              "default": "postgres",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--dialect"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "draft",
+          "help": "Draft a SQL migration from a natural-language intent.",
+          "params": [
+            {
+              "name": "intent",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "Intent file path or '-' for stdin.",
+              "secondary_opts": [],
+              "opts": [
+                "--intent"
+              ]
+            },
+            {
+              "name": "dialect",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "SQL dialect for the migration.",
+              "secondary_opts": [],
+              "opts": [
+                "--dialect"
+              ]
+            },
+            {
+              "name": "current_schema",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Optional existing schema YAML file.",
+              "secondary_opts": [],
+              "opts": [
+                "--current-schema"
+              ]
+            },
+            {
+              "name": "output",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Write SQL to this path. Default: stdout.",
+              "secondary_opts": [],
+              "opts": [
+                "-o",
+                "--output"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mcp",
+          "help": "MCP server commands.",
+          "params": [],
+          "is_group": true
+        },
+        {
+          "full_name": "mcp serve",
+          "help": "",
+          "params": [
+            {
+              "name": "transport",
+              "type": "Option",
+              "required": false,
+              "default": "stdio",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--transport"
+              ]
+            },
+            {
+              "name": "host",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--host"
+              ]
+            },
+            {
+              "name": "port",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--port"
+              ]
+            },
+            {
+              "name": "allow_public",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--allow-public"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "parse",
+          "help": "Parse a migration SQL file and print AST summary.",
+          "params": [
+            {
+              "name": "migration",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "migration"
+              ]
+            },
+            {
+              "name": "dialect",
+              "type": "Option",
+              "required": false,
+              "default": "postgres",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--dialect"
+              ]
+            }
+          ],
+          "is_group": false
+        }
+      ],
+      "mcp_tools": [
+        {
+          "name": "data_apply_sql_to_sandbox",
+          "description": "Apply SQL to in-memory SQLite and return schema.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "sql": {
+                "type": "string"
+              },
+              "dialect": {
+                "default": "postgres",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sql"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "data_check_migration_drift",
+          "description": "Compare migration result schema to expected YAML.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "sql": {
+                "type": "string"
+              },
+              "expected_schema_yaml": {
+                "type": "string"
+              },
+              "dialect": {
+                "default": "postgres",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sql",
+              "expected_schema_yaml"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "data_draft_sql_migration_from_intent",
+          "description": "",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "intent_text": {
+                "type": "string"
+              },
+              "dialect": {
+                "type": "string"
+              },
+              "current_schema_yaml": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": [
+              "intent_text",
+              "dialect"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "data_parse_sql_migration",
+          "description": "Parse SQL and return AST summary.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "sql": {
+                "type": "string"
+              },
+              "dialect": {
+                "default": "postgres",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sql"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "gates": [
+        {
+          "kind": "class",
+          "name": "DataContractGate.run",
+          "module": "pickled_data.gates",
+          "file": "packages/pickled-data/src/pickled_data/gates.py",
+          "line": 125,
+          "returns": "GateResult",
+          "docstring_summary": "v0.1 PARTIAL: column name matching against OpenAPI response properties."
+        },
+        {
+          "kind": "class",
+          "name": "MigrationDriftGate.run",
+          "module": "pickled_data.gates",
+          "file": "packages/pickled-data/src/pickled_data/gates.py",
+          "line": 80,
+          "returns": "GateResult",
+          "docstring_summary": "Compare oracle schema output vs expected schema YAML."
+        },
+        {
+          "kind": "function",
+          "name": "run_all",
+          "module": "pickled_data.gates_runner",
+          "file": "packages/pickled-data/src/pickled_data/gates_runner.py",
+          "line": 15,
+          "returns": "list[GateResult]",
+          "docstring_summary": "Parse migrations and run drift gate vs ``expected_schema.yaml``."
+        }
+      ]
+    },
+    "pickled-diff": {
+      "version": "0.1.0.dev0",
+      "description": "Differential oracle verification: compare a candidate implementation against a reference implementation across an input corpus.",
+      "scripts": {
+        "pickled-diff": "pickled_diff.cli:main"
+      },
+      "entry_points": {
+        "pickled.mcp.subservers": {
+          "diff": "pickled_diff.mcp_cli:build_server"
+        },
+        "pickled.gates": {
+          "diff": "pickled_diff.gates_runner:run_all"
+        }
+      },
+      "optional_dependencies": [
+        "mcp"
+      ],
+      "cli_commands": [
+        {
+          "full_name": "draft-corpus",
+          "help": "Expand seed examples into a larger differential corpus.",
+          "params": [
+            {
+              "name": "seeds",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "JSON file with seed items, or '-' for stdin.",
+              "secondary_opts": [],
+              "opts": [
+                "--seeds"
+              ]
+            },
+            {
+              "name": "target_size",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "Total corpus size.",
+              "secondary_opts": [],
+              "opts": [
+                "--target-size"
+              ]
+            },
+            {
+              "name": "notes",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Optional notes file path or '-' for stdin.",
+              "secondary_opts": [],
+              "opts": [
+                "--notes"
+              ]
+            },
+            {
+              "name": "output",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Write corpus JSON to this path. Default: stdout.",
+              "secondary_opts": [],
+              "opts": [
+                "-o",
+                "--output"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mcp",
+          "help": "MCP server commands.",
+          "params": [],
+          "is_group": true
+        },
+        {
+          "full_name": "mcp serve",
+          "help": "Run the pickled-diff MCP server.",
+          "params": [
+            {
+              "name": "transport",
+              "type": "Option",
+              "required": false,
+              "default": "stdio",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--transport"
+              ]
+            },
+            {
+              "name": "host",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--host"
+              ]
+            },
+            {
+              "name": "port",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--port"
+              ]
+            },
+            {
+              "name": "allow_public",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--allow-public"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "serve",
+          "help": "Deprecated alias for ``pickled-diff mcp serve``.",
+          "params": [],
+          "is_group": false
+        },
+        {
+          "full_name": "verify",
+          "help": "Compare candidate vs reference across a JSON input corpus.",
+          "params": [
+            {
+              "name": "oracle",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "Reference command (shell-quoted argv).",
+              "secondary_opts": [],
+              "opts": [
+                "--oracle"
+              ]
+            },
+            {
+              "name": "candidate",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "Candidate command (shell-quoted argv).",
+              "secondary_opts": [],
+              "opts": [
+                "--candidate"
+              ]
+            },
+            {
+              "name": "corpus",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "JSON file: [{\"name\": \"...\", \"payload\": \"...\"}, ...]",
+              "secondary_opts": [],
+              "opts": [
+                "--corpus"
+              ]
+            },
+            {
+              "name": "comparator",
+              "type": "Option",
+              "required": false,
+              "default": "exact",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--comparator"
+              ]
+            },
+            {
+              "name": "timeout_seconds",
+              "type": "Option",
+              "required": false,
+              "default": "30.0",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--timeout"
+              ]
+            }
+          ],
+          "is_group": false
+        }
+      ],
+      "mcp_tools": [
+        {
+          "name": "diff_draft_corpus_from_examples",
+          "description": "",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "seed_examples": {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "target_size": {
+                "type": "integer"
+              },
+              "notes": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": [
+              "seed_examples",
+              "target_size"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "diff_verify_against_oracle",
+          "description": "Compare candidate vs reference command output on a corpus.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "oracle_command": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "candidate_command": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "corpus_items": {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "comparator": {
+                "default": "exact",
+                "type": "string"
+              },
+              "timeout_seconds": {
+                "default": 30.0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "oracle_command",
+              "candidate_command",
+              "corpus_items"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "gates": [
+        {
+          "kind": "function",
+          "name": "run_all",
+          "module": "pickled_diff.gates_runner",
+          "file": "packages/pickled-diff/src/pickled_diff/gates_runner.py",
+          "line": 78,
+          "returns": "list[GateResult]",
+          "docstring_summary": "Run differential oracle gate when ``pickled.diff.yaml`` is present."
+        }
+      ]
+    },
+    "pickled-iac": {
+      "version": "0.1.0.dev0",
+      "description": "LLM-to-Terraform bridge with plan diff and optional Trivy security scanning.",
+      "scripts": {
+        "pickled-iac": "pickled_iac.cli:main"
+      },
+      "entry_points": {
+        "pickled.mcp.subservers": {
+          "iac": "pickled_iac.mcp_cli:build_server"
+        },
+        "pickled.gates": {
+          "iac": "pickled_iac.gates_runner:run_all"
+        }
+      },
+      "optional_dependencies": [
+        "mcp",
+        "security"
+      ],
+      "cli_commands": [
+        {
+          "full_name": "diff",
+          "help": "Compare two terraform plan JSON files.",
+          "params": [
+            {
+              "name": "base_path",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--base"
+              ]
+            },
+            {
+              "name": "head_path",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--head"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "draft",
+          "help": "Draft a Terraform module from a user story.",
+          "params": [
+            {
+              "name": "user_story",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "user_story"
+              ]
+            },
+            {
+              "name": "provider",
+              "type": "Option",
+              "required": false,
+              "default": "aws",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--provider"
+              ]
+            },
+            {
+              "name": "output",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "-o",
+                "--output"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mcp",
+          "help": "MCP server commands.",
+          "params": [],
+          "is_group": true
+        },
+        {
+          "full_name": "mcp serve",
+          "help": "",
+          "params": [
+            {
+              "name": "transport",
+              "type": "Option",
+              "required": false,
+              "default": "stdio",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--transport"
+              ]
+            },
+            {
+              "name": "host",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--host"
+              ]
+            },
+            {
+              "name": "port",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--port"
+              ]
+            },
+            {
+              "name": "allow_public",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--allow-public"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "plan-cmd",
+          "help": "Run terraform plan and write JSON to *output*.",
+          "params": [
+            {
+              "name": "tf_dir",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "tf_dir"
+              ]
+            },
+            {
+              "name": "output",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "-o",
+                "--output"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "scan",
+          "help": "Run Trivy config scan (optional; skips if trivy missing).",
+          "params": [
+            {
+              "name": "tf_dir",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "tf_dir"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "validate",
+          "help": "Run terraform validate on a directory.",
+          "params": [
+            {
+              "name": "tf_dir",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "tf_dir"
+              ]
+            }
+          ],
+          "is_group": false
+        }
+      ],
+      "mcp_tools": [
+        {
+          "name": "iac_diff_terraform_plans",
+          "description": "Compare base vs head terraform plan JSON.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "base_plan_json": {
+                "type": "string"
+              },
+              "head_plan_json": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "base_plan_json",
+              "head_plan_json"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "iac_draft_terraform_module",
+          "description": "Draft a Terraform module from a user story.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "user_story": {
+                "type": "string"
+              },
+              "provider": {
+                "default": "aws",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_story"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "iac_explain_plan_diff",
+          "description": "Summarise a terraform plan JSON and flag risky actions.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "plan_json": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "plan_json"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "iac_suggest_security_remediation",
+          "description": "Suggest HCL patches for Trivy config-scan findings.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "trivy_findings_json": {
+                "type": "string"
+              },
+              "hcl_text": {
+                "default": "",
+                "type": "string"
+              }
+            },
+            "required": [
+              "trivy_findings_json"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "iac_validate_terraform_dir",
+          "description": "Validate Terraform files written to a temp directory.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "tf_files": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              }
+            },
+            "required": [
+              "tf_files"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "gates": [
+        {
+          "kind": "class",
+          "name": "IaCAmbiguityGate.run",
+          "module": "pickled_iac.gates",
+          "file": "packages/pickled-iac/src/pickled_iac/gates.py",
+          "line": 37,
+          "returns": "GateResult",
+          "docstring_summary": "LLM critic for Terraform modules."
+        },
+        {
+          "kind": "class",
+          "name": "PlanDiffGate.run",
+          "module": "pickled_iac.gates",
+          "file": "packages/pickled-iac/src/pickled_iac/gates.py",
+          "line": 102,
+          "returns": "GateResult",
+          "docstring_summary": "Compare two terraform plan JSON outputs (base vs head)."
+        },
+        {
+          "kind": "class",
+          "name": "SecurityBaselineGate.run",
+          "module": "pickled_iac.gates",
+          "file": "packages/pickled-iac/src/pickled_iac/gates.py",
+          "line": 172,
+          "returns": "GateResult",
+          "docstring_summary": "Run Trivy config scan on a Terraform directory (optional in v0.1)."
+        },
+        {
+          "kind": "function",
+          "name": "run_all",
+          "module": "pickled_iac.gates_runner",
+          "file": "packages/pickled-iac/src/pickled_iac/gates_runner.py",
+          "line": 14,
+          "returns": "list[GateResult]",
+          "docstring_summary": "``terraform validate`` and optional Trivy scan on ``infra/``."
+        }
+      ]
+    },
+    "pickled-rules": {
+      "version": "0.1.0",
+      "description": "Rule coverage analysis for project artifacts (Gherkin features and scenarios). Generic dev tooling — bring your own rule sets.",
+      "scripts": {
+        "pickled-rules": "pickled_rules.cli:main"
+      },
+      "entry_points": {
+        "pickled.mcp.subservers": {
+          "rules": "pickled_rules.mcp_cli:build_server"
+        },
+        "pickled.gates": {
+          "rules": "pickled_rules.gates_runner:run_all"
+        }
+      },
+      "optional_dependencies": [
+        "mcp"
+      ],
+      "cli_commands": [
+        {
+          "full_name": "check",
+          "help": "Check feature coverage against a YAML rule set.",
+          "params": [
+            {
+              "name": "ruleset",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "Built-in rule set name or path to a YAML rule set file.",
+              "secondary_opts": [],
+              "opts": [
+                "--ruleset"
+              ]
+            },
+            {
+              "name": "feature_path",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Single Gherkin feature file to analyse.",
+              "secondary_opts": [],
+              "opts": [
+                "--feature"
+              ]
+            },
+            {
+              "name": "feature_glob",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Glob of feature files; multiple matches are checked as one union (strict rules must appear across the set, not in each file).",
+              "secondary_opts": [],
+              "opts": [
+                "--feature-glob"
+              ]
+            },
+            {
+              "name": "ruleset_name",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Short name for tag prefix (default: built-in name or file stem).",
+              "secondary_opts": [],
+              "opts": [
+                "--ruleset-name"
+              ]
+            },
+            {
+              "name": "output_format",
+              "type": "Option",
+              "required": false,
+              "default": "markdown",
+              "help": "Report output format.",
+              "secondary_opts": [],
+              "opts": [
+                "--format"
+              ]
+            },
+            {
+              "name": "output",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Write the report to this path. Default: stdout.",
+              "secondary_opts": [],
+              "opts": [
+                "--output",
+                "-o"
+              ]
+            },
+            {
+              "name": "quiet",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "Suppress report on stdout; print only the verdict line. If --output is set, the report is still written to the file.",
+              "secondary_opts": [],
+              "opts": [
+                "--quiet"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "draft",
+          "help": "Draft a YAML rule set from a natural-language brief.",
+          "params": [
+            {
+              "name": "brief",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "Brief file path or '-' for stdin.",
+              "secondary_opts": [],
+              "opts": [
+                "--brief"
+              ]
+            },
+            {
+              "name": "short_name",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "Ruleset short name for tagging.",
+              "secondary_opts": [],
+              "opts": [
+                "--short-name"
+              ]
+            },
+            {
+              "name": "source_id",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "metadata.source_id value.",
+              "secondary_opts": [],
+              "opts": [
+                "--source-id"
+              ]
+            },
+            {
+              "name": "applies_to",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "metadata.applies_to value.",
+              "secondary_opts": [],
+              "opts": [
+                "--applies-to"
+              ]
+            },
+            {
+              "name": "active_from",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "metadata.active_from (YYYY-MM-DD).",
+              "secondary_opts": [],
+              "opts": [
+                "--active-from"
+              ]
+            },
+            {
+              "name": "output",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Write YAML to this path. Default: stdout.",
+              "secondary_opts": [],
+              "opts": [
+                "-o",
+                "--output"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "list-rules",
+          "help": "List rule ids from a YAML rule set.",
+          "params": [
+            {
+              "name": "ruleset",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "Built-in rule set name or path to a YAML rule set file.",
+              "secondary_opts": [],
+              "opts": [
+                "--ruleset"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mcp",
+          "help": "MCP server commands.",
+          "params": [],
+          "is_group": true
+        },
+        {
+          "full_name": "mcp serve",
+          "help": "Run the pickled-rules MCP server.",
+          "params": [
+            {
+              "name": "transport",
+              "type": "Option",
+              "required": false,
+              "default": "stdio",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--transport"
+              ]
+            },
+            {
+              "name": "host",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--host"
+              ]
+            },
+            {
+              "name": "port",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--port"
+              ]
+            },
+            {
+              "name": "allow_public",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--allow-public"
+              ]
+            }
+          ],
+          "is_group": false
+        }
+      ],
+      "mcp_tools": [
+        {
+          "name": "rules_check_ruleset_coverage",
+          "description": "Check Gherkin features against a YAML rule set (coverage gate).\n\n``feature_texts`` are the **contents** of ``.feature`` files. The\nprevious version accepted server-side filesystem paths, which gave\nany MCP client an arbitrary-file-read primitive via parser error\nmessages — see the module docstring.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "ruleset_yaml_text": {
+                "type": "string"
+              },
+              "feature_texts": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "ruleset_short_name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "ruleset_yaml_text",
+              "feature_texts",
+              "ruleset_short_name"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "rules_draft_ruleset_from_brief",
+          "description": "",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "brief_text": {
+                "type": "string"
+              },
+              "ruleset_short_name": {
+                "type": "string"
+              },
+              "source_id": {
+                "type": "string"
+              },
+              "applies_to": {
+                "type": "string"
+              },
+              "active_from": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "brief_text",
+              "ruleset_short_name",
+              "source_id",
+              "applies_to",
+              "active_from"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "rules_list_rules",
+          "description": "List rule summaries from a YAML rule set.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "ruleset_yaml_text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "ruleset_yaml_text"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "gates": [
+        {
+          "kind": "function",
+          "name": "coverage_gate",
+          "module": "pickled_rules.gates.coverage",
+          "file": "packages/pickled-rules/src/pickled_rules/gates/coverage.py",
+          "line": 42,
+          "returns": "CoverageReport",
+          "docstring_summary": "Compute coverage of ``ruleset`` rules by ``feature`` scenarios."
+        },
+        {
+          "kind": "function",
+          "name": "coverage_gate_features",
+          "module": "pickled_rules.gates.coverage",
+          "file": "packages/pickled-rules/src/pickled_rules/gates/coverage.py",
+          "line": 65,
+          "returns": "CoverageReport",
+          "docstring_summary": "Compute coverage across one or more features (union of scenario tags)."
+        },
+        {
+          "kind": "function",
+          "name": "run_all",
+          "module": "pickled_rules.gates_runner",
+          "file": "packages/pickled-rules/src/pickled_rules/gates_runner.py",
+          "line": 100,
+          "returns": "list[GateResult]",
+          "docstring_summary": "Run coverage gate for each feature against ``pickled.ruleset.yaml``."
+        }
+      ]
+    },
+    "pickled-schema": {
+      "version": "0.1.0.dev0",
+      "description": "Multi-format schema drafting and verification (OpenAPI, JSON Schema, Protobuf).",
+      "scripts": {
+        "pickled-schema": "pickled_schema.cli:main"
+      },
+      "entry_points": {
+        "pickled.mcp.subservers": {
+          "schema": "pickled_schema.mcp_cli:build_server"
+        },
+        "pickled.gates": {
+          "schema": "pickled_schema.gates_runner:run_all"
+        }
+      },
+      "optional_dependencies": [
+        "all-formats",
+        "json-schema",
+        "mcp",
+        "openapi",
+        "proto"
+      ],
+      "cli_commands": [
+        {
+          "full_name": "check",
+          "help": "Run SchemaCoverageGate on @schema:endpoint tags in .feature files.",
+          "params": [
+            {
+              "name": "spec",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--spec"
+              ]
+            },
+            {
+              "name": "feature_dir",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Directory tree containing .feature files.",
+              "secondary_opts": [],
+              "opts": [
+                "--feature-dir"
+              ]
+            },
+            {
+              "name": "feature_glob",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Glob of .feature files (alternative to --feature-dir).",
+              "secondary_opts": [],
+              "opts": [
+                "--feature-glob"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "draft",
+          "help": "Draft an OpenAPI 3.1 path item from a Gherkin scenario.",
+          "params": [
+            {
+              "name": "method",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--method"
+              ]
+            },
+            {
+              "name": "endpoint_path",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--path"
+              ]
+            },
+            {
+              "name": "gherkin_file",
+              "type": "Option",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--gherkin-file"
+              ]
+            },
+            {
+              "name": "output",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "-o",
+                "--output"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "mcp",
+          "help": "MCP server commands.",
+          "params": [],
+          "is_group": true
+        },
+        {
+          "full_name": "mcp serve",
+          "help": "Run the pickled-schema MCP server.",
+          "params": [
+            {
+              "name": "transport",
+              "type": "Option",
+              "required": false,
+              "default": "stdio",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--transport"
+              ]
+            },
+            {
+              "name": "host",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--host"
+              ]
+            },
+            {
+              "name": "port",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--port"
+              ]
+            },
+            {
+              "name": "allow_public",
+              "type": "Option",
+              "required": false,
+              "default": "False",
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "--allow-public"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "parse",
+          "help": "Parse a schema file and print a short summary.",
+          "params": [
+            {
+              "name": "file",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "file"
+              ]
+            },
+            {
+              "name": "fmt",
+              "type": "Option",
+              "required": false,
+              "default": null,
+              "help": "Schema format (auto-detected from extension when omitted).",
+              "secondary_opts": [],
+              "opts": [
+                "--format"
+              ]
+            }
+          ],
+          "is_group": false
+        },
+        {
+          "full_name": "validate",
+          "help": "Validate a schema file against its format specification.",
+          "params": [
+            {
+              "name": "file",
+              "type": "Argument",
+              "required": true,
+              "default": null,
+              "help": "",
+              "secondary_opts": [],
+              "opts": [
+                "file"
+              ]
+            }
+          ],
+          "is_group": false
+        }
+      ],
+      "mcp_tools": [
+        {
+          "name": "schema_check_schema_coverage",
+          "description": "Verify @schema:endpoint tags in features exist in the spec.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "spec_yaml": {
+                "type": "string"
+              },
+              "feature_texts": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "spec_yaml",
+              "feature_texts"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "schema_draft_openapi_endpoint",
+          "description": "Draft an OpenAPI 3.1 path item from Gherkin text.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "method": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "gherkin_text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "method",
+              "path",
+              "gherkin_text"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "name": "schema_validate_openapi_spec",
+          "description": "Validate an OpenAPI YAML document.",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "spec_yaml": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "spec_yaml"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "gates": [
+        {
+          "kind": "class",
+          "name": "SchemaAmbiguityGate.run",
+          "module": "pickled_schema.gates",
+          "file": "packages/pickled-schema/src/pickled_schema/gates.py",
+          "line": 38,
+          "returns": "GateResult",
+          "docstring_summary": "Second LLM critic pass on a drafted SchemaArtifact."
+        },
+        {
+          "kind": "class",
+          "name": "SchemaCoverageGate.run",
+          "module": "pickled_schema.gates",
+          "file": "packages/pickled-schema/src/pickled_schema/gates.py",
+          "line": 110,
+          "returns": "GateResult",
+          "docstring_summary": "Verify @schema:endpoint:* tags in features exist in an OpenAPI spec."
+        },
+        {
+          "kind": "function",
+          "name": "run_all",
+          "module": "pickled_schema.gates_runner",
+          "file": "packages/pickled-schema/src/pickled_schema/gates_runner.py",
+          "line": 15,
+          "returns": "list[GateResult]",
+          "docstring_summary": "Validate OpenAPI under ``specs/`` and run schema coverage on features."
+        }
+      ]
+    }
+  },
+  "adrs": [
+    {
+      "number": "0001",
+      "title": "pickled-diff package",
+      "status": "Proposed",
+      "date": "",
+      "file": "docs/decisions/0001-pickled-diff-package.md",
+      "body": "# ADR-0001: pickled-diff package\n\n- **Status:** Proposed\n- **Date:** 2026-05-19\n- **Deciders:** pickled-spec contributors\n\n## Context\n\nLLM-assisted workflows often produce a **candidate** implementation that must be\nchecked against an existing **reference** program. The pickled-* family already\ncovers strong, medium, and weak oracles for DSL artifacts (Gherkin, OpenAPI,\nTerraform, SQL, YAML rules), but none of them treat “agreement with a trusted\nimplementation on a finite input corpus” as a first-class oracle category.\n\nTeams need deterministic, repeatable differential checks when replacing or\nrefactoring code, without embedding domain logic into shared core libraries.\n\n## Decision\n\nAdd **`pickled-diff`** as a new leaf package introducing:\n\n- The **reference oracle** category in `docs/pattern.md`.\n- **`DifferentialOracleGate`** implementing `pickled_core.Gate`.\n- Pluggable **`OracleRunner`**, **`Corpus`**, and **`Comparator`** protocols.\n- CLI (`pickled-diff verify`, `pickled-diff serve`) and MCP tool\n  `verify_against_oracle`.\n\nTypes such as `DifferentialFinding` and the runner/comparator protocols remain in\n`pickled-diff` until a second consumer justifies promotion to `pickled-core`.\n\n## Consequences\n\n**Positive**\n\n- Fills a documented gap in the oracle taxonomy.\n- Reuses existing `Gate`, `Verdict`, `GateResult`, and MCP scaffolding without\n  bloating `pickled-core`.\n- Zero LLM dependency in the gate path keeps CI hermetic.\n\n**Negative**\n\n- One more workspace member to maintain and eventually add to CI mypy paths.\n- Umbrella MCP and `check-all` integration require entry points (`pickled.mcp.subservers`,\n  `pickled.gates`) registered in `pyproject.toml`.\n\n## Alternatives considered\n\n**Add `DifferentialOracleGate` to `pickled-core`.** Rejected: no concrete gates\nlive in core today; adding domain-shaped findings and runner protocols would break\nthe “core stays small” rule before a second consumer exists.\n\n**Separate repository.** Rejected: the gate shares protocols and MCP patterns with\nsibling packages; monorepo keeps gate signature changes atomic.\n\n**Embed in `pickled-bdd` or another leaf.** Rejected: differential verification is\northogonal to Gherkin and other DSLs; a dedicated package keeps dependencies minimal\n(no Gherkin stack).\n",
+      "supersedes": [],
+      "superseded_by": []
+    },
+    {
+      "number": "0002",
+      "title": "Cache and budget in pickled.config.yaml",
+      "status": "Accepted",
+      "date": "",
+      "file": "docs/decisions/0002-cache-and-budget-in-pickled-config.md",
+      "body": "# ADR-0002: Cache and budget in pickled.config.yaml\n\n- **Status:** Accepted\n- **Date:** 2026-05-19\n- **Deciders:** pickled-spec contributors\n\n## Context\n\n`pickled-core` already ships disk-backed `LLMCache` and a `BudgetGuard` that\ncan cap cumulative LLM spend per process. Until now, leaf MCP servers and\npackage CLIs called `build_client(...)` directly without passing `cache=`, so\nevery `draft_*` and `validate_*` tool hit the live API on each rerun. No\nbootstrap path installed a budget guard, so agent-driven loops had no\ndeterministic cost ceiling.\n\nDogfood workflows and Cursor-native MCP sessions repeat the same prompts\nacross iterations. Without wiring cache and budget at client construction,\ntoken spend scales linearly with retries and a runaway tool loop can exhaust\nquota before an operator notices.\n\n## Decision drivers\n\n- Reduce token cost on repeated dogfood runs without changing gate semantics.\n- Provide an upper bound on runaway LLM loops in long-lived MCP processes.\n- One construction path shared by bdd, schema, and iac (no duplicated factory\n  parsing in each leaf).\n- No new third-party dependencies; existing configs must keep working.\n- Relative cache paths should stay stable when the repo root moves (resolve\n  against the loaded YAML, not the shell CWD).\n\n## Considered options\n\n1. **Env vars only** — `PICKLED_CACHE_DIR`, `PICKLED_MAX_COST_USD`, etc., with\n   no schema change. Rejected: easy to forget in docs; no single file checked\n   into the repo for dogfood; harder to share defaults across teammates.\n\n2. **YAML schema extension + env overrides (chosen)** — optional `cache:` and\n   `budget:` blocks in `pickled.config.yaml`, with env winning on conflict.\n   Central `build_default_client()` in `pickled-core` wires cache, budget, and\n   provider; leaf `_build_llm_client()` functions delegate to it.\n\n3. **Per-leaf YAML keys** — each package defines its own cache/budget section.\n   Rejected: duplication, drift risk, and no shared semantics for\n   `pickled-spec mcp` umbrella behavior.\n\n## Decision outcome\n\nAdopt option 2. Extend `PickledConfig` with `CacheSettings`, `BudgetSettings`,\nand `source_path` (set by `load_config` when a file is read). Add\n`build_default_client()` in `pickled_core.llm.bootstrap` that:\n\n- Honors `PICKLED_*_LLM_FACTORY` for tests (no cache/budget wiring).\n- Installs `BudgetGuard` when `budget.max_cost_usd` or `PICKLED_MAX_COST_USD`\n  is set.\n- Builds `LLMCache` unless cache mode is `off`.\n- Passes the cache into `build_client(provider, config=cfg, cache=cache)`.\n\nLeaf MCP CLIs (`pickled-bdd`, `pickled-schema`, `pickled-iac`) and\n`pickled-bdd` CLI replace inline factory parsing with a single bootstrap call.\n\n## Consequences\n\n**Positive**\n\n- Dogfood reruns can reuse cached completions (large reduction in repeat\n  provider calls when inputs are unchanged).\n- A configured `max_cost_usd` aborts further billed calls once the guard\n  trips.\n- Four copies of `_build_llm_client()` logic collapse to one helper.\n\n**Negative**\n\n- `PickledConfig` grows (`source_path`, `budget`); callers that construct\n  configs manually must accept new defaults.\n\n**Neutral**\n\n- Configs without `cache:` / `budget:` behave as before: cache on at\n  `.pickled-cache` (resolved next to the YAML), no budget cap.\n\n## Path semantics\n\n- Relative `cache.dir` resolves against the directory containing the loaded\n  `pickled.config.yaml` (or XDG path), not the process CWD.\n- `PICKLED_CACHE_DIR` overrides the directory and keeps **CWD-relative**\n  resolution when the env value is relative (shell ergonomics).\n- Absolute `cache.dir` values are unchanged.\n\n## Future work\n\n- Per-run budget reset for long-lived MCP servers (today the guard persists\n  for the process lifetime).\n- Programmatic cache invalidation API (delete by key prefix or provider).\n- Optional YAML knob for budget reset cadence (per tool call vs per session).\n",
+      "supersedes": [],
+      "superseded_by": []
+    },
+    {
+      "number": "0003",
+      "title": "Cache, budget, and model resolution for leaf MCP and CLI",
+      "status": "Accepted",
+      "date": "",
+      "file": "docs/decisions/0003-cache-budget-and-model-resolution.md",
+      "body": "# ADR-0003: Cache, budget, and model resolution for leaf MCP and CLI\n\n- **Status:** Accepted\n- **Date:** 2026-05-25\n- **Deciders:** pickled-spec contributors\n\n## Context\n\n`pickled-core` already ships disk-backed `LLMCache`, a `BudgetGuard`, and\nper-provider `default_model` entries in `pickled.config.yaml`. Until this\nchange, leaf MCP servers and package CLIs called `build_client(...)` without\n`cache=`, so cached completions were never reused. No bootstrap path installed\na budget guard, so agent-driven loops had no deterministic cost ceiling.\n\n`complete_prompt` hardcoded `DEFAULT_MODEL = \"claude-3-5-sonnet-20241022\"`,\nwhich is deprecated upstream. MCP-invoked drafters (`FeatureDrafter`,\n`OpenAPIDrafter`, `IaCDrafter`) therefore 404ed even when the YAML named a\ncurrent model. The provider's `default_model` was parsed but not stored on the\nclient or consulted by `complete_prompt`.\n\n## Decision drivers\n\n- Reduce token spend on repeated dogfood runs without changing gate semantics.\n- Provide an upper bound on runaway LLM loops in long-lived MCP processes.\n- Honor `default_model` from configuration for every one-shot drafter.\n- One construction path shared by bdd, schema, and iac (no duplicated factory\n  parsing in each leaf).\n- No new third-party dependencies; existing configs must keep working.\n- Relative `cache.dir` should resolve against the loaded YAML directory.\n\n## Considered options\n\n1. **Env vars only** — cache and budget via `PICKLED_*` with no schema change.\n   Rejected: easy to omit in docs; no checked-in defaults for dogfood.\n\n2. **YAML schema extension + env overrides (chosen)** — optional `cache:` and\n   `budget:` on `PickledConfig`, env wins on conflict; `build_default_client`\n   composes cache, budget, and provider; `default_model` threaded through\n   `build_client` to each provider client; `complete_prompt` resolves model\n   from the client when not passed explicitly.\n\n3. **Per-leaf YAML keys** — duplicate cache/budget blocks in each package.\n   Rejected: four copies of the same parsing and drift risk.\n\n## Decision\n\nExtend `PickledConfig` with optional `cache:` and `budget:` blocks and\n`source_path` when loading a file. Add `build_default_client` in\n`pickled-core` that installs `BudgetGuard`, builds `LLMCache` unless mode is\n`off`, and calls `build_client(provider, config=cfg, cache=cache)`.\n\nEach provider client accepts `default_model` (with a package-local default).\n`complete_prompt` resolves `model` as: explicit argument, then\n`client.default_model`, then module `DEFAULT_MODEL`.\n\nLeaf MCP CLIs and `pickled-bdd` CLI delegate `_build_llm_client()` to\n`build_default_client` with package-specific `PICKLED_*_LLM_FACTORY` env vars.\nUmbrella `build_server()` paths suppress `click.ClickException` so missing\noptional deps or config still register deterministic tools.\n\n## Consequences\n\n**Positive**\n\n- Large reduction in token spend on dogfood reruns when cache is enabled.\n- Deterministic cost ceiling when `budget.max_cost_usd` or env cap is set.\n- LLM drafters use the configured model; no stale hardcoded model string.\n- Four duplicated `_build_llm_client()` implementations collapse to one helper\n  pattern plus shared bootstrap.\n\n**Negative**\n\n- `PickledConfig.source_path` adds mild API surface growth.\n- Long-lived MCP servers share one process-wide budget guard until reset\n  (documented future work).\n- Relative `PICKLED_CACHE_DIR` env override remains CWD-relative by design.\n\n## Path semantics\n\nRelative `cache.dir` in YAML resolves against `source_path.parent` (the\ndirectory containing `pickled.config.yaml`). When `PICKLED_CACHE_DIR` is set,\nrelative values resolve against the process CWD. Absolute paths are unchanged.\n\n## Future work\n\n- Per-run budget reset for long-lived MCP servers.\n- Programmatic cache invalidation API.\n- Thread `build_default_client` through rules, data, and diff when those\n  packages gain LLM-backed MCP tools.\n",
+      "supersedes": [],
+      "superseded_by": []
+    },
+    {
+      "number": "0004",
+      "title": "Multi-ruleset workspace configuration",
+      "status": "Accepted",
+      "date": "",
+      "file": "docs/decisions/0004-multi-ruleset-workspace.md",
+      "body": "# ADR-0004: Multi-ruleset workspace configuration\n\n- **Status:** Accepted\n- **Date:** 2026-05-25\n- **Deciders:** pickled-spec contributors\n\n## Context\n\n`pickled.ruleset.yaml` was bound to a single rule set per workspace. That forced\nany project with several independent concerns — architectural invariants, OSS\nhygiene checks, and domain-specific best practices — to either merge everything\ninto one YAML file or run multiple `pickled-rules check` invocations outside\n`pickled-spec check-all`.\n\nThe workspace gate runner (`pickled_rules.gates_runner.run_all`) read only a\nsingular `ruleset:` path and emitted one `rules.coverage` verdict. Dogfood and\nmulti-concern workspaces need composable rule sets without losing per-concern\nvisibility in the `check-all` table.\n\n## Decision drivers\n\n- Composability: reuse standalone ruleset files across repos and workspaces.\n- Per-concern verdicts in `check-all` output when several rule sets apply.\n- Backward compatibility with existing `ruleset:` configs (including\n  `examples/user-management-crud/`).\n- Minimal schema surface: one list, optional `short_name`, mutual exclusion with\n  the legacy key.\n- No CLI or MCP changes in this iteration.\n\n## Considered options\n\n1. **Single umbrella ruleset** — merge all rules into one file per workspace.\n   Rejected: prevents reuse of shared rulesets (e.g. OSS hygiene) and blurs\n   ownership of concerns.\n\n2. **Per-ruleset YAML keys** (`ruleset_internal:`, `ruleset_hygiene:`, …).\n   Rejected: not extensible; key names become part of the contract.\n\n3. **`rulesets:` list with backward-compatible `ruleset:` (chosen)** — plural\n   list of `{path, short_name?}` entries; singular form unchanged.\n\n## Decision outcome\n\nOption 3. `_resolve_ruleset_entries` validates and resolves paths relative to\nthe workspace root. `run_all` runs `coverage_gate_features` once per entry.\nWhen exactly one entry is configured, the gate name remains `rules.coverage`.\nWhen multiple entries are configured, gate names are `rules.coverage.<short_name>`.\n\nMixing `ruleset:` and `rulesets:` in the same file raises\n`RuleSetValidationError`. Duplicate `short_name` values in a list are rejected.\n\n## Consequences\n\n**Positive**\n\n- Workspaces can compose orthogonal rulesets in one `check-all` run.\n- Per-ruleset pass/fail rows appear in the output table without CLI changes.\n- Existing single-ruleset configs work without edits.\n\n**Neutral**\n\n- Small internal types (`_RulesetEntry`, `_resolve_ruleset_entries`) and\n  validation messages to maintain.\n\n**Negative**\n\n- Two equivalent configuration shapes; authors must not combine them.\n- Tags for rules not matching any configured `short_name` remain silently\n  ignored (existing `ruleset_filter` behaviour).\n\n## Compatibility\n\nThe single-ruleset gate name stays exactly `rules.coverage` (no namespace\nsuffix). Downstream tests and integrations that assert this string keep working.\nMulti-ruleset configurations use `rules.coverage.<short_name>`.\n\n## Future work\n\n- `--ruleset-list` on `pickled-rules check` to mirror workspace runner behaviour.\n- Cross-ruleset orphan-tag detection for prefixes that match no configured\n  ruleset.\n",
+      "supersedes": [],
+      "superseded_by": []
+    },
+    {
+      "number": "0005",
+      "title": "`pickled-spec mine` staged mining pipeline",
+      "status": "Accepted",
+      "date": "",
+      "file": "docs/decisions/0005-pickled-spec-mine.md",
+      "body": "# ADR-0005: `pickled-spec mine` staged mining pipeline\n\n- **Status:** Accepted\n- **Date:** 2026-05-28\n- **Deciders:** pickled-spec contributors\n\n## Context\n\nHand-running the dogfood loop (inventory → story → feature → tag → gates)\ndid not scale across dozens of CLI commands, MCP tools, and packages.\nWe needed a generic extractor that works on arbitrary Python repos, not a\none-off script tied to this monorepo.\n\nEarly inventory runs missed umbrella MCP tools when `pickled-spec` lived\non a workspace member rather than the root `pyproject.toml`. Story\ngeneration was initially sequential and could run for many minutes on a\nlarge repo without scoping.\n\n## Decision drivers\n\n- Work on any Python repo with Click-discoverable CLIs, not only\n  pickled-spec.\n- Stage isolation: re-run one stage from files on disk.\n- Graceful degradation without an LLM (placeholders, skip features).\n- Actionable errors when stages run out of order.\n- Performance controls (`--surfaces`, parallel quick mode, existing cache).\n\n## Considered options\n\n1. **Monolithic `mine` command** — single run, no intermediate artifacts.\n   Rejected: hard to debug, expensive to repeat one step, poor fit for\n   human review between stages.\n\n2. **Staged pipeline with filesystem contract (chosen)** — each stage reads\n   and writes under `--output`. Enables `mine all` and individual\n   subcommands.\n\n3. **MCP-first mining** — expose stages only as MCP tools. Deferred: CLI\n   first; MCP surface for mine is future work.\n\n## Decision outcome\n\nShip `pickled-spec mine` with six stages: inventory, stories, features,\ntag, evaluate, report. Stages communicate via `inventory.json`,\n`stories/`, `features/`, `tags-proposals.json`, and `evaluation/*.json`.\n`mine all` orchestrates the chain; `--surfaces` filters work per stage.\n\nMCP umbrella detection scans the target root and uv workspace members\nfor `pickled-spec` (or `pickled.mcp.subservers`). Rule set paths in\n`--ruleset-config` resolve relative to the config file directory.\n\nAmbiguity evaluation reuses `pickled_bdd.cli.run_ambiguity_gate`, the\nsame entry point as `pickled-bdd check --gate ambiguity` and the\n`pickled-bdd ambiguity` alias.\n\n## Consequences\n\n**Positive**\n\n- Mining is separate from dogfood: dogfood is one consumer of the same\n  tools.\n- Re-runnable stages and inspectable artifacts.\n- Scoped runs via `--surfaces` keep LLM stages practical on monorepos.\n\n**Negative**\n\n- Disk layout is a public contract; changes need versioning care.\n- Full monorepo mining without `--surfaces` remains LLM-heavy.\n- Evaluate reports gate verdicts as-is; AmbiguityGate threshold tuning is\n  out of scope for mine.\n\n## Future work\n\n- Multi-language inventory (non-Python CLIs).\n- MCP tools wrapping mine stages.\n- AmbiguityGate calibration as its own change set.\n",
+      "supersedes": [],
+      "superseded_by": []
+    },
+    {
+      "number": "0006",
+      "title": "`pickled-spec mine code` static code reading",
+      "status": "Accepted",
+      "date": "",
+      "file": "docs/decisions/0006-mine-code-reading.md",
+      "body": "# ADR-0006: `pickled-spec mine code` static code reading\n\n- **Status:** Accepted\n- **Date:** 2026-05-28\n- **Deciders:** pickled-spec contributors\n\n## Context\n\nInventory and docstrings describe surfaces at a high level. For gates and CLIs\nthat delegate to helpers, the docstring often understates real behaviour\n(temperature, validation, return shape). Phase 8e adds a dedicated **code**\nstage that extracts source for each mined surface and, optionally, a bounded\nset of intra-project callees.\n\n## Decision drivers\n\n- Ground later story generation in **observed code**, not names alone.\n- Stay within stdlib (`ast` only): no grimp/pydeps dependency.\n- Hard caps and a **visited** set so traversal cannot run away on cycles.\n- Optional diagnostic cycle reporting without changing traversal semantics.\n\n## Decision\n\nAdd `pickled-spec mine code` after inventory and before stories in `mine all`.\n\n### Depth modes\n\n| Mode | Content |\n|------|---------|\n| `signature` | Root signature, return annotation, docstring |\n| `body` | Root full function/method body (default) |\n| `callgraph` | Root body plus callee bodies up to `--max-hops` |\n\n### Callee scope\n\n- `self` — methods on the enclosing class (`self.helper()`).\n- `same-package` — `self` plus same-package imports (default).\n- `any-pickled` — same-package plus any `pickled_*` import.\n\n### Bounds\n\n- `--max-callees` (default 8) and `--max-code-lines` (default 400) per surface.\n- `visited` keys (`module:qualname`) prevent re-expansion; this is the cycle\n  safety mechanism.\n- `--detect-cycles` runs a small DFS on collected edges and writes\n  `code-context/_cycles.json` for the run log / report; it does not alter BFS.\n\n### Output\n\n`code-context/<surface-id>.md` per surface. Surfaces without a resolvable\ndefinition (e.g. MCP tool names with no mapped callable) get a placeholder\nfile and the stage continues.\n\n## Known limitations (v1)\n\n- **Protocol / dynamic dispatch** — calls such as `self._llm.complete(...)`\n  where `_llm` is a Protocol or opaque attribute are recorded as *unresolved*\n  callees with a reason; they are not chased.\n- **Python only** — no cross-language call graphs.\n- **Static resolution only** — no runtime type inference or polymorphic targets.\n\nStories do not consume code-context until Phase 8f.\n\n## Resolution patterns and limits (Phase 8e-fix)\n\nEach collected callee records `resolution_kind` on the ref. Default\n`--max-hops` is **2** so one delegation past the entry surface is included.\n\n### Resolved kinds\n\n| Kind | Pattern | Example |\n|------|---------|---------|\n| `free_function` | Same-module or imported callable | `helper()`, `chain.entry()` |\n| `self_method` | `self.method()` on enclosing class | `self.helper()` |\n| `constructor_method` | `Class(args).method()` | `Worker(cfg).process()` |\n| `module_constructor` | `mod.Class(args).method()` | `mod.Worker(cfg).process()` |\n| `annotated_param` | Parameter annotation pins type | `def f(w: Worker): w.m()` |\n| `annotated_var` | Annotated local | `x: Worker = …; x.m()` |\n| `assigned_constructor` | `x = Worker(); x.m()` (stable) | assignment tracking |\n\n`@property`, `@staticmethod`, `@classmethod`, and `async def` bodies resolve\nwhen the receiver type is known. Constructor arguments may contain separate\nresolvable calls (e.g. `Worker(Builder(x).build()).process()`).\n\n### Deliberately unresolved (reason strings)\n\n| Reason | Pattern |\n|--------|---------|\n| `protocol or unknown attribute type` | `self._llm.complete()` (nested attribute on `self`) |\n| `parameter '…' has no type annotation` | `def f(w): w.method()` |\n| `receiver is a subscript expression` | `items[0].method()` |\n| `variable '…' reassigned; type not stable` | `x = Worker(); x = Other(); x.m()` |\n| `receiver is a conditional expression` | `(a if c else b).run()` |\n| `receiver is a return value of unannotated callable` | `factory().build().run()`, `.process().finalize()` |\n| `dynamic attribute access` | `getattr(obj, \"m\")()` |\n| `method not found on class; possibly inherited (base not resolved in v1)` | method absent on declared class |\n| Name collision / unknown receiver | two classes share method name, type not pinned |\n\nInherited methods (MRO) are not walked in v1. Return-type inference for\narbitrary call chains is out of scope. Traversal uses the same caps and\n`visited` set as 8e; cycles are reported via `--detect-cycles` when enabled.\n\n## Consequences\n\n- `mine all` produces `code-context/` for downstream story prompts.\n- Readers must pass inventory first; missing `inventory.json` raises an\n  actionable error naming `mine inventory`.\n",
+      "supersedes": [],
+      "superseded_by": []
+    },
+    {
+      "number": "0007",
+      "title": "Code-aware stories and docstring drift detection",
+      "status": "Accepted",
+      "date": "",
+      "file": "docs/decisions/0007-code-aware-stories-and-drift.md",
+      "body": "# ADR-0007: Code-aware stories and docstring drift detection\n\n- **Status:** Accepted\n- **Date:** 2026-05-28\n- **Deciders:** pickled-spec contributors\n\n## Context\n\nPhase 8e added static code reading (`code-context/<surface-id>.md`).\nPhase 8e-fix hardened the resolver so constructor-then-method patterns\n(e.g. `FeatureDrafter(llm).draft_from_story(story)`) resolve to real\nbodies, not just entry-point glue.\n\nDocstring-only stories (Phase 8d) were too shallow and sometimes wrong.\nOn the real `pickled-bdd` draft surface, a hand-written story claimed the\ndrafter **validates** Gherkin output. Code-reading showed the opposite:\n`draft_from_story`'s docstring states the drafter does **not** validate\n(returned Gherkin is raw; `warnings=()`). Human peer review had introduced\nthat confabulation. The mine pipeline can now ground stories in extracted\nsource instead of inventory summaries alone.\n\n## Decision\n\n### Code-grounded story generation\n\nWhen `code-context/<surface-id>.md` exists under the mining output directory,\nthe stories stage loads root and resolved callee bodies plus the unresolved\ncallee list and passes them to the story prompt together with the surface\ndocstring. The model writes **observable behavior** (contract), not\nimplementation mechanics.\n\n### Decision B: drift detection\n\nThe code is the source of truth. If the docstring **contradicts** the code,\nthe model emits a `---DRIFT---` block; each bullet is rendered under Open\nquestions prefixed with `Docstring drift:`. We do not silently override the\ndocstring or show code and docstring side-by-side without synthesis.\n\nWhen no code-context exists, behavior falls back to Phase 8d docstring-only\nrules and DRIFT is always empty.\n\n### Anti-implementation-leak\n\nStories must not mention line numbers, private method names, or call-chain\nnarration (\"it calls X then Y\"). A reader should understand the contract\nwithout seeing source. The prompt enforces this; tests guard the render path.\n\n### Unresolved-call honesty\n\nCalls the resolver cannot pin (protocol dispatch, dynamic getattr, etc.)\nremain listed in code-context. The prompt forbids inventing behavior behind\nthose calls; delegated behavior is stated as uncertain.\n\n### Friction #15: unresolved noise filtering\n\nBefore reporting unresolved callees, the code reader drops:\n\n- **Stdlib-surface methods** — e.g. `str.strip()`, `Path.read_text()` on\n  receivers that are not resolvable intra-project types.\n- **Decorator registration** — callee scan walks function **bodies** only,\n  so `@main.command()` on the definition is not treated as a behavioral call.\n\n**Limit:** a user-defined method whose name collides with a common builtin\nmethod (e.g. `.strip()`) on an unresolved receiver is also dropped. That\nwould have been unresolved noise anyway; accepted trade-off.\n\n### Provenance metadata\n\nEach story's Metadata section records **Code depth**, **Units read**, and\n**Unresolved** counts when code-context was present, so readers can see how\nstrong the grounding was (`signature` vs `callgraph`).\n\n## Consequences\n\n- `mine all` runs inventory → code → stories; stories auto-detect\n  `code-context/` under `--output`.\n- `mine stories` accepts optional `--code-context` to override the directory.\n- Mine acts as a **docstring drift detector** when docstrings lie or lag code.\n- Story quality scales with `--depth` and `--max-hops` on the code stage.\n- Live LLM quality still depends on the model; tests use canned clients for\n  wiring and anti-leak contracts.\n",
+      "supersedes": [],
+      "superseded_by": []
+    }
+  ],
+  "workspaces": [
+    {
+      "path": "dogfood",
+      "config_file": "dogfood/pickled.ruleset.yaml",
+      "form": "multi",
+      "rulesets": [
+        {
+          "path": "./rulesets/pickled-internal.yaml",
+          "short_name": "pickled-internal",
+          "exists": true
+        },
+        {
+          "path": "./rulesets/best-practices.yaml",
+          "short_name": "best-practices",
+          "exists": true
+        },
+        {
+          "path": "./rulesets/oss-hygiene.yaml",
+          "short_name": "oss-hygiene",
+          "exists": true
+        },
+        {
+          "path": "./rulesets/bdd-domain.yaml",
+          "short_name": "bdd-domain",
+          "exists": true
+        },
+        {
+          "path": "./rulesets/rules-domain.yaml",
+          "short_name": "rules-domain",
+          "exists": true
+        },
+        {
+          "path": "./rulesets/schema-domain.yaml",
+          "short_name": "schema-domain",
+          "exists": true
+        },
+        {
+          "path": "./rulesets/iac-domain.yaml",
+          "short_name": "iac-domain",
+          "exists": true
+        },
+        {
+          "path": "./rulesets/data-domain.yaml",
+          "short_name": "data-domain",
+          "exists": true
+        },
+        {
+          "path": "./rulesets/diff-domain.yaml",
+          "short_name": "diff-domain",
+          "exists": true
+        },
+        {
+          "path": "./rulesets/core-domain.yaml",
+          "short_name": "core-domain",
+          "exists": true
+        }
+      ],
+      "feature_count": 1,
+      "story_count": 0
+    },
+    {
+      "path": "examples/user-management-crud",
+      "config_file": "examples/user-management-crud/pickled.ruleset.yaml",
+      "form": "single",
+      "rulesets": [
+        {
+          "path": "../../packages/pickled-rules/rulesets/examples/gdpr-web-crud.yaml",
+          "short_name": "gdpr-web-crud",
+          "exists": true
+        }
+      ],
+      "feature_count": 5,
+      "story_count": 0
+    }
+  ],
+  "warnings": [],
+  "surface_relevant_adrs": {
+    "bdd_draft_feature_from_story": [],
+    "bdd_validate_feature_ambiguity": [
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      },
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_bdd_ambiguity": [
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_bdd_check": [],
+    "pickled_bdd_draft": [],
+    "pickled_bdd_mcp": [],
+    "pickled_bdd_ambiguitygate": [
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_bdd_run_all": [],
+    "pickled_core_check_all": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": true
+      }
+    ],
+    "pickled_core_mine": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": true
+      }
+    ],
+    "pickled_core_mine_all": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": true
+      }
+    ],
+    "pickled_core_mine_code": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": true
+      }
+    ],
+    "pickled_core_mine_evaluate": [
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_core_mine_features": [
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_core_mine_inventory": [
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      },
+      {
+        "number": "0006",
+        "title": "`pickled-spec mine code` static code reading",
+        "status": "Accepted",
+        "general": false
+      },
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_core_mine_report": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": true
+      }
+    ],
+    "pickled_core_mine_stories": [
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_core_mine_tag": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": true
+      }
+    ],
+    "data_apply_sql_to_sandbox": [],
+    "data_check_migration_drift": [
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "data_draft_sql_migration_from_intent": [],
+    "data_parse_sql_migration": [],
+    "pickled_data_apply": [],
+    "pickled_data_check_drift": [
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_data_draft": [],
+    "pickled_data_mcp": [],
+    "pickled_data_parse": [],
+    "pickled_data_datacontractgate": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": false
+      },
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      },
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_data_migrationdriftgate": [
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_data_run_all": [],
+    "diff_draft_corpus_from_examples": [
+      {
+        "number": "0001",
+        "title": "pickled-diff package",
+        "status": "Proposed",
+        "general": false
+      },
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "diff_verify_against_oracle": [
+      {
+        "number": "0001",
+        "title": "pickled-diff package",
+        "status": "Proposed",
+        "general": false
+      }
+    ],
+    "pickled_diff_draft_corpus": [
+      {
+        "number": "0001",
+        "title": "pickled-diff package",
+        "status": "Proposed",
+        "general": false
+      }
+    ],
+    "pickled_diff_mcp": [
+      {
+        "number": "0001",
+        "title": "pickled-diff package",
+        "status": "Proposed",
+        "general": false
+      }
+    ],
+    "pickled_diff_verify": [
+      {
+        "number": "0001",
+        "title": "pickled-diff package",
+        "status": "Proposed",
+        "general": false
+      }
+    ],
+    "pickled_diff_run_all": [
+      {
+        "number": "0001",
+        "title": "pickled-diff package",
+        "status": "Proposed",
+        "general": false
+      }
+    ],
+    "iac_diff_terraform_plans": [
+      {
+        "number": "0001",
+        "title": "pickled-diff package",
+        "status": "Proposed",
+        "general": false
+      }
+    ],
+    "iac_draft_terraform_module": [
+      {
+        "number": "0001",
+        "title": "pickled-diff package",
+        "status": "Proposed",
+        "general": false
+      }
+    ],
+    "iac_explain_plan_diff": [],
+    "iac_suggest_security_remediation": [],
+    "iac_validate_terraform_dir": [
+      {
+        "number": "0001",
+        "title": "pickled-diff package",
+        "status": "Proposed",
+        "general": false
+      },
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_iac_diff": [],
+    "pickled_iac_draft": [],
+    "pickled_iac_mcp": [],
+    "pickled_iac_plan_cmd": [],
+    "pickled_iac_scan": [],
+    "pickled_iac_validate": [
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_iac_iacambiguitygate": [
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_iac_plandiffgate": [],
+    "pickled_iac_securitybaselinegate": [],
+    "pickled_iac_run_all": [],
+    "rules_check_ruleset_coverage": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "rules_draft_ruleset_from_brief": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "rules_list_rules": [],
+    "pickled_rules_check": [],
+    "pickled_rules_draft": [],
+    "pickled_rules_list_rules": [],
+    "pickled_rules_mcp": [],
+    "pickled_rules_coverage_gate": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_rules_coverage_gate_features": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": false
+      },
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_rules_run_all": [],
+    "schema_check_schema_coverage": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "schema_draft_openapi_endpoint": [],
+    "schema_validate_openapi_spec": [
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_schema_check": [],
+    "pickled_schema_draft": [],
+    "pickled_schema_mcp": [],
+    "pickled_schema_parse": [],
+    "pickled_schema_validate": [
+      {
+        "number": "0007",
+        "title": "Code-aware stories and docstring drift detection",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_schema_schemaambiguitygate": [
+      {
+        "number": "0005",
+        "title": "`pickled-spec mine` staged mining pipeline",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_schema_schemacoveragegate": [
+      {
+        "number": "0004",
+        "title": "Multi-ruleset workspace configuration",
+        "status": "Accepted",
+        "general": false
+      }
+    ],
+    "pickled_schema_run_all": []
+  }
+}

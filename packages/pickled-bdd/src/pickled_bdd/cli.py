@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import click
 from pathlib import Path
 
-import click
-from pickled_core.llm import LLMClient
+from pickled_core import AmbiguityFinding, GateResult, LLMClient, Verdict
 
 from pickled_bdd.drafter import FeatureDrafter
 
@@ -37,34 +37,23 @@ def draft(story_file: str, output: str | None) -> None:
         click.echo(result.text)
 
 
-@main.command()
-@click.argument("feature_file", type=click.Path(exists=True, dir_okay=False))
-@click.option(
-    "--gate",
-    type=click.Choice(["ambiguity", "all"]),
-    default="ambiguity",
-    show_default=True,
-    help="Which gate to run.",
-)
-def check(feature_file: str, gate: str) -> None:
-    """Run compensating gates against a .feature file."""
-    import json as _json
-    import sys
-
-    from pickled_core import AmbiguityFinding, Verdict
-
+def run_ambiguity_gate(feature_file: str | Path, llm: LLMClient | None) -> GateResult:
+    """Canonical ambiguity gate entry point (CLI, alias, mine evaluate)."""
     from pickled_bdd.adapters.pytest_bdd import PytestBddAdapter
     from pickled_bdd.gates.ambiguity import AmbiguityGate
 
-    _ = gate  # v0.1: only ambiguity; "all" resolves to the same gate.
+    feature = PytestBddAdapter().parse_feature_file(str(feature_file))
+    if llm is None:
+        return GateResult(
+            gate_name="ambiguity",
+            verdict=Verdict.PASS,
+            notes="LLM unavailable; ambiguity gate skipped",
+        )
+    return AmbiguityGate(llm).run(feature)
 
-    feature = PytestBddAdapter().parse_feature_file(feature_file)
-    llm = _build_llm_client()
 
-    gate_impl = AmbiguityGate(llm)
-    result = gate_impl.run(feature)
-
-    output = {
+def _ambiguity_result_to_json(result: GateResult) -> dict[str, object]:
+    return {
         "gate": result.gate_name,
         "verdict": result.verdict.value,
         "notes": result.notes,
@@ -78,10 +67,46 @@ def check(feature_file: str, gate: str) -> None:
             if isinstance(f, AmbiguityFinding)
         ],
     }
-    click.echo(_json.dumps(output, indent=2, ensure_ascii=False))
+
+
+def _exit_for_verdict(verdict: Verdict) -> None:
+    import sys
 
     exit_codes = {Verdict.PASS: 0, Verdict.WARN: 1, Verdict.FAIL: 2}
-    sys.exit(exit_codes[result.verdict])
+    sys.exit(exit_codes[verdict])
+
+
+@main.command()
+@click.argument("feature_file", type=click.Path(exists=True, dir_okay=False))
+@click.option(
+    "--gate",
+    type=click.Choice(["ambiguity", "all"]),
+    default="ambiguity",
+    show_default=True,
+    help="Which gate to run.",
+)
+def check(feature_file: str, gate: str) -> None:
+    """Run compensating gates against a .feature file."""
+    import json as _json
+
+    _ = gate  # v0.1: only ambiguity; "all" resolves to the same gate.
+    llm = _build_llm_client()
+    result = run_ambiguity_gate(feature_file, llm)
+    click.echo(_json.dumps(_ambiguity_result_to_json(result), indent=2, ensure_ascii=False))
+    _exit_for_verdict(result.verdict)
+
+
+@main.command()
+@click.argument("feature_file", type=click.Path(exists=True, dir_okay=False))
+def ambiguity(feature_file: str) -> None:
+    """Run the ambiguity gate (alias for ``check --gate ambiguity``)."""
+    import json as _json
+
+    click.echo("(equivalent to: pickled-bdd check --gate ambiguity)", err=True)
+    llm = _build_llm_client()
+    result = run_ambiguity_gate(feature_file, llm)
+    click.echo(_json.dumps(_ambiguity_result_to_json(result), indent=2, ensure_ascii=False))
+    _exit_for_verdict(result.verdict)
 
 
 @main.group()

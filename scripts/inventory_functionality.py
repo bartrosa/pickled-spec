@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from pickled_core.mine import inventory_lib
+from pickled_core.mine.inventory_stage import enrich_inventory_data
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -108,6 +109,7 @@ def main(argv: list[str] | None = None) -> int:
         verbose=args.verbose,
     )
     payload = inv.to_dict(REPO_ROOT)
+    enrich_inventory_data(payload, REPO_ROOT)
 
     emit_json = args.format in ("both", "json")
     emit_md = args.format in ("both", "md")

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 import sqlglot
 from pickled_core.llm.base import LLMClient, Message
+from pickled_core.llm.sanitize import strip_markdown_fence
 
 RATIONALE_SENTINEL = "---RATIONALE---"
 _DRAFT_MODEL = "claude-sonnet-4-5-20250929"
@@ -44,7 +45,7 @@ class MigrationDrafter:
             stop=None,
             extras=None,
         )
-        text, rationale = self._split_output(completion.text)
+        text, rationale = self._split_output(strip_markdown_fence(completion.text))
         warnings = tuple(self._validate(text, dialect=dialect))
         return DraftResult(text=text, rationale=rationale, warnings=warnings)
 

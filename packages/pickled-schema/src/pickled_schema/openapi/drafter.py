@@ -7,6 +7,8 @@ from typing import Any
 
 import yaml
 from pickled_core import LLMClient, PromptTemplate
+from pickled_core.llm.sanitize import strip_markdown_fence
+from pickled_core.llm.turns import complete_prompt
 
 from pickled_schema.openapi.validator import validate_openapi_dict
 from pickled_schema.types import SchemaArtifact, SchemaFormat, SchemaValidationError
@@ -61,14 +63,12 @@ class OpenAPIDrafter:
                 gherkin_context=gherkin_context + extra,
                 existing_component_names=", ".join(components) or "(none)",
             )
-            from pickled_core.llm.turns import complete_prompt
-
             raw = complete_prompt(
                 self._llm,
                 prompt,
                 system="Output only YAML for the path item. No fences, no prose.",
             )
-            loaded = yaml.safe_load(raw.strip())
+            loaded = yaml.safe_load(strip_markdown_fence(raw))
             if not isinstance(loaded, dict):
                 last_error = "LLM output is not a YAML mapping"
                 continue
