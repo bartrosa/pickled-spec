@@ -66,3 +66,33 @@ def test_allow_loopback_and_specific_hosts_without_flag(host: str) -> None:
     """Loopback addresses and specific hostnames must not be misidentified as wildcards."""
     kw = resolve_transport("http", host, None, False)
     assert kw["host"] == host
+
+
+@pytest.mark.parametrize(
+    "host",
+    ["0", "0.0", "0.0.0", "0x0", "00000000", "0.00.0.0", " 0 ", "0x00000000"],
+)
+def test_refuse_inet_aton_short_forms_without_flag(host: str) -> None:
+    """``inet_aton``-style short forms of 0.0.0.0 must also require --allow-public.
+
+    POSIX ``socket.bind(("0", port))``, ``("0.0", port)`` etc. silently
+    canonicalise to ``0.0.0.0`` — the very bypass we are guarding against.
+    """
+    with pytest.raises(RuntimeError, match="wildcard"):
+        resolve_transport("http", host, None, False)
+
+
+@pytest.mark.parametrize(
+    "host",
+    ["1", "127", "127.1", "10.0.0.1", "0.0.0.1", "0.1.0.0"],
+)
+def test_allow_inet_aton_specific_addresses_without_flag(host: str) -> None:
+    """``inet_aton``-style short forms that resolve to a *specific* address are fine."""
+    kw = resolve_transport("http", host, None, False)
+    assert kw["host"] == host
+
+
+def test_hostnames_with_zero_letters_are_not_wildcards() -> None:
+    """A hostname like 'zero.example.com' must not be misclassified as a wildcard."""
+    kw = resolve_transport("http", "zero.example.com", None, False)
+    assert kw["host"] == "zero.example.com"
