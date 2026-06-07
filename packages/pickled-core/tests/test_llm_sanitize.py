@@ -246,6 +246,7 @@ def test_iac_drafter_strips_fence() -> None:
 
     with (
         patch("pickled_iac.drafter.iac_binary", return_value="terraform"),
+        patch("pickled_iac.drafter.iac_format", return_value="terraform"),
         patch(
             "pickled_iac.drafter.validate",
             return_value=ValidateResult(valid=True, diagnostics=()),
