@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import importlib
 import json
-import os
 import tempfile
 from pathlib import Path
-from typing import cast
 
 import click
 from pickled_core import LLMClient, Verdict
+from pickled_core.llm.bootstrap import build_default_client
 from pickled_core.llm.config import ConfigError
 
 from pickled_iac.drafter import IaCDrafter
@@ -20,22 +18,14 @@ from pickled_iac.types import IaCToolMissingError
 
 
 def _build_llm_client() -> LLMClient:
-    factory = os.environ.get("PICKLED_IAC_LLM_FACTORY")
-    if factory:
-        module_name, sep, attr = factory.partition(":")
-        if not sep:
-            raise click.ClickException(
-                "PICKLED_IAC_LLM_FACTORY must be 'module:callable'"
-            )
-        module = importlib.import_module(module_name)
-        return cast(LLMClient, getattr(module, attr)())
+    """Build an LLM client honoring config, env, cache, and budget.
 
-    from pickled_core.llm.config import load_config
-    from pickled_core.llm.factory import build_client
-
-    provider = os.environ.get("PICKLED_LLM_PROVIDER", "anthropic")
+    Uses :func:`build_default_client` so the user's ``budget.max_cost_usd``
+    cap (and disk cache) installed via ``pickled.config.yaml`` /
+    ``PICKLED_MAX_COST_USD`` are actually enforced for ``pickled-iac draft``.
+    """
     try:
-        return build_client(provider, config=load_config())
+        return build_default_client(factory_env="PICKLED_IAC_LLM_FACTORY")
     except ConfigError as exc:
         raise click.ClickException(str(exc)) from exc
 
