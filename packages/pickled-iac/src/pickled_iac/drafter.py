@@ -9,7 +9,7 @@ from pickled_core import LLMClient, PromptTemplate
 from pickled_core.llm.sanitize import strip_markdown_fence
 from pickled_core.llm.turns import complete_prompt
 
-from pickled_iac.oracle import iac_binary, validate
+from pickled_iac.oracle import iac_binary, iac_format, validate
 from pickled_iac.types import IaCArtifact
 
 
@@ -30,8 +30,8 @@ class IaCDrafter:
         provider: str = "aws",
     ) -> IaCArtifact:
         """Draft, validate in a temp dir, and return an IaCArtifact."""
-        binary = iac_binary()
-        fmt: str = "opentofu" if binary == "opentofu" else "terraform"
+        iac_binary()
+        fmt = iac_format()
         last_error = ""
 
         for _attempt in range(3):
@@ -56,7 +56,7 @@ class IaCDrafter:
                 (root / "main.tf").write_text(hcl, encoding="utf-8")
                 result = validate(root)
             if result.valid:
-                return IaCArtifact(content=hcl, format=fmt, path=None)  # type: ignore[arg-type]
+                return IaCArtifact(content=hcl, format=fmt, path=None)
             last_error = "; ".join(result.diagnostics) or "validation failed"
 
         msg = f"failed to draft valid Terraform after 3 attempts: {last_error}"

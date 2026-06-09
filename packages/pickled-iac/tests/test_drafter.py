@@ -51,7 +51,20 @@ def test_drafter_returns_artifact_when_validate_passes() -> None:
     with (
         patch("pickled_iac.drafter.validate", return_value=ValidateResult(valid=True)),
         patch("pickled_iac.drafter.iac_binary", return_value="terraform"),
+        patch("pickled_iac.drafter.iac_format", return_value="terraform"),
     ):
         artifact = IaCDrafter(fake).draft_module("Need a bucket", provider="aws")
     assert "aws_s3_bucket" in artifact.content
     assert artifact.format == "terraform"
+
+
+def test_drafter_uses_opentofu_label_when_only_tofu_on_path() -> None:
+    """OpenTofu's binary is ``tofu``; format label stays ``opentofu``."""
+    fake = FakeLLMClient(_VALID_TF)
+    with (
+        patch("pickled_iac.drafter.validate", return_value=ValidateResult(valid=True)),
+        patch("pickled_iac.drafter.iac_binary", return_value="tofu"),
+        patch("pickled_iac.drafter.iac_format", return_value="opentofu"),
+    ):
+        artifact = IaCDrafter(fake).draft_module("Need a bucket", provider="aws")
+    assert artifact.format == "opentofu"

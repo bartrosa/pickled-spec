@@ -12,23 +12,33 @@ from typing import Any, Literal
 
 from pickled_iac.types import IaCToolMissingError, PlanResult, ValidateResult
 
-_IAC_BIN: Literal["terraform", "opentofu"] | None
+# The executable name to invoke via subprocess. OpenTofu's binary is ``tofu``
+# (see https://opentofu.org/docs/intro/install/); ``opentofu`` is the format
+# label only, never an installed binary, so we MUST keep these two separate
+# or every drafter / validate / plan call fails with FileNotFoundError on
+# OpenTofu-only hosts.
+_IAC_BIN: Literal["terraform", "tofu"] | None
 if shutil.which("terraform"):
     _IAC_BIN = "terraform"
 elif shutil.which("tofu"):
-    _IAC_BIN = "opentofu"
+    _IAC_BIN = "tofu"
 else:
     _IAC_BIN = None
 
 
-def iac_binary() -> Literal["terraform", "opentofu"]:
-    """Return the detected IaC CLI binary name."""
+def iac_binary() -> Literal["terraform", "tofu"]:
+    """Return the IaC CLI executable name to pass to :func:`subprocess.run`."""
     if _IAC_BIN is None:
         raise IaCToolMissingError(
             "neither 'terraform' nor 'tofu' found on PATH; "
             "install Terraform >=1.7.5 or OpenTofu >=1.8"
         )
     return _IAC_BIN
+
+
+def iac_format() -> Literal["terraform", "opentofu"]:
+    """Return the human-facing format label (``terraform`` or ``opentofu``)."""
+    return "opentofu" if iac_binary() == "tofu" else "terraform"
 
 
 def _run(cmd: list[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
@@ -42,7 +52,7 @@ def _run(cmd: list[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-def _init_if_needed(tf_dir: Path, binary: Literal["terraform", "opentofu"]) -> None:
+def _init_if_needed(tf_dir: Path, binary: Literal["terraform", "tofu"]) -> None:
     if (tf_dir / ".terraform").exists():
         return
     init = _run([binary, "init", "-input=false", "-backend=false"], cwd=tf_dir)
@@ -57,7 +67,7 @@ def validate(tf_dir: Path) -> ValidateResult:
     binary = iac_binary()
     _init_if_needed(tf_dir, binary)
     proc = _run([binary, "validate", "-json"], cwd=tf_dir)
-    fmt: Literal["terraform", "opentofu"] = "opentofu" if binary == "opentofu" else "terraform"
+    fmt = iac_format()
     if proc.returncode != 0 and not proc.stdout.strip():
         err = (proc.stderr or "validate failed").strip()
         return ValidateResult(valid=False, diagnostics=[err], format=fmt)
@@ -94,7 +104,7 @@ def plan(tf_dir: Path, out_file: Path) -> PlanResult:
         msg = f"{binary} show failed: {err}"
         raise RuntimeError(msg)
     plan_json = json.loads(show_proc.stdout or "{}")
-    fmt: Literal["terraform", "opentofu"] = "opentofu" if binary == "opentofu" else "terraform"
+    fmt = iac_format()
     return PlanResult(plan_json=plan_json, plan_file=out_file, format=fmt)
 
 
@@ -157,6 +167,7 @@ def plan_json_from_dict(plan_data: dict[str, Any]) -> dict[str, Any]:
 __all__ = [
     "UnsafeTerraformFilenameError",
     "iac_binary",
+    "iac_format",
     "plan",
     "plan_json_from_dict",
     "validate",
