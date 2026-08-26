@@ -47,7 +47,7 @@ def _filter_story_paths(
     return filtered
 
 
-async def _draft_one(
+def _draft_one_sync(
     story_path: Path,
     feature_path: Path,
     llm: LLMClient,
@@ -55,6 +55,15 @@ async def _draft_one(
     overwrite: bool,
     interactive: bool,
 ) -> FeatureResult:
+    """Draft one feature synchronously (used by both serial and parallel paths).
+
+    This function performs blocking I/O (LLM HTTP call + file writes). The
+    parallel path schedules it on a worker thread via :func:`asyncio.to_thread`
+    so that ``--max-parallel`` actually overlaps LLM calls. Calling the LLM
+    directly inside an ``async def`` would block the event loop and serialise
+    every draft, defeating the flag (and producing N×slower mining runs for
+    workspaces with many surfaces).
+    """
     surface_id = _story_surface_id(story_path)
     if feature_path.is_file() and not overwrite:
         return FeatureResult(
@@ -122,7 +131,8 @@ async def _run_parallel(
     async def _one(story_path: Path, feature_path: Path) -> None:
         async with sem:
             results.append(
-                await _draft_one(
+                await asyncio.to_thread(
+                    _draft_one_sync,
                     story_path,
                     feature_path,
                     llm,
@@ -178,19 +188,16 @@ def run_features(
             _run_parallel(jobs, llm, overwrite=overwrite, max_parallel=max_parallel)
         )
     else:
-        results = []
-        for story_path, feature_path in jobs:
-            results.append(
-                asyncio.run(
-                    _draft_one(
-                        story_path,
-                        feature_path,
-                        llm,
-                        overwrite=overwrite,
-                        interactive=True,
-                    )
-                )
+        results = [
+            _draft_one_sync(
+                story_path,
+                feature_path,
+                llm,
+                overwrite=overwrite,
+                interactive=True,
             )
+            for story_path, feature_path in jobs
+        ]
 
     return FeaturesStageResult(output_dir=paths.root, results=results, skipped_entire_stage=False)
 
